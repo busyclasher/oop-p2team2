@@ -4,12 +4,14 @@ import io.github.some_example_name.model.*;
 import io.github.some_example_name.systems.*;
 import io.github.some_example_name.command.*;
 import io.github.some_example_name.validation.*;
+import io.github.some_example_name.observer.*;
 
 /**
  * Central game state manager that ties all systems together.
  * Manages the game loop, scoring, threats, and player progress.
+ * Extends GameEventNotifier to implement the Observer pattern.
  */
-public class GameSession {
+public class GameSession extends GameEventNotifier {
     
     public enum GameState {
         MENU,
@@ -24,7 +26,7 @@ public class GameSession {
     private final SecureAccountBuilder accountBuilder;
     private final ScoringSystem scoringSystem;
     private final RiskMeter riskMeter;
-    private final ThreatEventManager threatManager;
+    private ThreatEventManager threatManager;
     private final CommandHistory commandHistory;
     private final AccountValidator validator;
     
@@ -36,6 +38,12 @@ public class GameSession {
     private CybersecurityFact currentFact;
     private ThreatEvent activeThreat;
     private float threatDisplayTimer;
+    private DifficultyLevel difficulty;
+    
+    // Cached values for Observer notifications
+    private int lastScore;
+    private int lastRisk;
+    private int lastCombo;
     
     // Configuration
     private static final float FACT_CHANGE_INTERVAL = 8f; // seconds
@@ -43,10 +51,15 @@ public class GameSession {
     private static final int MAX_LEVELS = 5;
     
     public GameSession() {
+        this(DifficultyLevel.NORMAL);
+    }
+    
+    public GameSession(DifficultyLevel difficulty) {
+        this.difficulty = difficulty;
         this.accountBuilder = new SecureAccountBuilder();
         this.scoringSystem = new ScoringSystem();
         this.riskMeter = new RiskMeter();
-        this.threatManager = new ThreatEventManager();
+        this.threatManager = createThreatManager(difficulty);
         this.commandHistory = new CommandHistory();
         this.validator = new AccountValidator();
         
@@ -58,12 +71,49 @@ public class GameSession {
         this.activeThreat = null;
         this.threatDisplayTimer = 0;
         
+        this.lastScore = 0;
+        this.lastRisk = 0;
+        this.lastCombo = 1;
+        
         // Start with empty account
         this.currentAccount = new SecureAccount();
     }
     
     /**
-     * Start a new game.
+     * Create a threat manager configured for the given difficulty.
+     */
+    private ThreatEventManager createThreatManager(DifficultyLevel diff) {
+        return new ThreatEventManager(
+            diff.getMinTimeBetweenEvents(),
+            diff.getMaxTimeBetweenEvents(),
+            diff.getSpawnProbability()
+        );
+    }
+    
+    /**
+     * Set the difficulty level. Can be called before starting a game.
+     */
+    public void setDifficulty(DifficultyLevel difficulty) {
+        this.difficulty = difficulty;
+        this.threatManager = createThreatManager(difficulty);
+    }
+    
+    /**
+     * Cycle to the next difficulty level.
+     */
+    public void cycleDifficulty() {
+        setDifficulty(difficulty.next());
+    }
+    
+    /**
+     * Get the current difficulty level.
+     */
+    public DifficultyLevel getDifficulty() {
+        return difficulty;
+    }
+    
+    /**
+     * Start a new game with current difficulty.
      */
     public void startGame() {
         state = GameState.PLAYING;
@@ -71,10 +121,16 @@ public class GameSession {
         gameTime = 0;
         scoringSystem.reset();
         riskMeter.reset();
+        threatManager = createThreatManager(difficulty);
         threatManager.reset();
         commandHistory.clear();
         currentAccount = new SecureAccount();
         currentFact = CybersecurityFact.getRandomFact();
+        activeThreat = null;
+        
+        lastScore = 0;
+        lastRisk = 0;
+        lastCombo = 1;
     }
     
     /**
@@ -115,9 +171,36 @@ public class GameSession {
         // Update risk calculation
         riskMeter.calculateRisk(currentAccount);
         
+        // Check for Observer notifications
+        checkAndNotifyChanges();
+        
         // Check for game over (risk too high)
         if (riskMeter.getCurrentRisk() >= 100) {
             state = GameState.GAME_OVER;
+        }
+    }
+    
+    /**
+     * Check for changes and notify observers.
+     */
+    private void checkAndNotifyChanges() {
+        int currentScore = scoringSystem.getTotalScore();
+        int currentRisk = riskMeter.getCurrentRisk();
+        int currentCombo = scoringSystem.getComboMultiplier();
+        
+        if (currentScore != lastScore) {
+            notifyScoreChanged(lastScore, currentScore, currentScore - lastScore);
+            lastScore = currentScore;
+        }
+        
+        if (currentRisk != lastRisk) {
+            notifyRiskChanged(lastRisk, currentRisk);
+            lastRisk = currentRisk;
+        }
+        
+        if (currentCombo != lastCombo) {
+            notifyComboChanged(lastCombo, currentCombo);
+            lastCombo = currentCombo;
         }
     }
     
@@ -128,10 +211,15 @@ public class GameSession {
         activeThreat = threatManager.generateRandomEvent();
         threatDisplayTimer = 0;
         
-        // Calculate and apply impact
-        int impact = activeThreat.calculateImpact(currentAccount);
+        // Calculate and apply impact with difficulty multiplier
+        int baseImpact = activeThreat.calculateImpact(currentAccount);
+        int impact = (int)(baseImpact * difficulty.getThreatDamageMultiplier());
+        
         scoringSystem.applyPenalty(impact);
         riskMeter.addRisk(impact / 10); // Add risk based on damage
+        
+        // Notify observers of threat
+        notifyThreatTriggered(activeThreat.getName(), impact);
     }
     
     /**
@@ -142,6 +230,9 @@ public class GameSession {
         AddComponentCommand cmd = new AddComponentCommand(currentAccount, component);
         commandHistory.executeCommand(cmd);
         riskMeter.calculateRisk(currentAccount);
+        
+        // Notify observers of component change
+        notifyComponentChanged(component.getType().getDisplayName(), component.getValue());
     }
     
     /**
@@ -154,15 +245,24 @@ public class GameSession {
             RemoveComponentCommand cmd = new RemoveComponentCommand(currentAccount, type);
             commandHistory.executeCommand(cmd);
             riskMeter.calculateRisk(currentAccount);
+            
+            // Notify observers
+            notifyComponentChanged(type.getDisplayName(), "Removed");
         }
     }
     
     /**
      * Submit the current account build for scoring.
-     * @return Score earned
+     * @return Score earned (with difficulty multiplier applied)
      */
     public int submitBuild() {
-        int score = scoringSystem.submitBuild(currentAccount);
+        int baseScore = scoringSystem.submitBuild(currentAccount);
+        int finalScore = (int)(baseScore * difficulty.getScoreMultiplier());
+        
+        // Add bonus for difficulty multiplier
+        if (difficulty.getScoreMultiplier() > 1.0f) {
+            scoringSystem.addBonus(finalScore - baseScore);
+        }
         
         // Check if level is complete (all components + validation passed)
         if (currentAccount.isComplete() && validator.isValid(currentAccount)) {
@@ -173,7 +273,7 @@ public class GameSession {
             }
         }
         
-        return score;
+        return finalScore;
     }
     
     /**

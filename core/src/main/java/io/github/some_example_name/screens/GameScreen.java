@@ -20,6 +20,7 @@ import io.github.some_example_name.Main;
 import io.github.some_example_name.model.*;
 import io.github.some_example_name.systems.*;
 import io.github.some_example_name.validation.*;
+import io.github.some_example_name.observer.*;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ import java.util.List;
  * Main gameplay screen that renders the game UI with animations and visual polish.
  * Displays scores, risk meter, security components, and educational facts.
  */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen, GameEventListener {
     
     private final Main game;
     private final GameSession session;
@@ -49,6 +50,12 @@ public class GameScreen implements Screen {
     private float factFadeAlpha = 1f;
     private float threatPulse = 0f;
     private float[] slotGlowTimers = new float[5];
+    
+    // Observer effect timers
+    private float comboFlashTimer = 0f;
+    private float riskFlashTimer = 0f;
+    private String lastEventMessage = "";
+    private float eventMessageTimer = 0f;
     
     // Screen dimensions
     private static final float WORLD_WIDTH = 1280;
@@ -105,6 +112,9 @@ public class GameScreen implements Screen {
         smallFont.setColor(DIM_COLOR);
         
         layout = new GlyphLayout();
+        
+        // Register as Observer for game events
+        session.addListener(this);
         
         // Start the game
         session.startGame();
@@ -224,6 +234,11 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyJustPressed(Input.Keys.R)) {
             session.startGame();
             addDemoComponents();
+        }
+        
+        // Cycle difficulty (only in menu or when game just started)
+        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
+            session.cycleDifficulty();
         }
     }
     
@@ -352,15 +367,21 @@ public class GameScreen implements Screen {
         titleFont.setColor(NEON_CYAN);
         titleFont.draw(batch, "SECURE ACCOUNT BUILDER", PADDING, WORLD_HEIGHT - 25);
         
+        // Difficulty badge
+        DifficultyLevel diff = session.getDifficulty();
+        float[] diffColor = diff.getColor();
+        font.setColor(diffColor[0], diffColor[1], diffColor[2], 1f);
+        font.draw(batch, diff.getDisplayName().toUpperCase(), 420, WORLD_HEIGHT - 30);
+        
         // Level badge
         font.setColor(NEON_PURPLE);
-        String levelText = "LEVEL " + session.getCurrentLevel();
-        font.draw(batch, levelText, 450, WORLD_HEIGHT - 30);
+        String levelText = "LVL " + session.getCurrentLevel();
+        font.draw(batch, levelText, 540, WORLD_HEIGHT - 30);
         
         // Time with subtle pulse
         float timePulse = 0.8f + 0.2f * MathUtils.sin(animTime * 3);
         font.setColor(TEXT_COLOR.r * timePulse, TEXT_COLOR.g * timePulse, TEXT_COLOR.b * timePulse, 1f);
-        font.draw(batch, session.getFormattedTime(), 600, WORLD_HEIGHT - 30);
+        font.draw(batch, session.getFormattedTime(), 640, WORLD_HEIGHT - 30);
     }
     
     private void drawScore() {
@@ -712,10 +733,11 @@ public class GameScreen implements Screen {
         
         smallFont.setColor(DIM_COLOR);
         smallFont.draw(batch, "[1-5] Cycle components", x, y - 25);
-        smallFont.draw(batch, "[Ctrl+Z] Undo", x, y - 50);
-        smallFont.draw(batch, "[Ctrl+Y] Redo", x, y - 75);
-        smallFont.draw(batch, "[Enter] Submit build", x, y - 100);
-        smallFont.draw(batch, "[R] Restart", x, y - 125);
+        smallFont.draw(batch, "[D] Change difficulty", x, y - 50);
+        smallFont.draw(batch, "[Ctrl+Z] Undo", x, y - 75);
+        smallFont.draw(batch, "[Ctrl+Y] Redo", x, y - 100);
+        smallFont.draw(batch, "[Enter] Submit build", x, y - 125);
+        smallFont.draw(batch, "[R] Restart", x, y - 150);
     }
     
     private void drawGameState() {
@@ -791,10 +813,57 @@ public class GameScreen implements Screen {
     
     @Override
     public void dispose() {
+        session.removeListener(this);
         batch.dispose();
         shapeRenderer.dispose();
         font.dispose();
         titleFont.dispose();
         smallFont.dispose();
+    }
+    
+    // ==================== Observer Pattern Methods ====================
+    
+    @Override
+    public void onScoreChanged(int oldScore, int newScore, int delta) {
+        // Trigger score pop animation
+        scorePopTimer = 0.5f;
+        if (delta > 0) {
+            lastEventMessage = "+" + delta + " points!";
+        } else {
+            lastEventMessage = delta + " points";
+        }
+        eventMessageTimer = 2f;
+    }
+    
+    @Override
+    public void onRiskChanged(int oldRisk, int newRisk) {
+        // Flash risk bar when risk increases
+        if (newRisk > oldRisk) {
+            riskFlashTimer = 0.5f;
+        }
+    }
+    
+    @Override
+    public void onComboChanged(int oldCombo, int newCombo) {
+        // Flash combo display
+        if (newCombo > oldCombo) {
+            comboFlashTimer = 0.5f;
+            lastEventMessage = newCombo + "x COMBO!";
+            eventMessageTimer = 1.5f;
+        }
+    }
+    
+    @Override
+    public void onThreatTriggered(String threatName, int damage) {
+        // Threat events are already handled by activeThreat display
+        lastEventMessage = threatName + " (-" + damage + ")";
+        eventMessageTimer = 3f;
+    }
+    
+    @Override
+    public void onComponentChanged(String componentType, String componentValue) {
+        // Component changes trigger slot glow which is already handled
+        lastEventMessage = componentType + ": " + componentValue;
+        eventMessageTimer = 1f;
     }
 }
