@@ -1,4 +1,5 @@
 package io.github.some_example_name.input;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import java.util.HashMap;
@@ -14,19 +15,21 @@ public class Keyboard {
     }
     
     public void update() {
-        // Copy current to previous before updating
+        // Copy current to previous
         previousKeys.clear();
         previousKeys.putAll(currentKeys);
         
-        // Update current state (you'd poll all keys you care about)
-        // For efficiency, only check keys you use in your game
+        // Poll current state for all keys we care about
         currentKeys.put(Keys.W, Gdx.input.isKeyPressed(Keys.W));
         currentKeys.put(Keys.A, Gdx.input.isKeyPressed(Keys.A));
         currentKeys.put(Keys.S, Gdx.input.isKeyPressed(Keys.S));
         currentKeys.put(Keys.D, Gdx.input.isKeyPressed(Keys.D));
         currentKeys.put(Keys.SPACE, Gdx.input.isKeyPressed(Keys.SPACE));
         currentKeys.put(Keys.ESCAPE, Gdx.input.isKeyPressed(Keys.ESCAPE));
-        // Add more keys as needed
+        currentKeys.put(Keys.LEFT, Gdx.input.isKeyPressed(Keys.LEFT));
+        currentKeys.put(Keys.RIGHT, Gdx.input.isKeyPressed(Keys.RIGHT));
+        currentKeys.put(Keys.UP, Gdx.input.isKeyPressed(Keys.UP));
+        currentKeys.put(Keys.DOWN, Gdx.input.isKeyPressed(Keys.DOWN));
     }
     
     public boolean isKeyHeld(int keyCode) {
@@ -43,5 +46,14 @@ public class Keyboard {
         // Just released = false now, true before
         return !currentKeys.getOrDefault(keyCode, false) && 
                previousKeys.getOrDefault(keyCode, false);
+    }
+    
+    public boolean isAnyKeyPressed() {
+        return Gdx.input.isKeyPressed(Keys.ANY_KEY);
+    }
+    
+    public void reset() {
+        currentKeys.clear();
+        previousKeys.clear();
     }
 }

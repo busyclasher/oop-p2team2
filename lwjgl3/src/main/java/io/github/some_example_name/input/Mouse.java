@@ -1,8 +1,9 @@
 package io.github.some_example_name.input;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Mouse {
     private Vector2 position;
@@ -25,17 +26,17 @@ public class Mouse {
         previousButtonStates.clear();
         previousButtonStates.putAll(buttonStates);
         
-        // Update button states (0 = left, 1 = right, 2 = middle)
+        // Update button states (0=left, 1=right, 2=middle)
         buttonStates.put(0, Gdx.input.isButtonPressed(0));
         buttonStates.put(1, Gdx.input.isButtonPressed(1));
         buttonStates.put(2, Gdx.input.isButtonPressed(2));
         
-        // Scroll is handled differently (checked each frame)
-        scrollDelta = 0; // Reset, will be set by InputProcessor
+        // Reset scroll (will be set by InputProcessor if needed)
+        scrollDelta = 0;
     }
     
     public Vector2 getPosition() {
-        return position.cpy(); // Return copy to prevent external modification
+        return position.cpy();
     }
     
     public boolean isButtonHeld(int button) {
