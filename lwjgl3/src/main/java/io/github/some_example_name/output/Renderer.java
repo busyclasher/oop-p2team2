@@ -10,7 +10,6 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Renderer {
     private Color clearColor;
-    private Camera camera;
     private SpriteBatch spriteBatch;
     private ShapeRenderer shapeRenderer;
     
@@ -29,14 +28,6 @@ public class Renderer {
         this.clearColor.set(color);
     }
     
-    public void setCamera(Camera camera) {
-        this.camera = camera;
-        if (camera != null) {
-            spriteBatch.setProjectionMatrix(camera.getLibGDXCamera().combined);
-            shapeRenderer.setProjectionMatrix(camera.getLibGDXCamera().combined);
-        }
-    }
-    
     public void begin() {
         spriteBatch.begin();
     }
@@ -45,6 +36,7 @@ public class Renderer {
         spriteBatch.end();
     }
     
+    // Draw sprite at screen coordinates
     public void drawSprite(String spriteId, Vector2 position, float rotation, Vector2 scale) {
         // TODO: Get texture from AssetManager
         // Texture texture = assetManager.getTexture(spriteId);
@@ -52,7 +44,7 @@ public class Renderer {
     }
     
     public void drawSprite(String spriteId, Vector2 position, float rotation, Vector2 scale, Color color) {
-        // TODO: Same as above but with color tint
+        // TODO: Same with color tint
     }
     
     public void drawText(String text, Vector2 position, String font, Color color) {
@@ -60,7 +52,7 @@ public class Renderer {
     }
     
     public void drawRect(Rectangle rect, Color color, boolean filled) {
-        spriteBatch.end(); // End sprite batch
+        spriteBatch.end();
         
         if (filled) {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -72,7 +64,7 @@ public class Renderer {
         shapeRenderer.rect(rect.x, rect.y, rect.width, rect.height);
         shapeRenderer.end();
         
-        spriteBatch.begin(); // Resume sprite batch
+        spriteBatch.begin();
     }
     
     public void drawCircle(Vector2 center, float radius, Color color, boolean filled) {
@@ -107,4 +99,3 @@ public class Renderer {
         shapeRenderer.dispose();
     }
 }
-
