@@ -56,7 +56,8 @@ configure(subprojects) {
 
 subprojects {
   version = "$projectVersion"
-  ext.appName = 'YourProjectName'
+  // Used by Gradle tasks and platform launchers (e.g., the desktop window title).
+  ext.appName = 'P2Team2AbstractEngine'
   repositories {
     mavenCentral()
     // You may want to remove the following line if you have errors downloading dependencies.
@@ -66,4 +67,4 @@ subprojects {
   }
 }
 
-eclipse.project.name = 'YourProjectName' + '-parent'
+eclipse.project.name = appName + '-parent'
