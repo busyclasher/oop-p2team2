@@ -12,6 +12,9 @@ buildscript {
   }
 }
 
+// Human-readable project name used by launchers/tasks (e.g., desktop window title).
+ext.appName = 'P2Team2AbstractEngine'
+
 allprojects {
   apply plugin: 'eclipse'
   apply plugin: 'idea'
@@ -56,8 +59,7 @@ configure(subprojects) {
 
 subprojects {
   version = "$projectVersion"
-  // Used by Gradle tasks and platform launchers (e.g., the desktop window title).
-  ext.appName = 'P2Team2AbstractEngine'
+  ext.appName = rootProject.ext.appName
   repositories {
     mavenCentral()
     // You may want to remove the following line if you have errors downloading dependencies.
