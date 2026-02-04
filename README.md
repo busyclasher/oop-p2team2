@@ -1,33 +1,93 @@
-# YourProjectName
+# INF1009 P2 Team 2 - Abstract Engine (Part 1)
 
-A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
+This repository contains the Part 1 "Abstract Engine" codebase for INF1009 Object Oriented Programming.
+The goal for Part 1 is to build a non-contextual engine (no simulation/game-specific logic) that can be reused for many simulations.
 
-This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
+Base package: `sg.edu.sit.inf1009.p2team2`
 
-## Platforms
+## Tech Stack
 
-- `core`: Main module with the application logic shared by all platforms.
-- `lwjgl3`: Primary desktop platform using LWJGL3; was called 'desktop' in older docs.
+- Java 17
+- Gradle (wrapper included)
+- libGDX (`core` + `lwjgl3`)
 
-## Gradle
+## Run (Desktop)
 
-This project uses [Gradle](https://gradle.org/) to manage dependencies.
-The Gradle wrapper was included, so you can run Gradle tasks using `gradlew.bat` or `./gradlew` commands.
-Useful Gradle tasks and flags:
+```bash
+./gradlew lwjgl3:run
+```
 
-- `--continue`: when using this flag, errors will not stop the tasks from running.
-- `--daemon`: thanks to this flag, Gradle daemon will be used to run chosen tasks.
-- `--offline`: when using this flag, cached dependency archives will be used.
-- `--refresh-dependencies`: this flag forces validation of all dependencies. Useful for snapshot versions.
-- `build`: builds sources and archives of every project.
-- `cleanEclipse`: removes Eclipse project data.
-- `cleanIdea`: removes IntelliJ project data.
-- `clean`: removes `build` folders, which store compiled classes and built archives.
-- `eclipse`: generates Eclipse project data.
-- `idea`: generates IntelliJ project data.
-- `lwjgl3:jar`: builds application's runnable jar, which can be found at `lwjgl3/build/libs`.
-- `lwjgl3:run`: starts the application.
-- `test`: runs unit tests (if any).
+## Project Layout
 
-Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
-For example, `core:clean` removes `build` folder only from the `core` project.
+- `core/`: engine code shared by all platforms
+- `lwjgl3/`: desktop launcher (LWJGL3)
+
+Key entrypoints:
+
+- `core/src/main/java/sg/edu/sit/inf1009/p2team2/Main.java` (placeholder application)
+- `lwjgl3/src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/Lwjgl3Launcher.java` (desktop launcher)
+
+## Engine Skeleton (UML-Aligned)
+
+This repo currently contains a skeleton implementation (class names + file structure + method signatures + TODOs).
+Do not add context-specific simulation logic in Part 1.
+
+Managers (must-have):
+
+- Scene Management (Owner: Ivan)
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/SceneManager.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/Scene.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/MenuScene.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/SettingsScene.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/LeadershipBoardScene.java`
+
+- Entity Management (Owner: Nat)
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/EntityManager.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ecs/Entity.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ecs/Component.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ecs/components/*`
+
+- Movement Management (Owner: Hasif)
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/MovementManager.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/systems/MovementSystem.java`
+
+- Input/Output Management (Owner: HongYih)
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/InputManager.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/input/*`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/OutputManager.java`
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/output/*`
+
+- Collision Management (Owner: Cody)
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/collision/*`
+
+- Configuration Management (Owner: Alvin)
+  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/config/*`
+
+Shared wiring:
+
+- `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/core/EngineContext.java`
+- `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/world/World.java`
+
+UI models (used by scenes):
+
+- `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ui/*`
+
+## Team Workflow (Reduce Merge Conflicts)
+
+1. One owner per core file. Only the owner edits their file unless agreed.
+2. Use feature branches: `feature/<name>-<area>`
+3. Keep commits small and descriptive (avoid sweeping reformatting).
+4. Before pushing/PR:
+
+```bash
+./gradlew :core:compileJava :lwjgl3:compileJava
+```
+
+## Next Steps (Implementation Phase)
+
+- Ivan: implement scene stack behavior + transitions + UI input handling.
+- Nat: extend ECS/entity lifecycle and provide safe iteration/query helpers.
+- Hasif: integrate MovementManager/System with EntityManager queries and delta-time updates.
+- HongYih: wire libGDX input + rendering + audio implementations behind the facades.
+- Alvin: implement config load/save, observers, defaults, and typed accessors.
+- Cody: implement collision detection/resolution + collision events.
