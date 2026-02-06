@@ -1,5 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.output;
 
+import com.badlogic.gdx.Gdx;
+
 /**
  * Window/display abstraction.
  *
@@ -11,6 +13,7 @@ public class Display {
     private int height;
     private String title;
     private boolean fullscreen;
+    private boolean shouldClose = false;
 
     public Display(int width, int height, String title) {
         this.width = width;
@@ -37,6 +40,16 @@ public class Display {
     public void toggleFullscreen() {
         this.fullscreen = !this.fullscreen;
         // TODO(HongYih): apply fullscreen toggle to the platform.
+    if (isFullscreen()) {
+        // Get the current display mode of the monitor
+        com.badlogic.gdx.Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
+        // Set to full screen
+        Gdx.graphics.setFullscreenMode(mode);
+    } else {
+        // Return to windowed mode (e.g., 800x600)
+        Gdx.graphics.setWindowedMode(800, 600);
+    }
+    System.out.println("[Display] Fullscreen set to: " + fullscreen);
     }
 
     public void swapBuffers() {
@@ -45,7 +58,7 @@ public class Display {
 
     public boolean shouldClose() {
         // TODO(HongYih): map to platform close-request state.
-        return false;
+        return shouldClose;
     }
 
     public int getWidth() {

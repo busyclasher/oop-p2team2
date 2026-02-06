@@ -1,6 +1,8 @@
 package sg.edu.sit.inf1009.p2team2.engine.output;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -12,8 +14,10 @@ import com.badlogic.gdx.math.Vector2;
  */
 public class Renderer {
     private Color clearColor = Color.BLACK;
+    private SpriteBatch batch;
 
     public Renderer() {
+        this.batch = new SpriteBatch();
     }
 
     public void clear() {
@@ -30,10 +34,12 @@ public class Renderer {
 
     public void begin() {
         // TODO(HongYih): begin frame rendering (batch begin, etc.).
+        batch.begin(); // ivan added to test
     }
 
     public void end() {
         // TODO(HongYih): end frame rendering (batch end, etc.).
+        batch.end(); // ivan added to test
     }
 
     public void drawSprite(String spriteId, Vector2 position, float rotation, Vector2 scale) {
@@ -46,6 +52,7 @@ public class Renderer {
 
     public void drawText(String text, Vector2 position, String font, Color color) {
         // TODO(HongYih): render text with chosen font.
+        
     }
 
     public void drawRect(Rectangle rect, Color color, boolean filled) {
@@ -63,5 +70,10 @@ public class Renderer {
     public void dispose() {
         // TODO(HongYih): dispose renderer resources (batches, fonts, textures).
     }
+
+    public void drawTexture(Texture texture, float x, float y, float width, float height) {
+     // Using LibGDX SpriteBatch logic usually found in your Renderer
+     batch.draw(texture, x, y, width, height);
+}
 }
 
