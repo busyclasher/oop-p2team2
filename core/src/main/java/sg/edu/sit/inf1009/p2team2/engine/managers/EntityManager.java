@@ -3,6 +3,7 @@ package sg.edu.sit.inf1009.p2team2.engine.managers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
 
@@ -26,9 +27,7 @@ public class EntityManager {
     }
 
     public void add(Entity entity) {
-        if (entity != null) {
-            entities.add(entity);
-        }
+        entities.add(Objects.requireNonNull(entity, "entity cannot be null"));
     }
 
     public void remove(int id) {
@@ -46,6 +45,28 @@ public class EntityManager {
 
     public List<Entity> getAll() {
         return Collections.unmodifiableList(entities);
+    }
+
+    @SafeVarargs
+    public final List<Entity> getWith(Class<? extends sg.edu.sit.inf1009.p2team2.engine.ecs.Component>... componentTypes) {
+        Objects.requireNonNull(componentTypes, "componentTypes cannot be null");
+        List<Entity> matches = new ArrayList<>();
+        for (Entity entity : entities) {
+            if (hasAllComponents(entity, componentTypes)) {
+                matches.add(entity);
+            }
+        }
+        return matches;
+    }
+
+    private boolean hasAllComponents(Entity entity,
+                                     Class<? extends sg.edu.sit.inf1009.p2team2.engine.ecs.Component>[] componentTypes) {
+        for (Class<? extends sg.edu.sit.inf1009.p2team2.engine.ecs.Component> componentType : componentTypes) {
+            if (componentType == null || !entity.has(componentType)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void clear() {
