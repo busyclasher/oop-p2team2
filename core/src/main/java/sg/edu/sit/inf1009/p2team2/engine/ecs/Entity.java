@@ -29,15 +29,24 @@ public class Entity {
     }
 
     public void remove(Class<? extends Component> componentType) {
+        if (componentType == null) {
+            return;
+        }
         components.remove(componentType);
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Component> T get(Class<T> componentType) {
+        if (componentType == null) {
+            return null;
+        }
         return (T) components.get(componentType);
     }
 
     public boolean has(Class<? extends Component> componentType) {
+        if (componentType == null) {
+            return false;
+        }
         return components.containsKey(componentType);
     }
 
