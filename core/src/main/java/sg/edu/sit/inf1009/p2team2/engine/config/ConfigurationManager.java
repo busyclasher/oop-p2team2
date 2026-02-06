@@ -94,5 +94,11 @@ public final class ConfigurationManager implements ConfigManager {
     List<ConfigFile> getConfigLayers() {
         return configLayers;
     }
+
+    @Override
+    public void setValue(String name, Object value) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setValue'");
+    }
 }
 

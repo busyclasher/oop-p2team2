@@ -20,10 +20,12 @@ public interface ConfigManager {
 
     String getString(String key);
 
-    void setValue(String name, float value);
+    void setValue(String name, Object value);
 
     void addObserver(ConfigListener listener);
 
     void reloadFromDisk();
+
+    void setValue(String name, float value);
 }
 

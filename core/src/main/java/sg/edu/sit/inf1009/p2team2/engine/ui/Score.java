@@ -19,5 +19,10 @@ public class Score {
     public int getValue() {
         return value;
     }
+
+    public int getPoints() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getPoints'");
+    }
 }
 

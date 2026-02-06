@@ -33,7 +33,6 @@ public class OutputManager {
 
     public void endFrame() {
         // TODO(HongYih): end render pass + present frame.
-        renderer.end();
         display.swapBuffers();
     }
 
@@ -58,5 +57,20 @@ public class OutputManager {
         renderer.dispose();
         audio.dispose();
         display.dispose();
+    }
+
+    public Object getAudio() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAudio'");
+    }
+
+    public boolean shouldClose() {
+        // TODO Auto-generated method stub
+        return display != null && display.shouldClose();
+    }
+
+    public Object getDisplay() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getDisplay'");
     }
 }

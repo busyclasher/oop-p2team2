@@ -5,6 +5,7 @@ import sg.edu.sit.inf1009.p2team2.engine.config.ConfigurationManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.EntityManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.InputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
+import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
 
 /**
  * Central dependency container for engine managers.
@@ -16,6 +17,7 @@ public class EngineContext {
     private final InputManager inputManager;
     private final OutputManager outputManager;
     private final ConfigManager configManager;
+    private final SceneManager sceneManager;
 
     public EngineContext() {
         // TODO(Team): decide where default settings (resolution, title, etc.) come from.
@@ -23,6 +25,7 @@ public class EngineContext {
         this.configManager = ConfigurationManager.getInstance();
         this.inputManager = new InputManager(entityManager);
         this.outputManager = new OutputManager(1280, 720);
+        this.sceneManager = new SceneManager(entityManager, this);
     }
 
     public InputManager getInputManager() {
@@ -35,6 +38,14 @@ public class EngineContext {
 
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+    public SceneManager getSceneManager() {
+    return sceneManager;  // Adjust field name if different
+    }
+
+    public void dispose() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'dispose'");
     }
 }
 
