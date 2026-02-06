@@ -9,6 +9,7 @@ public class Collider {
     private final Entity owner;
     private Shape shape;
     private boolean trigger;
+    private CollisionListener listener;
 
     public Collider(Entity owner, Shape shape, boolean trigger) {
         this.owner = owner;
@@ -35,5 +36,12 @@ public class Collider {
     public void setTrigger(boolean trigger) {
         this.trigger = trigger;
     }
-}
 
+    public CollisionListener getListener() {
+        return listener;
+    }
+
+    public void setListener(CollisionListener listener) {
+        this.listener = listener;
+    }
+}
