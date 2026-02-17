@@ -56,12 +56,21 @@ open core/build/reports/tests/test/index.html
 
 ## Test Coverage Guide
 - `EntityTest` checks ECS entity add/get/remove/clear behavior.
+- `EntityUmlApiTest` checks UML alias methods (`addComponent`, `getComponent`, etc.).
 - `EntityManagerTest` checks creation IDs, filtering, and collection safety.
+- `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
 - `MovementSystemTest` checks integration math (velocity + position updates).
 - `MovementManagerTest` checks manager-level movement pass over entities.
+- `MovementManagerConfigTest` checks gravity/friction config APIs.
 - `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
 - `ConfigManagerTest` checks singleton, typed config access, observer callback flow.
+- `ConfigVarTest` checks typed conversion/reset behavior.
+- `ConfigLoaderTest` checks load/save config round-trip.
+- `ConfigFileTest` checks file-layer reload/save behavior.
 - `CollisionDetectorTest` checks overlap and non-overlap collision detection.
+- `CollisionResolverTest` checks separation and velocity response path.
+- `InputMapTest` checks action binding and keyboard-driven action states.
+- `UiModelsTest` checks `Slider`, `Toggle`, `Button`, and `Score` model behavior.
 - `InputOutputTestScene` + `CompleteIOTest` are runtime/manual scene tests (not JUnit).
 
 What to look for:
@@ -90,7 +99,7 @@ oop-p2team2
 |  |     |_ scenes/
 |  |     |  |_ Scene.java               # Abstract base scene interface
 |  |     |  |_ MenuScene.java           # Main menu scene and scene navigation
-|  |     |  |_ MainScene.java           # Simulation scene skeleton
+|  |     |  |_ MainScene.java           # Empty simulation skeleton (logic deferred)
 |  |     |  |_ SettingsScene.java       # Settings scene with load/save hooks
 |  |     |  |_ LeaderboardScene.java    # Leaderboard scene skeleton
 |  |     |_ ecs/
@@ -128,12 +137,12 @@ oop-p2team2
 |  |     |_ config/
 |  |     |  |_ ConfigManager.java       # Singleton config control facade
 |  |     |  |_ ConfigRegistry.java      # Key/value config storage
-|  |     |  |_ ConfigLoader.java        # Config load/save adapter (skeleton)
+|  |     |  |_ ConfigLoader.java        # Config load/save adapter (properties-based)
 |  |     |  |_ ConfigDispatcher.java    # Observer dispatch for config changes
 |  |     |  |_ ConfigListener.java      # Config change observer interface
 |  |     |  |_ ConfigVar.java           # Typed config value wrapper
 |  |     |  |_ ConfigurationManager.java# Backward-compatibility wrapper class
-|  |     |  |_ ConfigFile.java          # File-layer placeholder model
+|  |     |  |_ ConfigFile.java          # File-layer model wrapping reload/save
 |  |     |_ ui/
 |  |        |_ Button.java              # UI button model
 |  |        |_ Slider.java              # UI slider model
@@ -142,16 +151,27 @@ oop-p2team2
 |  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
 |     |_ ecs/
 |     |  |_ EntityTest.java             # Unit tests for Entity component operations
+|     |  |_ EntityUmlApiTest.java       # Unit tests for UML alias Entity API
 |     |_ managers/
 |     |  |_ EntityManagerTest.java      # Unit tests for EntityManager behavior
+|     |  |_ EntityManagerUmlApiTest.java# Unit tests for UML alias manager API
 |     |  |_ MovementManagerTest.java    # Unit tests for movement manager pass
+|     |  |_ MovementManagerConfigTest.java # Unit tests for gravity/friction config API
 |     |  |_ SceneManagerTest.java       # Unit tests for scene lifecycle stack behavior
 |     |_ systems/
 |     |  |_ MovementSystemTest.java     # Unit tests for integration math
 |     |_ config/
 |     |  |_ ConfigManagerTest.java      # Unit tests for singleton/config observer flow
+|     |  |_ ConfigVarTest.java          # Unit tests for typed config value conversion
+|     |  |_ ConfigLoaderTest.java       # Unit tests for config persistence adapter
+|     |  |_ ConfigFileTest.java         # Unit tests for config file layer
 |     |_ collision/
 |     |  |_ CollisionDetectorTest.java  # Unit tests for AABB overlap detection
+|     |  |_ CollisionResolverTest.java  # Unit tests for collision response
+|     |_ input/
+|     |  |_ InputMapTest.java           # Unit tests for action-binding logic
+|     |_ ui/
+|     |  |_ UiModelsTest.java           # Unit tests for UI model classes
 |     |_ scenes/tests/
 |        |_ InputOutputTestScene.java   # Runtime/manual test scene (I/O)
 |        |_ CompleteIOTest.java         # Runtime/manual comprehensive I/O scene
