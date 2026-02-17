@@ -186,17 +186,17 @@ public class MenuScene extends Scene {
         switch (action) {
             case "Start Game":
                 System.out.println("[MenuScene] Starting game...");
-                // TODO: context.getSceneManager().push(new MainScene(context));
+                context.getSceneManager().push(new MainScene(context));
                 break;
                 
             case "Settings":
                 System.out.println("[MenuScene] Opening settings...");
-                // TODO: context.getSceneManager().push(new SettingsScene(context));
+                context.getSceneManager().push(new SettingsScene(context));
                 break;
                 
             case "Leaderboard":
                 System.out.println("[MenuScene] Opening leaderboard...");
-                // TODO: context.getSceneManager().push(new LeaderboardScene(context));
+                context.getSceneManager().push(new LeaderboardScene(context));
                 break;
                 
             case "Exit":

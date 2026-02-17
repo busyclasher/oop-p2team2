@@ -18,6 +18,7 @@ public class SceneManager {
     
     private final EngineContext context;
     private final Stack<Scene> scenes;
+    private Scene currentScene;
     
     /**
      * Constructor
@@ -27,6 +28,7 @@ public class SceneManager {
     public SceneManager(EngineContext context) {
         this.context = context;
         this.scenes = new Stack<>();
+        this.currentScene = null;
     }
     
     /**
@@ -52,6 +54,7 @@ public class SceneManager {
         // Activate new scene
         scene.load();
         scene.onEnter();
+        currentScene = scene;
         
         System.out.println("[SceneManager] Pushed scene: " + scene.getClass().getSimpleName());
     }
@@ -75,8 +78,11 @@ public class SceneManager {
         
         // Resume previous scene
         if (!scenes.isEmpty()) {
-            scenes.peek().onEnter();
-            System.out.println("[SceneManager] Resumed scene: " + scenes.peek().getClass().getSimpleName());
+            currentScene = scenes.peek();
+            currentScene.onEnter();
+            System.out.println("[SceneManager] Resumed scene: " + currentScene.getClass().getSimpleName());
+        } else {
+            currentScene = null;
         }
     }
     
@@ -86,7 +92,7 @@ public class SceneManager {
      * @return Current scene, or null if stack is empty
      */
     public Scene peek() {
-        return scenes.isEmpty() ? null : scenes.peek();
+        return currentScene;
     }
     
     /**
@@ -95,10 +101,9 @@ public class SceneManager {
      * @param dt Delta time
      */
     public void update(float dt) {
-        if (!scenes.isEmpty()) {
-            Scene current = scenes.peek();
-            current.handleInput();
-            current.update(dt);
+        if (currentScene != null) {
+            currentScene.handleInput();
+            currentScene.update(dt);
         }
     }
     
@@ -106,8 +111,8 @@ public class SceneManager {
      * Render the current scene
      */
     public void render() {
-        if (!scenes.isEmpty()) {
-            scenes.peek().render();
+        if (currentScene != null) {
+            currentScene.render();
         }
     }
     
