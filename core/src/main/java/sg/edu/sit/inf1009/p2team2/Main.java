@@ -4,6 +4,7 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
+import sg.edu.sit.inf1009.p2team2.engine.scenes.MainScene;
 import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
 import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
 
@@ -142,6 +143,9 @@ public class Main extends ApplicationAdapter {
             case "complete-io":
             case "complete-io-test":
                 return createTestScene(COMPLETE_IO_SCENE_CLASS);
+            case "main":
+            case "main-scene":
+                return new MainScene(engine);
             case "menu":
             default:
                 if (!DEFAULT_START_SCENE.equals(sceneKey)) {
