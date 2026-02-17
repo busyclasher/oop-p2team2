@@ -1,7 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.engine.core;
 
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigurationManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.InputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
@@ -40,7 +39,7 @@ public class EngineContext {
         System.out.println("[EngineContext] Initializing engine...");
         
         // 1. Config first (other managers might read config)
-        this.configManager = ConfigurationManager.getInstance();
+        this.configManager = ConfigManager.getInstance();
         
         // 2. Input manager (no dependencies)
         this.inputManager = new InputManager();
