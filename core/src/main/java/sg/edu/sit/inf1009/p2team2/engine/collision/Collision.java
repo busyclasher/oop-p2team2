@@ -1,29 +1,61 @@
 package sg.edu.sit.inf1009.p2team2.engine.collision;
 
+import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
+
 /**
- * Represents a collision between two colliders.
+ * Collision data container between two entities.
  */
 public class Collision {
-    private final Collider a;
-    private final Collider b;
-    private final Contact contact;
+    private final Entity entityA;
+    private final Entity entityB;
+    private float penetrationDepth;
+    private Vector2 contactNormal;
+    private Vector2 contactPoint;
+    private final long timestamp;
 
-    public Collision(Collider a, Collider b, Contact contact) {
-        this.a = a;
-        this.b = b;
-        this.contact = contact;
+    public Collision(Entity entityA, Entity entityB) {
+        this.entityA = entityA;
+        this.entityB = entityB;
+        this.penetrationDepth = 0f;
+        this.contactNormal = new Vector2();
+        this.contactPoint = new Vector2();
+        this.timestamp = System.currentTimeMillis();
     }
 
-    public Collider getA() {
-        return a;
+    public Entity getEntityA() {
+        return entityA;
     }
 
-    public Collider getB() {
-        return b;
+    public Entity getEntityB() {
+        return entityB;
     }
 
-    public Contact getContact() {
-        return contact;
+    public float getPenetrationDepth() {
+        return penetrationDepth;
+    }
+
+    public void setPenetrationDepth(float depth) {
+        this.penetrationDepth = depth;
+    }
+
+    public Vector2 getContactNormal() {
+        return contactNormal;
+    }
+
+    public void setContactNormal(Vector2 normal) {
+        this.contactNormal = normal;
+    }
+
+    public Vector2 getContactPoint() {
+        return contactPoint;
+    }
+
+    public void setContactPoint(Vector2 point) {
+        this.contactPoint = point;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 }
-
