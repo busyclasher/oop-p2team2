@@ -1,4 +1,4 @@
-package sg.edu.sit.inf1009.p2team2.engine.scenes;
+package sg.edu.sit.inf1009.p2team2.engine.scenes.tests;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -10,6 +10,7 @@ import sg.edu.sit.inf1009.p2team2.engine.input.Mouse;
 import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
 import sg.edu.sit.inf1009.p2team2.engine.output.Display;
+import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
 
 /**
  * INPUT/OUTPUT TEST SCENE
