@@ -31,7 +31,7 @@ public class LeadershipBoardScene extends Scene {
     }
 
     @Override
-    public void update() {
+    public void update(float dt) {
         // TODO(Ivan): update leaderboard (if dynamic). 
         // Logic for any dynamic elements (e.g., scrolling or animations)
 

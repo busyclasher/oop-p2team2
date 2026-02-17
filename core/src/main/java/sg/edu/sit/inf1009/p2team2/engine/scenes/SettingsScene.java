@@ -57,7 +57,7 @@ public class SettingsScene extends Scene {
     }
 
     @Override
-    public void update() {
+    public void update(float dt) {
         // TODO(Ivan): update controls and apply preview changes.
         // Update UI logic and apply audio changes in real-time
         volumeSlider.update();

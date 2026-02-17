@@ -1,72 +1,125 @@
-//package sg.edu.sit.inf1009.p2team2;
-
-//import com.badlogic.gdx.ApplicationAdapter;
-//import com.badlogic.gdx.utils.ScreenUtils;
-
-/**
- * Entry point for the Part 1 (Abstract Engine) prototype.
- *
- * This will be wired to the engine managers (SceneManager, EntityManager, etc.)
- * as the team implements each subsystem.
- */
-//public class Main extends ApplicationAdapter {
-  //  @Override
-   // public void render() {
-   //     // Placeholder visual so the project can run while engine systems are being built.
-    //    ScreenUtils.clear(0f, 0f, 0f, 1f);
-   // }
-  // }
-
 package sg.edu.sit.inf1009.p2team2;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.GL20;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
-import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
+import sg.edu.sit.inf1009.p2team2.engine.scenes.CompleteIOTest;
 import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
-import sg.edu.sit.inf1009.p2team2.engine.output.Display;
 
+
+/**
+ * MAIN - Application Entry Point
+ * Integrates libGDX ApplicationAdapter with our EngineContext
+ * 
+ * This is the bridge between libGDX and our Abstract Engine.
+ */
 public class Main extends ApplicationAdapter {
-    // These must be class-level variables so both create() and render() can see them
-    private EngineContext context;
-    private SceneManager sceneManager;
-
+    
+    private EngineContext engine;
+    private float lastDeltaTime;
+    
+    /**
+     * Called once when application starts
+     * This is where we initialize the engine
+     */
     @Override
     public void create() {
-      context = new EngineContext();
-    sceneManager = new SceneManager(null, context);
-    
-    // Check saved config
-    boolean startFullscreen = context.getConfigManager().getBool("display.fullscreen");
-    if (startFullscreen) {
-        ((Display) context.getOutputManager().getDisplay()).toggleFullscreen();
+        System.out.println("[Main] Application starting...");
+        
+        // 1. Create the engine context
+        engine = new EngineContext();
+        
+        // 2. Initialize the engine (after libGDX context is ready)
+        engine.initialize();
+        
+        // 3. Start the engine
+        engine.start();
+        
+        // 4. Load the first scene (MenuScene)
+        //MenuScene menuScene = new MenuScene(engine);
+        //engine.getSceneManager().push(menuScene);
+        CompleteIOTest testScene = new CompleteIOTest(engine);
+        engine.getSceneManager().push(testScene);
+        
+        System.out.println("[Main] Application started successfully!");
     }
     
-    sceneManager.set(new MenuScene(context, sceneManager));
-    }
-
+    /**
+     * Called every frame
+     * This is the game loop
+     */
     @Override
     public void render() {
-        // LibGDX clear screen (mandatory to prevent flickering)
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        // Ensure we don't call methods on null if initialization failed
-        if (sceneManager != null) {
-            // 1. Update logic (handles input and state)
-            sceneManager.update();
+        // Calculate delta time
+        float dt = Gdx.graphics.getDeltaTime();
+        lastDeltaTime = dt;
         
-            // 2. Coordinate rendering through the manager
-            sceneManager.render();
+        // Cap delta time to prevent physics issues
+        if (dt > 0.25f) {
+            dt = 0.25f;  // Max 4 FPS minimum
+        }
+        
+        // Only update if engine is initialized
+        if (engine != null && engine.isRunning()) {
+            // 1. Update game logic
+            engine.update(dt);
+            
+            // 2. Render graphics
+            engine.render();
         }
     }
-
+    
+    /**
+     * Called when window is resized
+     * 
+     * @param width New width
+     * @param height New height
+     */
+    @Override
+    public void resize(int width, int height) {
+        System.out.println("[Main] Window resized: " + width + "x" + height);
+        
+        // Update display size
+        if (engine != null) {
+            engine.getOutputManager().getDisplay().resize(width, height);
+        }
+    }
+    
+    /**
+     * Called when application is paused
+     * (e.g., minimize window, switch to another app)
+     */
+    @Override
+    public void pause() {
+        System.out.println("[Main] Application paused");
+        
+        // Save config or game state here if needed
+        if (engine != null) {
+            engine.getConfigManager().saveConfig();
+        }
+    }
+    
+    /**
+     * Called when application is resumed
+     */
+    @Override
+    public void resume() {
+        System.out.println("[Main] Application resumed");
+    }
+    
+    /**
+     * Called when application is closing
+     * This is where we clean up
+     */
     @Override
     public void dispose() {
-        // Cleanup resources when the window is closed
-        if (sceneManager != null) sceneManager.dispose();
-        if (context != null) context.dispose();
+        System.out.println("[Main] Application closing...");
+        
+        if (engine != null) {
+            engine.dispose();
+        }
+        
+        System.out.println("[Main] Application closed");
     }
 }
