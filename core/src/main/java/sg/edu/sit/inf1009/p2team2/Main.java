@@ -4,8 +4,8 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.CompleteIOTest;
 import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
+import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
 
 
 /**
@@ -15,6 +15,12 @@ import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
  * This is the bridge between libGDX and our Abstract Engine.
  */
 public class Main extends ApplicationAdapter {
+    private static final String START_SCENE_PROPERTY = "engine.scene";
+    private static final String DEFAULT_START_SCENE = "menu";
+    private static final String INPUT_OUTPUT_SCENE_CLASS =
+        "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.InputOutputTestScene";
+    private static final String COMPLETE_IO_SCENE_CLASS =
+        "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.CompleteIOTest";
     
     private EngineContext engine;
     private float lastDeltaTime;
@@ -36,11 +42,10 @@ public class Main extends ApplicationAdapter {
         // 3. Start the engine
         engine.start();
         
-        // 4. Load the first scene (MenuScene)
-        //MenuScene menuScene = new MenuScene(engine);
-        //engine.getSceneManager().push(menuScene);
-        CompleteIOTest testScene = new CompleteIOTest(engine);
-        engine.getSceneManager().push(testScene);
+        // 4. Load startup scene (menu by default, configurable for manual scene tests)
+        Scene startupScene = resolveStartupScene();
+        engine.getSceneManager().push(startupScene);
+        System.out.println("[Main] Startup scene: " + startupScene.getClass().getSimpleName());
         
         System.out.println("[Main] Application started successfully!");
     }
@@ -121,5 +126,42 @@ public class Main extends ApplicationAdapter {
         }
         
         System.out.println("[Main] Application closed");
+    }
+
+    private Scene resolveStartupScene() {
+        String sceneKey = System.getProperty(START_SCENE_PROPERTY, DEFAULT_START_SCENE)
+            .trim()
+            .toLowerCase();
+
+        switch (sceneKey) {
+            case "io":
+            case "io-test":
+            case "input-output":
+                return createTestScene(INPUT_OUTPUT_SCENE_CLASS);
+            case "complete":
+            case "complete-io":
+            case "complete-io-test":
+                return createTestScene(COMPLETE_IO_SCENE_CLASS);
+            case "menu":
+            default:
+                if (!DEFAULT_START_SCENE.equals(sceneKey)) {
+                    System.out.println("[Main] Unknown engine.scene='" + sceneKey + "', defaulting to menu");
+                }
+                return new MenuScene(engine);
+        }
+    }
+
+    private Scene createTestScene(String className) {
+        try {
+            Class<?> sceneType = Class.forName(className);
+            if (!Scene.class.isAssignableFrom(sceneType)) {
+                throw new IllegalStateException("Class is not a Scene: " + className);
+            }
+            return (Scene) sceneType.getConstructor(EngineContext.class).newInstance(engine);
+        } catch (Exception e) {
+            System.out.println("[Main] Could not load test scene '" + className + "': " + e.getMessage());
+            System.out.println("[Main] Falling back to MenuScene");
+            return new MenuScene(engine);
+        }
     }
 }
