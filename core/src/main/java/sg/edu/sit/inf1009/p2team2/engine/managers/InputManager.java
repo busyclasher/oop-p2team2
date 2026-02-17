@@ -96,6 +96,10 @@ public class InputManager {
     public InputMap getActiveMap() {
         return inputMaps.get(activeMapId);
     }
+
+    public InputMap getInputMap() {
+        return getActiveMap();
+    }
     
     // ===== ACTION QUERIES (using active map) =====
     

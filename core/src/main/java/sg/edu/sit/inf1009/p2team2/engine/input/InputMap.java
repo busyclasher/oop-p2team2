@@ -2,6 +2,7 @@ package sg.edu.sit.inf1009.p2team2.engine.input;
 
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Gdx;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -72,6 +73,11 @@ public class InputMap {
         Integer keyCode = actionBindings.get(actionName);
         return keyCode != null && keyboard.isKeyDown(keyCode);
     }
+
+    public boolean isActionActive(String actionName) {
+        Integer keyCode = actionBindings.get(actionName);
+        return keyCode != null && Gdx.input.isKeyPressed(keyCode);
+    }
     
     /**
      * Check if an action was just pressed this frame
@@ -84,6 +90,11 @@ public class InputMap {
         Integer keyCode = actionBindings.get(actionName);
         return keyCode != null && keyboard.isKeyPressed(keyCode);
     }
+
+    public boolean isActionPressed(String actionName) {
+        Integer keyCode = actionBindings.get(actionName);
+        return keyCode != null && Gdx.input.isKeyJustPressed(keyCode);
+    }
     
     /**
      * Check if an action was just released this frame
@@ -95,6 +106,12 @@ public class InputMap {
     public boolean isActionReleased(String actionName, Keyboard keyboard) {
         Integer keyCode = actionBindings.get(actionName);
         return keyCode != null && keyboard.isKeyReleased(keyCode);
+    }
+
+    public boolean isActionReleased(String actionName) {
+        // libGDX does not provide key-just-released directly;
+        // manager-level keyboard tracking remains the authoritative path.
+        return false;
     }
     
     /**
@@ -146,4 +163,3 @@ public class InputMap {
         return mapId;
     }
 }
-

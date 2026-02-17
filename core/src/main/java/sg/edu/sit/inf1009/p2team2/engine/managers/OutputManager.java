@@ -17,6 +17,16 @@ public class OutputManager {
      * Constructor
      * @param width Window width
      * @param height Window height
+     */
+    public OutputManager(int width, int height) {
+        this(width, height, "Abstract Engine");
+    }
+
+    /**
+     * Constructor overload kept for backward compatibility.
+     *
+     * @param width Window width
+     * @param height Window height
      * @param title Window title
      */
     public OutputManager(int width, int height, String title) {

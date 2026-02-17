@@ -87,6 +87,10 @@ public class Keyboard {
         boolean state = Gdx.input.isKeyPressed(keyCode);
         return state;
     }
+
+    public boolean isKeyHeld(int keyCode) {
+        return isKeyDown(keyCode);
+    }
     
     /**
      * Check if a key was just pressed this frame

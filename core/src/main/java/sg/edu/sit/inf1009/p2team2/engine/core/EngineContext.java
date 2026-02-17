@@ -48,14 +48,12 @@ public class EngineContext {
         // 3. Output manager (reads config for window size, title)
         int width = configManager.getInt("display.width");
         int height = configManager.getInt("display.height");
-        String title = configManager.getString("display.title");
         
         // Use defaults if config doesn't have values
         width = (width > 0) ? width : 800;
         height = (height > 0) ? height : 600;
-        title = (title != null && !title.isEmpty()) ? title : "Abstract Engine";
         
-        this.outputManager = new OutputManager(width, height, title);
+        this.outputManager = new OutputManager(width, height);
         
         // 4. Scene manager (depends on context)
         this.sceneManager = new SceneManager(this);
