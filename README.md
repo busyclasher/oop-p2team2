@@ -22,6 +22,8 @@ Base package: `sg.edu.sit.inf1009.p2team2`
 - `core/`: engine code shared by all platforms
 - `lwjgl3/`: desktop launcher (LWJGL3)
 
+<img width="8708" height="5769" alt="Abstract Engine UML Class Diagram (1)" src="https://github.com/user-attachments/assets/61f424c5-291f-4663-ad29-7fd62a83b54b" />
+
 Key entrypoints:
 
 - `core/src/main/java/sg/edu/sit/inf1009/p2team2/Main.java` (placeholder application)
