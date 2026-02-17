@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.ui;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
-
 import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
 
 /**
@@ -9,13 +9,16 @@ import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
  */
 public class Toggle {
     private boolean on;
+    private final Vector2 position;
 
     public Toggle(boolean on) {
         this.on = on;
+        this.position = new Vector2();
     }
 
-    public Toggle(int i, int j) {
-        //TODO Auto-generated constructor stub
+    public Toggle(int x, int y) {
+        this(false);
+        this.position.set(x, y);
     }
 
     public boolean isOn() {
@@ -30,29 +33,33 @@ public class Toggle {
         this.on = !this.on;
     }
 
-    public void setValue(boolean isFullscreen) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'setValue'");
+    public void setValue(boolean value) {
+        setOn(value);
     }
 
     public void update() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'update'");
+        // Toggle is data-only in abstract engine skeleton.
     }
 
-    public void render(Renderer renderer, boolean b) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'render'");
+    public void render(Renderer renderer, boolean selected) {
+        if (renderer == null) {
+            return;
+        }
+
+        String state = on ? "ON" : "OFF";
+        Color color = on ? Color.GREEN : Color.RED;
+        if (selected) {
+            color = on ? Color.LIME : Color.SCARLET;
+        }
+
+        renderer.drawText("[" + state + "]", position, "default", color);
     }
 
     public float getValue() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getValue'");
+        return on ? 1f : 0f;
     }
 
-    public Object isEnabled() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isEnabled'");
+    public boolean isEnabled() {
+        return on;
     }
 }
-

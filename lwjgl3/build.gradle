@@ -47,6 +47,10 @@ run {
   //setIgnoreExitValue(true)
 
   if (os.contains('mac')) jvmArgs += "-XstartOnFirstThread"
+  if (project.hasProperty('scene')) {
+    jvmArgs += "-Dengine.scene=${project.property('scene')}"
+    classpath += project(':core').sourceSets.test.runtimeClasspath
+  }
 }
 
 jar {

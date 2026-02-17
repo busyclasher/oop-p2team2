@@ -1,31 +1,140 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
+import java.util.Map;
+
 /**
- * Public API for configuration access in the engine.
- *
- * Keep the API small and stable; implementations can add type-safe wrappers on top.
+ * UML-aligned configuration manager singleton.
  */
-public interface ConfigManager {
-    void loadConfig(String filePath);
+public final class ConfigManager {
+    private static ConfigManager instance;
 
-    void saveConfig();
+    private final ConfigRegistry configStore;
+    private final ConfigLoader configLoader;
+    private final ConfigDispatcher configDispatcher;
+    private String lastLoadedPath;
 
-    void resetToDefaults();
+    private ConfigManager() {
+        this.configStore = new ConfigRegistry();
+        this.configLoader = new ConfigLoader();
+        this.configDispatcher = new ConfigDispatcher();
+        this.lastLoadedPath = "";
+    }
 
-    float getFloat(String key);
+    public static synchronized ConfigManager getInstance() {
+        if (instance == null) {
+            instance = new ConfigManager();
+        }
+        return instance;
+    }
 
-    int getInt(String key);
+    public void load(String filePath) {
+        Map<String, ConfigVar> loaded = configLoader.loadFromFile(filePath);
+        for (Map.Entry<String, ConfigVar> entry : loaded.entrySet()) {
+            ConfigVar oldValue = configStore.find(entry.getKey());
+            configStore.update(entry.getKey(), entry.getValue());
+            notifyObservers(entry.getKey(), oldValue, entry.getValue());
+        }
+        if (filePath != null) {
+            lastLoadedPath = filePath;
+        }
+    }
 
-    boolean getBool(String key);
+    public void save(String filePath) {
+        String targetPath = (filePath == null || filePath.isBlank()) ? lastLoadedPath : filePath;
+        configLoader.saveToFile(targetPath, configStore.getAll());
+    }
 
-    String getString(String key);
+    public ConfigVar get(String key) {
+        return configStore.find(key);
+    }
 
-    void setValue(String name, Object value);
+    public void set(String key, ConfigVar value) {
+        ConfigVar oldValue = configStore.find(key);
+        configStore.update(key, value);
+        notifyObservers(key, oldValue, value);
+    }
 
-    void addObserver(ConfigListener listener);
+    public void addObserver(ConfigListener observer) {
+        configDispatcher.addObserver(observer);
+    }
 
-    void reloadFromDisk();
+    public void removeObserver(ConfigListener observer) {
+        configDispatcher.removeObserver(observer);
+    }
 
-    void setValue(String name, float value);
+    private void notifyObservers(String key, ConfigVar oldValue, ConfigVar newValue) {
+        configDispatcher.notify(key, newValue);
+    }
+
+    // Compatibility wrappers for existing scene/context call sites.
+
+    public void loadConfig(String filePath) {
+        load(filePath);
+    }
+
+    public void saveConfig() {
+        save(lastLoadedPath);
+    }
+
+    public void resetToDefaults() {
+        for (ConfigVar value : configStore.getAll().values()) {
+            if (value != null) {
+                value.reset();
+            }
+        }
+    }
+
+    public float getFloat(String key) {
+        ConfigVar value = get(key);
+        return value == null ? 0f : value.asFloat();
+    }
+
+    public int getInt(String key) {
+        ConfigVar value = get(key);
+        return value == null ? 0 : value.asInt();
+    }
+
+    public boolean getBool(String key) {
+        ConfigVar value = get(key);
+        return value != null && value.asBool();
+    }
+
+    public String getString(String key) {
+        ConfigVar value = get(key);
+        return value == null ? "" : value.asString();
+    }
+
+    public void setValue(String name, Object value) {
+        ConfigVar current = get(name);
+        ConfigVar target = current == null ? new ConfigVar(value, value) : current;
+        if (current == null) {
+            set(name, target);
+        } else {
+            ConfigVar oldValue = new ConfigVar(current.getValue(), current.getDefaultValue());
+            current.setValue(value);
+            notifyObservers(name, oldValue, current);
+        }
+    }
+
+    public void setValue(String name, float value) {
+        setValue(name, Float.valueOf(value));
+    }
+
+    public void reloadFromDisk() {
+        if (lastLoadedPath != null && !lastLoadedPath.isBlank()) {
+            load(lastLoadedPath);
+        }
+    }
+
+    ConfigRegistry getConfigStore() {
+        return configStore;
+    }
+
+    ConfigLoader getConfigLoader() {
+        return configLoader;
+    }
+
+    ConfigDispatcher getConfigDispatcher() {
+        return configDispatcher;
+    }
 }
-

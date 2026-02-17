@@ -1,140 +1,145 @@
 package sg.edu.sit.inf1009.p2team2.engine.managers;
 
 import java.util.Stack;
-
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.LeadershipBoardScene;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
 import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.SettingsScene;
 
 /**
- * Manages scene transitions and a stack of scenes.
+ * SCENE MANAGER - Abstract Engine (Control)
+ * Manages scene stack and transitions
+ * 
+ * Following UML specification exactly:
+ * - context: EngineContext
+ * - scenes: Stack<Scene>
+ * 
+ * @author Ivan
  */
 public class SceneManager {
-    private Scene currentScene;
-    private final Stack<Scene> scenes = new Stack<>();
+    
     private final EngineContext context;
-
-    public SceneManager(EntityManager entityManager, EngineContext context) {
+    private final Stack<Scene> scenes;
+    private Scene currentScene;
+    
+    /**
+     * Constructor
+     * 
+     * @param context Engine context
+     */
+    public SceneManager(EngineContext context) {
         this.context = context;
+        this.scenes = new Stack<>();
+        this.currentScene = null;
     }
-
+    
+    /**
+     * Push a new scene onto the stack
+     * The new scene becomes active
+     * 
+     * @param scene Scene to push
+     */
     public void push(Scene scene) {
-        // TODO(Ivan): call onExit/onEnter correctly when stacking scenes.
-        if (scene == null) return;
-        
-
-        // Pause the current scene before moving to the next
-        if (currentScene != null) {
-            currentScene.onExit();
-        }
-
-        scenes.push(scene);
-        currentScene = scene;
-
-        // Load resources and trigger enter logic for the new scene
-        currentScene.load();
-        currentScene.onEnter();
-        
-        System.out.println("[SceneManager] Pushed scene: " + getActiveSceneName());
-    }
-
-    public void pop() {
-        // TODO(Ivan): pop current scene and restore previous.
-        if (scenes.isEmpty()) {
-            currentScene = null;
+        if (scene == null) {
+            System.err.println("[SceneManager] Cannot push null scene");
             return;
         }
-
-        // Cleanup the current scene before removing it
-        Scene removedScene = scenes.pop();
-        removedScene.onExit();
-        removedScene.unload();
-
-        // Restore the previous scene if one exists
+        
+        // Pause current scene
+        if (!scenes.isEmpty()) {
+            scenes.peek().onExit();
+        }
+        
+        // Add new scene
+        scenes.push(scene);
+        
+        // Activate new scene
+        scene.load();
+        scene.onEnter();
+        currentScene = scene;
+        
+        System.out.println("[SceneManager] Pushed scene: " + scene.getClass().getSimpleName());
+    }
+    
+    /**
+     * Pop the current scene from the stack
+     * The previous scene becomes active again
+     */
+    public void pop() {
+        if (scenes.isEmpty()) {
+            System.err.println("[SceneManager] Cannot pop - stack is empty");
+            return;
+        }
+        
+        // Remove and cleanup current scene
+        Scene removed = scenes.pop();
+        removed.onExit();
+        removed.unload();
+        
+        System.out.println("[SceneManager] Popped scene: " + removed.getClass().getSimpleName());
+        
+        // Resume previous scene
         if (!scenes.isEmpty()) {
             currentScene = scenes.peek();
             currentScene.onEnter();
-            System.out.println("[SceneManager] Restored scene: " + getActiveSceneName());
+            System.out.println("[SceneManager] Resumed scene: " + currentScene.getClass().getSimpleName());
         } else {
             currentScene = null;
         }
     }
-
-    public void set(Scene scene) {
-        // TODO(Ivan): replace stack with a single active scene.
-        // Unload everything currently in the stack
-        while (!scenes.isEmpty()) {
-            Scene s = scenes.pop();
-            s.onExit();
-            s.unload();
-        }
-        push(scene);
-    }
-
-    public void changeScene(String name) {
-        // TODO(Ivan): map scene name -> concrete Scene and switch to it.
-        // Example: if ("menu".equalsIgnoreCase(name)) set(new MenuScene(context));
-        if (name == null) return;
-
-        // Coordination logic: mapping names to concrete classes
-        switch (name.toLowerCase()) {
-            case "menu":
-                set(new MenuScene(context, null));
-                break;
-            case "settings":
-                push(new SettingsScene(context));
-                break;
-            case "leaderboard":
-                push(new LeadershipBoardScene(context));
-                break;
-            default:
-                System.err.println("[SceneManager] Unknown scene name: " + name);
-                break;
-        }
-    }
-
+    
+    /**
+     * Get the current active scene without removing it
+     * 
+     * @return Current scene, or null if stack is empty
+     */
     public Scene peek() {
         return currentScene;
     }
-
-    public void load() {
-        if (currentScene != null) {
-            currentScene.load();
-        }
-    }
-
-    public void update() {
+    
+    /**
+     * Update the current scene
+     * 
+     * @param dt Delta time
+     */
+    public void update(float dt) {
         if (currentScene != null) {
             currentScene.handleInput();
-            currentScene.update();
+            currentScene.update(dt);
         }
     }
-
+    
+    /**
+     * Render the current scene
+     */
     public void render() {
         if (currentScene != null) {
             currentScene.render();
         }
     }
-
-    public void changeScene(Scene newScene) {
-        set(newScene);
+    
+    /**
+     * Check if scene stack is empty
+     * 
+     * @return true if no scenes
+     */
+    public boolean isEmpty() {
+        return scenes.isEmpty();
     }
-
-    public String getActiveSceneName() {
-        return currentScene == null ? "" : currentScene.getClass().getSimpleName();
-    }
-
-    public EngineContext getContext() {
-        return context;
-    }
-
-    public void dispose() { // Dispose all scenes in the stack
+    
+    /**
+     * Clear all scenes from the stack
+     */
+    public void clear() {
         while (!scenes.isEmpty()) {
             pop();
         }
-        System.out.println("[SceneManager] Disposed all scenes.");
+        System.out.println("[SceneManager] Cleared all scenes");
+    }
+    
+    /**
+     * Clean up resources
+     */
+    public void dispose() {
+        clear();
+        System.out.println("[SceneManager] Disposed");
     }
 }
-
