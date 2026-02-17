@@ -43,6 +43,22 @@ public class MovementManager {
         }
     }
 
+    public void setGravity(Vector2 gravity) {
+        this.gravity = gravity == null ? new Vector2(0f, -9.8f) : gravity.cpy();
+    }
+
+    public Vector2 getGravity() {
+        return gravity.cpy();
+    }
+
+    public void setFriction(float friction) {
+        this.friction = Math.max(0f, friction);
+    }
+
+    public float getFriction() {
+        return friction;
+    }
+
     private void applyGravity(VelocityComponent velocity, float dt) {
         if (gravity == null || velocity.getVelocity() == null) {
             return;

@@ -25,6 +25,7 @@ public class InputMap {
     
     // Action name -> key code mapping
     private Map<String, Integer> actionBindings;
+    private Map<String, Boolean> previousActionStates;
     
     /**
      * Constructor with default ID
@@ -41,6 +42,7 @@ public class InputMap {
     public InputMap(String mapId) {
         this.mapId = mapId;
         this.actionBindings = new HashMap<>();
+        this.previousActionStates = new HashMap<>();
     }
     
     /**
@@ -76,7 +78,7 @@ public class InputMap {
 
     public boolean isActionActive(String actionName) {
         Integer keyCode = actionBindings.get(actionName);
-        return keyCode != null && Gdx.input.isKeyPressed(keyCode);
+        return keyCode != null && getCurrentState(keyCode);
     }
     
     /**
@@ -93,7 +95,14 @@ public class InputMap {
 
     public boolean isActionPressed(String actionName) {
         Integer keyCode = actionBindings.get(actionName);
-        return keyCode != null && Gdx.input.isKeyJustPressed(keyCode);
+        if (keyCode == null) {
+            return false;
+        }
+
+        boolean current = getCurrentState(keyCode);
+        boolean previous = previousActionStates.getOrDefault(actionName, false);
+        previousActionStates.put(actionName, current);
+        return current && !previous;
     }
     
     /**
@@ -109,9 +118,15 @@ public class InputMap {
     }
 
     public boolean isActionReleased(String actionName) {
-        // libGDX does not provide key-just-released directly;
-        // manager-level keyboard tracking remains the authoritative path.
-        return false;
+        Integer keyCode = actionBindings.get(actionName);
+        if (keyCode == null) {
+            return false;
+        }
+
+        boolean current = getCurrentState(keyCode);
+        boolean previous = previousActionStates.getOrDefault(actionName, false);
+        previousActionStates.put(actionName, current);
+        return !current && previous;
     }
     
     /**
@@ -139,6 +154,7 @@ public class InputMap {
      */
     public void clearAll() {
         actionBindings.clear();
+        previousActionStates.clear();
     }
     
     /**
@@ -161,5 +177,9 @@ public class InputMap {
      */
     public String getMapId() {
         return mapId;
+    }
+
+    private boolean getCurrentState(int keyCode) {
+        return Gdx.input != null && Gdx.input.isKeyPressed(keyCode);
     }
 }

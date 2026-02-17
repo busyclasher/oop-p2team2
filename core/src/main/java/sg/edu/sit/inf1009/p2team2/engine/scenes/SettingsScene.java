@@ -93,7 +93,7 @@ public class SettingsScene extends Scene {
         config.saveConfig();
 
         Display display = context.getOutputManager().getDisplay();
-        boolean targetFullscreen = Boolean.TRUE.equals(fullscreenToggle.isEnabled());
+        boolean targetFullscreen = fullscreenToggle.isEnabled();
         if (display != null && targetFullscreen != display.isFullscreen()) {
             display.toggleFullscreen();
         }

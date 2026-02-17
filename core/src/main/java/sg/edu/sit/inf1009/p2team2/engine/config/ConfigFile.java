@@ -1,5 +1,8 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Represents a configuration layer loaded from disk.
  *
@@ -7,9 +10,13 @@ package sg.edu.sit.inf1009.p2team2.engine.config;
  */
 public class ConfigFile {
     private final String filePath;
+    private final ConfigLoader loader;
+    private final Map<String, ConfigVar> settings;
 
     public ConfigFile(String filePath) {
         this.filePath = filePath;
+        this.loader = new ConfigLoader();
+        this.settings = new LinkedHashMap<>();
     }
 
     public String getFilePath() {
@@ -17,11 +24,15 @@ public class ConfigFile {
     }
 
     public void reload() {
-        // TODO(Alvin): load/parse config file content into ConfigVar entries.
+        settings.clear();
+        settings.putAll(loader.loadFromFile(filePath));
     }
 
     public void save() {
-        // TODO(Alvin): persist current config values to disk.
+        loader.saveToFile(filePath, settings);
+    }
+
+    public Map<String, ConfigVar> getSettings() {
+        return settings;
     }
 }
-
