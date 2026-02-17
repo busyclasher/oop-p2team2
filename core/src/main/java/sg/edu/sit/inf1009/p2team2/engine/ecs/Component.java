@@ -1,11 +1,10 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs;
 
 /**
- * Marker type for ECS components.
+ * Legacy marker type for ECS components.
  *
- * Concrete components (TransformComponent, VelocityComponent, etc.) should
- * implement this interface.
+ * The UML uses {@link ComponentAdapter}; this interface remains as a
+ * compatibility alias for existing code/tests.
  */
-public interface Component {
+public interface Component extends ComponentAdapter {
 }
-
