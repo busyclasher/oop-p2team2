@@ -57,26 +57,4 @@ public class Entity {
     public void clear() {
         components.clear();
     }
-
-    // UML-friendly aliases kept with explicit names for team usage.
-
-    public void addComponent(ComponentAdapter component) {
-        add(component);
-    }
-
-    public void removeComponent(Class<? extends ComponentAdapter> componentType) {
-        remove(componentType);
-    }
-
-    public <T extends ComponentAdapter> T getComponent(Class<T> componentType) {
-        return get(componentType);
-    }
-
-    public boolean hasComponent(Class<? extends ComponentAdapter> componentType) {
-        return has(componentType);
-    }
-
-    public Collection<ComponentAdapter> getAllComponents() {
-        return getAll();
-    }
 }

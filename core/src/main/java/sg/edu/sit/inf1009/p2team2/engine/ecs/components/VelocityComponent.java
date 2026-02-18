@@ -1,9 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
 import com.badlogic.gdx.math.Vector2;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Component;
+import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
-public class VelocityComponent implements Component {
+public class VelocityComponent implements ComponentAdapter {
     private Vector2 velocity;
     private Vector2 acceleration;
 
@@ -28,4 +28,3 @@ public class VelocityComponent implements Component {
         this.acceleration = acceleration;
     }
 }
-

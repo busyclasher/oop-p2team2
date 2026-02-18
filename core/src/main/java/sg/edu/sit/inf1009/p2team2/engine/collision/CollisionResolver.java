@@ -37,7 +37,7 @@ public class CollisionResolver {
         this.restitution = Math.max(0f, value);
     }
 
-    void separateEntities(Collision collision) {
+    public void separateEntities(Collision collision) {
         Entity entityA = collision.getEntityA();
         Entity entityB = collision.getEntityB();
         TransformComponent transformA = entityA == null ? null : entityA.get(TransformComponent.class);
@@ -56,7 +56,7 @@ public class CollisionResolver {
         transformB.getPosition().mulAdd(normal, separation);
     }
 
-    void applyImpulse(Collision collision) {
+    public void applyImpulse(Collision collision) {
         Entity entityA = collision.getEntityA();
         Entity entityB = collision.getEntityB();
         VelocityComponent velocityA = entityA == null ? null : entityA.get(VelocityComponent.class);
@@ -79,7 +79,7 @@ public class CollisionResolver {
         stopVelocityAlongNormal(velocityB, new Vector2(normal).scl(-1f));
     }
 
-    void stopVelocityAlongNormal(VelocityComponent velocity, Vector2 normal) {
+    public void stopVelocityAlongNormal(VelocityComponent velocity, Vector2 normal) {
         if (velocity == null || velocity.getVelocity() == null || normal == null || normal.isZero()) {
             return;
         }

@@ -1,8 +1,8 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Component;
+import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
-public class InputComponent implements Component {
+public class InputComponent implements ComponentAdapter {
     private String actionMapId;
     private boolean enabled;
 
@@ -31,4 +31,3 @@ public class InputComponent implements Component {
         this.enabled = false;
     }
 }
-

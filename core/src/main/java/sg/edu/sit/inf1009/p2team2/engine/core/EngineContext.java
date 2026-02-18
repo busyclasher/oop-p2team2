@@ -1,6 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.core;
 
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
 import sg.edu.sit.inf1009.p2team2.engine.managers.InputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
@@ -40,13 +41,16 @@ public class EngineContext {
         
         // 1. Config first (other managers might read config)
         this.configManager = ConfigManager.getInstance();
+        this.configManager.load("engine.properties");
         
         // 2. Input manager (no dependencies)
         this.inputManager = new InputManager();
         
         // 3. Output manager (reads config for window size, title)
-        int width = configManager.getInt("display.width");
-        int height = configManager.getInt("display.height");
+        ConfigVar widthSetting = configManager.get("display.width");
+        ConfigVar heightSetting = configManager.get("display.height");
+        int width = widthSetting == null ? 800 : widthSetting.asInt();
+        int height = heightSetting == null ? 600 : heightSetting.asInt();
         
         // Use defaults if config doesn't have values
         width = (width > 0) ? width : 800;

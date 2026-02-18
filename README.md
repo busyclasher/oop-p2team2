@@ -2,14 +2,15 @@
 
 Base package: `sg.edu.sit.inf1009.p2team2`
 
-This repo contains the UML-aligned abstract engine skeleton and test harnesses for Part 1.
+This repo contains the UML-aligned abstract engine and a runnable simulation prototype for Part 1.
 
 ## Tools Used
 - Java 17
 - Gradle Wrapper
 - libGDX (`core` + `lwjgl3`)
 
-## Project Structure
+
+## Project Structure (`|_` hierarchy + purpose)
 ```text
 oop-p2team2
 |_ build.gradle                         # Root Gradle config for all modules
@@ -31,12 +32,10 @@ oop-p2team2
 |  |     |_ scenes/
 |  |     |  |_ Scene.java               # Abstract base scene interface
 |  |     |  |_ MenuScene.java           # Main menu scene and scene navigation
-|  |     |  |_ MainScene.java           # Empty simulation skeleton (logic deferred)
+|  |     |  |_ MainScene.java           # Manager-integrated simulation prototype scene
 |  |     |  |_ SettingsScene.java       # Settings scene with load/save hooks
-|  |     |  |_ LeaderboardScene.java    # Leaderboard scene skeleton
 |  |     |_ ecs/
 |  |     |  |_ ComponentAdapter.java    # UML marker interface for components
-|  |     |  |_ Component.java           # Compatibility marker extending ComponentAdapter
 |  |     |  |_ Entity.java              # ECS entity storing component map
 |  |     |  |_ components/
 |  |     |     |_ TransformComponent.java   # Position/rotation/scale data
@@ -44,7 +43,6 @@ oop-p2team2
 |  |     |     |_ RenderableComponent.java  # Render metadata (sprite/color/visibility)
 |  |     |     |_ InputComponent.java       # Input binding metadata
 |  |     |     |_ ColliderComponent.java    # Collision bounds/layer/trigger data
-|  |     |     |_ TagComponent.java         # Generic tag/label component
 |  |     |_ systems/
 |  |     |  |_ MovementSystem.java      # Integration math for movement components
 |  |     |_ input/
@@ -73,7 +71,6 @@ oop-p2team2
 |  |     |  |_ ConfigDispatcher.java    # Observer dispatch for config changes
 |  |     |  |_ ConfigListener.java      # Config change observer interface
 |  |     |  |_ ConfigVar.java           # Typed config value wrapper
-|  |     |  |_ ConfigurationManager.java# Backward-compatibility wrapper class
 |  |     |  |_ ConfigFile.java          # File-layer model wrapping reload/save
 |  |     |_ ui/
 |  |        |_ Button.java              # UI button model
@@ -83,10 +80,10 @@ oop-p2team2
 |  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
 |     |_ ecs/
 |     |  |_ EntityTest.java             # Unit tests for Entity component operations
-|     |  |_ EntityUmlApiTest.java       # Unit tests for UML alias Entity API
+|     |  |_ EntityUmlApiTest.java       # Unit tests for canonical UML Entity API
 |     |_ managers/
 |     |  |_ EntityManagerTest.java      # Unit tests for EntityManager behavior
-|     |  |_ EntityManagerUmlApiTest.java# Unit tests for UML alias manager API
+|     |  |_ EntityManagerUmlApiTest.java# Unit tests for canonical UML manager API
 |     |  |_ MovementManagerTest.java    # Unit tests for movement manager pass
 |     |  |_ MovementManagerConfigTest.java # Unit tests for gravity/friction config API
 |     |  |_ SceneManagerTest.java       # Unit tests for scene lifecycle stack behavior
@@ -143,6 +140,32 @@ oop-p2team2
 ./gradlew lwjgl3:run -Pscene=complete-io
 ```
 
+## Simulation Controls (`MainScene`)
+- `WASD` / Arrow keys: move player entity
+- `Left Click`: spawn one NPC at cursor position
+- `Right Click`: remove one NPC entity
+- `SPACE`: spawn 10 NPC entities and cycle background palette
+- `BACKSPACE`: remove 10 NPC entities
+- `1-5`: switch demo modes (`INTERACTIVE`, `SHAPES`, `COLORS`, `TEXT`, `STRESS`)
+- `P`: cycle scalability preset (`20`, `100`, `400` entities)
+- `C`: toggle collision manager on/off
+- `F`: toggle fullscreen (display manager)
+- `M`: toggle music
+- `+` / `-`: increase/decrease master volume
+- `[` / `]`: decrease/increase movement friction
+- `Mouse Scroll`: adjust player speed
+- `TAB`: pause/resume simulation update
+- `ENTER`: rebuild world with current preset
+- `ESC`: return to menu scene
+
+Manager coverage shown in runtime:
+- `SceneManager`: menu -> main -> menu transitions
+- `EntityManager`: create/remove/query entities while running
+- `MovementManager`: per-frame integration of transform/velocity
+- `CollisionManager`: collision detection + resolution between entities
+- `InputManager` + `OutputManager`: keyboard/mouse interaction, cursor-follow line/circle, coordinates HUD, mode rendering
+- `ConfigManager`: simulation and settings values loaded/saved across runs
+
 ## JUnit Test Commands
 - Run all unit tests:
 ```bash
@@ -158,20 +181,19 @@ oop-p2team2
 ```bash
 open core/build/reports/tests/test/index.html
 ```
-
+- Output:
 <img width="1382" height="726" alt="image" src="https://github.com/user-attachments/assets/c9492396-d50e-458f-b1f5-1bc8771b26bc" />
-
 
 ## Test Coverage Guide
 - `EntityTest` checks ECS entity add/get/remove/clear behavior.
-- `EntityUmlApiTest` checks UML alias methods (`addComponent`, `getComponent`, etc.).
+- `EntityUmlApiTest` checks canonical UML Entity methods (`add`, `remove`, `get`, `has`, `getAll`).
 - `EntityManagerTest` checks creation IDs, filtering, and collection safety.
 - `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
 - `MovementSystemTest` checks integration math (velocity + position updates).
 - `MovementManagerTest` checks manager-level movement pass over entities.
 - `MovementManagerConfigTest` checks gravity/friction config APIs.
 - `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
-- `ConfigManagerTest` checks singleton, typed config access, observer callback flow.
+- `ConfigManagerTest` checks singleton, load/get, and observer callback flow.
 - `ConfigVarTest` checks typed conversion/reset behavior.
 - `ConfigLoaderTest` checks load/save config round-trip.
 - `ConfigFileTest` checks file-layer reload/save behavior.
@@ -184,3 +206,4 @@ open core/build/reports/tests/test/index.html
 What to look for:
 - JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
 - Runtime tests: scene opens, controls respond, no exceptions in terminal.
+

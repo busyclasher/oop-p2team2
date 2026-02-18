@@ -102,7 +102,7 @@ public class Main extends ApplicationAdapter {
         
         // Save config or game state here if needed
         if (engine != null) {
-            engine.getConfigManager().saveConfig();
+            engine.getConfigManager().save(null);
         }
     }
     

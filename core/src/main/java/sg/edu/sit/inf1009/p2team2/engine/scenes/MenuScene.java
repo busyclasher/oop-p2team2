@@ -1,5 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.engine.scenes;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
@@ -57,8 +58,7 @@ public class MenuScene extends Scene {
         
         menuItems.add(new MenuItem("Start Game", new Vector2(centerX, startY)));
         menuItems.add(new MenuItem("Settings", new Vector2(centerX, startY - spacing)));
-        menuItems.add(new MenuItem("Leaderboard", new Vector2(centerX, startY - spacing * 2)));
-        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 3)));
+        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 2)));
         
         System.out.println("[MenuScene] Loaded " + menuItems.size() + " menu items");
     }
@@ -194,14 +194,10 @@ public class MenuScene extends Scene {
                 context.getSceneManager().push(new SettingsScene(context));
                 break;
                 
-            case "Leaderboard":
-                System.out.println("[MenuScene] Opening leaderboard...");
-                context.getSceneManager().push(new LeaderboardScene(context));
-                break;
-                
             case "Exit":
                 System.out.println("[MenuScene] Exiting...");
                 context.stop();
+                Gdx.app.exit();
                 break;
         }
     }

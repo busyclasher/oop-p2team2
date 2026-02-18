@@ -34,7 +34,7 @@ public final class ConfigManager {
             configStore.update(entry.getKey(), entry.getValue());
             notifyObservers(entry.getKey(), oldValue, entry.getValue());
         }
-        if (filePath != null) {
+        if (filePath != null && !filePath.isBlank()) {
             lastLoadedPath = filePath;
         }
     }
@@ -62,79 +62,7 @@ public final class ConfigManager {
         configDispatcher.removeObserver(observer);
     }
 
-    private void notifyObservers(String key, ConfigVar oldValue, ConfigVar newValue) {
+    public void notifyObservers(String key, ConfigVar oldValue, ConfigVar newValue) {
         configDispatcher.notify(key, newValue);
-    }
-
-    // Compatibility wrappers for existing scene/context call sites.
-
-    public void loadConfig(String filePath) {
-        load(filePath);
-    }
-
-    public void saveConfig() {
-        save(lastLoadedPath);
-    }
-
-    public void resetToDefaults() {
-        for (ConfigVar value : configStore.getAll().values()) {
-            if (value != null) {
-                value.reset();
-            }
-        }
-    }
-
-    public float getFloat(String key) {
-        ConfigVar value = get(key);
-        return value == null ? 0f : value.asFloat();
-    }
-
-    public int getInt(String key) {
-        ConfigVar value = get(key);
-        return value == null ? 0 : value.asInt();
-    }
-
-    public boolean getBool(String key) {
-        ConfigVar value = get(key);
-        return value != null && value.asBool();
-    }
-
-    public String getString(String key) {
-        ConfigVar value = get(key);
-        return value == null ? "" : value.asString();
-    }
-
-    public void setValue(String name, Object value) {
-        ConfigVar current = get(name);
-        ConfigVar target = current == null ? new ConfigVar(value, value) : current;
-        if (current == null) {
-            set(name, target);
-        } else {
-            ConfigVar oldValue = new ConfigVar(current.getValue(), current.getDefaultValue());
-            current.setValue(value);
-            notifyObservers(name, oldValue, current);
-        }
-    }
-
-    public void setValue(String name, float value) {
-        setValue(name, Float.valueOf(value));
-    }
-
-    public void reloadFromDisk() {
-        if (lastLoadedPath != null && !lastLoadedPath.isBlank()) {
-            load(lastLoadedPath);
-        }
-    }
-
-    ConfigRegistry getConfigStore() {
-        return configStore;
-    }
-
-    ConfigLoader getConfigLoader() {
-        return configLoader;
-    }
-
-    ConfigDispatcher getConfigDispatcher() {
-        return configDispatcher;
     }
 }

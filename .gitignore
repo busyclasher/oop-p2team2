@@ -155,6 +155,8 @@ Thumbs.db
 *#*#
 /.kotlin/
 /assets/assets.txt
+/assets/engine.properties
+/engine.properties
 
 ## Special cases:
 
