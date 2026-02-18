@@ -9,7 +9,8 @@ This repo contains the UML-aligned abstract engine and a runnable simulation pro
 - Gradle Wrapper
 - libGDX (`core` + `lwjgl3`)
 
-## Project Structure
+
+## Project Structure (`|_` hierarchy + purpose)
 ```text
 oop-p2team2
 |_ build.gradle                         # Root Gradle config for all modules
@@ -139,6 +140,32 @@ oop-p2team2
 ./gradlew lwjgl3:run -Pscene=complete-io
 ```
 
+## Simulation Controls (`MainScene`)
+- `WASD` / Arrow keys: move player entity
+- `Left Click`: spawn one NPC at cursor position
+- `Right Click`: remove one NPC entity
+- `SPACE`: spawn 10 NPC entities and cycle background palette
+- `BACKSPACE`: remove 10 NPC entities
+- `1-5`: switch demo modes (`INTERACTIVE`, `SHAPES`, `COLORS`, `TEXT`, `STRESS`)
+- `P`: cycle scalability preset (`20`, `100`, `400` entities)
+- `C`: toggle collision manager on/off
+- `F`: toggle fullscreen (display manager)
+- `M`: toggle music
+- `+` / `-`: increase/decrease master volume
+- `[` / `]`: decrease/increase movement friction
+- `Mouse Scroll`: adjust player speed
+- `TAB`: pause/resume simulation update
+- `ENTER`: rebuild world with current preset
+- `ESC`: return to menu scene
+
+Manager coverage shown in runtime:
+- `SceneManager`: menu -> main -> menu transitions
+- `EntityManager`: create/remove/query entities while running
+- `MovementManager`: per-frame integration of transform/velocity
+- `CollisionManager`: collision detection + resolution between entities
+- `InputManager` + `OutputManager`: keyboard/mouse interaction, cursor-follow line/circle, coordinates HUD, mode rendering
+- `ConfigManager`: simulation and settings values loaded/saved across runs
+
 ## JUnit Test Commands
 - Run all unit tests:
 ```bash
@@ -154,20 +181,19 @@ oop-p2team2
 ```bash
 open core/build/reports/tests/test/index.html
 ```
-
+- Output:
 <img width="1382" height="726" alt="image" src="https://github.com/user-attachments/assets/c9492396-d50e-458f-b1f5-1bc8771b26bc" />
-
 
 ## Test Coverage Guide
 - `EntityTest` checks ECS entity add/get/remove/clear behavior.
-- `EntityUmlApiTest` checks UML alias methods (`addComponent`, `getComponent`, etc.).
+- `EntityUmlApiTest` checks canonical UML Entity methods (`add`, `remove`, `get`, `has`, `getAll`).
 - `EntityManagerTest` checks creation IDs, filtering, and collection safety.
 - `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
 - `MovementSystemTest` checks integration math (velocity + position updates).
 - `MovementManagerTest` checks manager-level movement pass over entities.
 - `MovementManagerConfigTest` checks gravity/friction config APIs.
 - `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
-- `ConfigManagerTest` checks singleton, typed config access, observer callback flow.
+- `ConfigManagerTest` checks singleton, load/get, and observer callback flow.
 - `ConfigVarTest` checks typed conversion/reset behavior.
 - `ConfigLoaderTest` checks load/save config round-trip.
 - `ConfigFileTest` checks file-layer reload/save behavior.
@@ -180,3 +206,4 @@ open core/build/reports/tests/test/index.html
 What to look for:
 - JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
 - Runtime tests: scene opens, controls respond, no exceptions in terminal.
+
