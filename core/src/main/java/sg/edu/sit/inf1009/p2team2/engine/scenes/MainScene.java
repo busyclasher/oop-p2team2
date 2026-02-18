@@ -168,7 +168,6 @@ public class MainScene extends Scene {
 
         // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
-        renderer.drawText("", new Vector2(320, 550), "default", Color.WHITE);
 
         renderEntities(renderer);
         renderModeOverlay(renderer);

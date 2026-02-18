@@ -124,6 +124,9 @@ public class Display {
      * @return true if fullscreen
      */
     public boolean isFullscreen() {
+        if (Gdx.graphics != null) {
+            isFullscreen = Gdx.graphics.isFullscreen();
+        }
         return isFullscreen;
     }
     

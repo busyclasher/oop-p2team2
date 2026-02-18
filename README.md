@@ -10,7 +10,7 @@ This repo contains the UML-aligned abstract engine and a runnable simulation pro
 - libGDX (`core` + `lwjgl3`)
 
 
-## Project Structure (`|_` hierarchy + purpose)
+## Project Structure
 ```text
 oop-p2team2
 |_ build.gradle                         # Root Gradle config for all modules
@@ -104,7 +104,7 @@ oop-p2team2
 |     |_ scenes/tests/
 |        |_ InputOutputTestScene.java   # Runtime/manual test scene (I/O)
 |        |_ CompleteIOTest.java         # Runtime/manual comprehensive I/O scene
-         |_ SceneSmokeTest.java         # Runtime/manual Menu,Settings,Main scenes load correctly and assest files are in place
+|        |_ SceneSmokeTest.java         # JUnit smoke checks for Menu/Settings/Main scene load + required assets
 |_ lwjgl3/
 |  |_ build.gradle                      # Desktop run packaging and scene-property pass-through
 |  |_ src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/
@@ -178,9 +178,14 @@ Manager coverage shown in runtime:
 ./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.config.ConfigManagerTest"
 ```
 
-- Run scene test class:
+- Run new scene smoke test class:
 ```bash
 ./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.SceneSmokeTest"
+```
+
+- Run all scene package tests:
+```bash
+./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.*"
 ```
 
 - Open HTML test report after running tests:
@@ -207,9 +212,9 @@ open core/build/reports/tests/test/index.html
 - `CollisionResolverTest` checks separation and velocity response path.
 - `InputMapTest` checks action binding and keyboard-driven action states.
 - `UiModelsTest` checks `Slider`, `Toggle`, `Button`, and `Score` model behavior.
+- `SceneSmokeTest` checks `MenuScene`/`SettingsScene` load safely and verifies required scene background assets are present.
 - `InputOutputTestScene` + `CompleteIOTest` are runtime/manual scene tests (not JUnit).
 
 What to look for:
 - JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
 - Runtime tests: scene opens, controls respond, no exceptions in terminal.
-
