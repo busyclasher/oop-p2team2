@@ -1,5 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.engine.scenes;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
@@ -196,6 +197,7 @@ public class MenuScene extends Scene {
             case "Exit":
                 System.out.println("[MenuScene] Exiting...");
                 context.stop();
+                Gdx.app.exit();
                 break;
         }
     }
