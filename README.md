@@ -2,7 +2,7 @@
 
 Base package: `sg.edu.sit.inf1009.p2team2`
 
-This repo contains the UML-aligned abstract engine skeleton and test harnesses for Part 1.
+This repo contains the UML-aligned abstract engine and a runnable simulation prototype for Part 1.
 
 ## Tech Stack
 - Java 17
@@ -38,6 +38,26 @@ This repo contains the UML-aligned abstract engine skeleton and test harnesses f
 ./gradlew lwjgl3:run -Pscene=complete-io
 ```
 
+## Simulation Controls (`MainScene`)
+- `WASD` / Arrow keys: move player entity
+- `Left Click`: spawn one NPC at cursor position
+- `SPACE`: spawn 10 NPC entities
+- `BACKSPACE`: remove 10 NPC entities
+- `M`: cycle scalability preset (`20`, `100`, `400` entities)
+- `F`: toggle collision manager on/off
+- `TAB`: pause/resume simulation update
+- `+` / `-`: increase/decrease movement friction
+- `ENTER`: rebuild world with current preset
+- `ESC`: return to menu scene
+
+Manager coverage shown in runtime:
+- `SceneManager`: menu -> main -> menu transitions
+- `EntityManager`: create/remove/query entities while running
+- `MovementManager`: per-frame integration of transform/velocity
+- `CollisionManager`: collision detection + resolution between entities
+- `InputManager` + `OutputManager`: keyboard/mouse interaction and on-screen rendering
+- `ConfigManager`: simulation and settings values loaded/saved across runs
+
 ## JUnit Test Commands
 - Run all unit tests:
 ```bash
@@ -56,14 +76,14 @@ open core/build/reports/tests/test/index.html
 
 ## Test Coverage Guide
 - `EntityTest` checks ECS entity add/get/remove/clear behavior.
-- `EntityUmlApiTest` checks UML alias methods (`addComponent`, `getComponent`, etc.).
+- `EntityUmlApiTest` checks canonical UML Entity methods (`add`, `remove`, `get`, `has`, `getAll`).
 - `EntityManagerTest` checks creation IDs, filtering, and collection safety.
 - `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
 - `MovementSystemTest` checks integration math (velocity + position updates).
 - `MovementManagerTest` checks manager-level movement pass over entities.
 - `MovementManagerConfigTest` checks gravity/friction config APIs.
 - `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
-- `ConfigManagerTest` checks singleton, typed config access, observer callback flow.
+- `ConfigManagerTest` checks singleton, load/get, and observer callback flow.
 - `ConfigVarTest` checks typed conversion/reset behavior.
 - `ConfigLoaderTest` checks load/save config round-trip.
 - `ConfigFileTest` checks file-layer reload/save behavior.
@@ -99,7 +119,7 @@ oop-p2team2
 |  |     |_ scenes/
 |  |     |  |_ Scene.java               # Abstract base scene interface
 |  |     |  |_ MenuScene.java           # Main menu scene and scene navigation
-|  |     |  |_ MainScene.java           # Empty simulation skeleton (logic deferred)
+|  |     |  |_ MainScene.java           # Manager-integrated simulation prototype scene
 |  |     |  |_ SettingsScene.java       # Settings scene with load/save hooks
 |  |     |_ ecs/
 |  |     |  |_ ComponentAdapter.java    # UML marker interface for components
@@ -150,7 +170,7 @@ oop-p2team2
 |     |  |_ EntityUmlApiTest.java       # Unit tests for canonical UML Entity API
 |     |_ managers/
 |     |  |_ EntityManagerTest.java      # Unit tests for EntityManager behavior
-|     |  |_ EntityManagerUmlApiTest.java# Unit tests for UML alias manager API
+|     |  |_ EntityManagerUmlApiTest.java# Unit tests for canonical UML manager API
 |     |  |_ MovementManagerTest.java    # Unit tests for movement manager pass
 |     |  |_ MovementManagerConfigTest.java # Unit tests for gravity/friction config API
 |     |  |_ SceneManagerTest.java       # Unit tests for scene lifecycle stack behavior
