@@ -33,7 +33,7 @@ public class SettingsScene extends Scene {
     private int presetIndex;
     private int selectedRow;
 
-    private static final String BACKGROUND_SPRITE = "settings.png";
+    private static final String BACKGROUND_SPRITE = "setting.png";
 
     public SettingsScene(EngineContext context) {
         super(context);
@@ -115,7 +115,11 @@ public class SettingsScene extends Scene {
 
         renderer.clear();
         renderer.begin();
-        renderer.drawText("SETTINGS", new Vector2(330, 730), "default", Color.WHITE);
+        
+        // Draw background
+        Vector2 screenCenter = new Vector2(400, 300);
+        renderer.drawSprite(BACKGROUND_SPRITE, screenCenter, 0f, new Vector2(1, 1));
+        renderer.drawText("SETTINGS", new Vector2(320, 550), "default", Color.WHITE);
 
         if (volumeSlider != null) {
             volumeSlider.render(renderer, selectedRow == ROW_VOLUME);

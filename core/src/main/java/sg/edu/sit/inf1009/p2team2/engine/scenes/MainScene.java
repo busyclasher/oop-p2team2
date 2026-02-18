@@ -166,6 +166,10 @@ public class MainScene extends Scene {
         renderer.clear();
         renderer.begin();
 
+         // Draw background
+        Vector2 screenCenter = new Vector2(400, 300);
+        renderer.drawSprite(BACKGROUND_SPRITE, screenCenter, 0f, new Vector2(1, 1));
+
         renderEntities(renderer);
         renderModeOverlay(renderer);
         renderHud(renderer);
