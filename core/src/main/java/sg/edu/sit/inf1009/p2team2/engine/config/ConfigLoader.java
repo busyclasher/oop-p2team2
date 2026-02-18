@@ -83,7 +83,7 @@ public class ConfigLoader {
         Map<String, ConfigVar> defaults = new LinkedHashMap<>();
         defaults.put("display.width", new ConfigVar(800, 800));
         defaults.put("display.height", new ConfigVar(600, 600));
-        defaults.put("display.fullscreen", new ConfigVar(true, false));
+        defaults.put("display.fullscreen", new ConfigVar(false, false));
         defaults.put("display.title", new ConfigVar("P2Team2AbstractEngine", "P2Team2AbstractEngine"));
         defaults.put("audio.volume", new ConfigVar(0.7f, 0.7f));
         return defaults;

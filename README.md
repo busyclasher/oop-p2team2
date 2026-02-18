@@ -104,7 +104,7 @@ oop-p2team2
 |     |_ scenes/tests/
 |        |_ InputOutputTestScene.java   # Runtime/manual test scene (I/O)
 |        |_ CompleteIOTest.java         # Runtime/manual comprehensive I/O scene
-         |_ SceneSmokeTest.java         # Runtime/manual Menu,Settings,Main scenes load correctly and assest files are in place
+|        |_ SceneSmokeTest.java         # Runtime/manual Menu/Settings/Main scene smoke checks and asset presence checks
 |_ lwjgl3/
 |  |_ build.gradle                      # Desktop run packaging and scene-property pass-through
 |  |_ src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/
@@ -212,4 +212,3 @@ open core/build/reports/tests/test/index.html
 What to look for:
 - JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
 - Runtime tests: scene opens, controls respond, no exceptions in terminal.
-
