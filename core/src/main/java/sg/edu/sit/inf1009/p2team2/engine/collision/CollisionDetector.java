@@ -82,7 +82,7 @@ public class CollisionDetector {
         return (dx * dx + dy * dy) <= (circle.getRadius() * circle.getRadius());
     }
 
-    float calculatePenetration(Shape a, Shape b) {
+    public float calculatePenetration(Shape a, Shape b) {
         if (a instanceof Rectangle rectA && b instanceof Rectangle rectB) {
             float overlapX = Math.min(rectA.getPosition().x + rectA.getWidth(), rectB.getPosition().x + rectB.getWidth())
                 - Math.max(rectA.getPosition().x, rectB.getPosition().x);
@@ -93,7 +93,7 @@ public class CollisionDetector {
         return 0f;
     }
 
-    Vector2 calculateContactNormal(Shape a, Shape b) {
+    public Vector2 calculateContactNormal(Shape a, Shape b) {
         if (a instanceof Rectangle rectA && b instanceof Rectangle rectB) {
             float centerAX = rectA.getPosition().x + rectA.getWidth() * 0.5f;
             float centerAY = rectA.getPosition().y + rectA.getHeight() * 0.5f;
