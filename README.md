@@ -104,6 +104,7 @@ oop-p2team2
 |     |_ scenes/tests/
 |        |_ InputOutputTestScene.java   # Runtime/manual test scene (I/O)
 |        |_ CompleteIOTest.java         # Runtime/manual comprehensive I/O scene
+         |_ SceneSmokeTest.java         # Runtime/manual Menu,Settings,Main scenes load correctly and assest files are in place
 |_ lwjgl3/
 |  |_ build.gradle                      # Desktop run packaging and scene-property pass-through
 |  |_ src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/
@@ -175,6 +176,11 @@ Manager coverage shown in runtime:
 - Run one test class:
 ```bash
 ./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.config.ConfigManagerTest"
+```
+
+- Run scene test class:
+```bash
+./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.SceneSmokeTest"
 ```
 
 - Open HTML test report after running tests:
