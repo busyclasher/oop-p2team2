@@ -116,10 +116,9 @@ public class SettingsScene extends Scene {
         renderer.clear();
         renderer.begin();
         
-        // Draw background
-        Vector2 screenCenter = new Vector2(400, 300);
-        renderer.drawSprite(BACKGROUND_SPRITE, screenCenter, 0f, new Vector2(1, 1));
-        renderer.drawText("SETTINGS", new Vector2(320, 550), "default", Color.WHITE);
+        // Draw background centered and scaled to the window
+        renderer.drawBackground(BACKGROUND_SPRITE);
+        renderer.drawText("", new Vector2(320, 550), "default", Color.WHITE);
 
         if (volumeSlider != null) {
             volumeSlider.render(renderer, selectedRow == ROW_VOLUME);
