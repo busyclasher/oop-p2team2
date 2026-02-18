@@ -4,106 +4,12 @@ Base package: `sg.edu.sit.inf1009.p2team2`
 
 This repo contains the UML-aligned abstract engine and a runnable simulation prototype for Part 1.
 
-## Tech Stack
+## Tools Used
 - Java 17
 - Gradle Wrapper
 - libGDX (`core` + `lwjgl3`)
 
-## UML
-<img width="8708" height="5769" alt="Abstract Engine UML Class Diagram (1)" src="https://github.com/user-attachments/assets/61f424c5-291f-4663-ad29-7fd62a83b54b" />
-
-## Build Commands
-```bash
-./gradlew :core:compileJava :lwjgl3:compileJava
-```
-
-## Run Commands (Desktop)
-- Default app start (menu):
-```bash
-./gradlew lwjgl3:run
-```
-
-- Start directly in simulation scene (`MainScene`):
-```bash
-./gradlew lwjgl3:run -Pscene=main
-```
-
-- Start Hong Yih runtime I/O test scene:
-```bash
-./gradlew lwjgl3:run -Pscene=io-test
-```
-
-- Start Hong Yih complete runtime I/O test scene:
-```bash
-./gradlew lwjgl3:run -Pscene=complete-io
-```
-
-## Simulation Controls (`MainScene`)
-- `WASD` / Arrow keys: move player entity
-- `Left Click`: spawn one NPC at cursor position
-- `Right Click`: remove one NPC entity
-- `SPACE`: spawn 10 NPC entities and cycle background palette
-- `BACKSPACE`: remove 10 NPC entities
-- `1-5`: switch demo modes (`INTERACTIVE`, `SHAPES`, `COLORS`, `TEXT`, `STRESS`)
-- `P`: cycle scalability preset (`20`, `100`, `400` entities)
-- `C`: toggle collision manager on/off
-- `F`: toggle fullscreen (display manager)
-- `M`: toggle music
-- `+` / `-`: increase/decrease master volume
-- `[` / `]`: decrease/increase movement friction
-- `Mouse Scroll`: adjust player speed
-- `TAB`: pause/resume simulation update
-- `ENTER`: rebuild world with current preset
-- `ESC`: return to menu scene
-
-Manager coverage shown in runtime:
-- `SceneManager`: menu -> main -> menu transitions
-- `EntityManager`: create/remove/query entities while running
-- `MovementManager`: per-frame integration of transform/velocity
-- `CollisionManager`: collision detection + resolution between entities
-- `InputManager` + `OutputManager`: keyboard/mouse interaction, cursor-follow line/circle, coordinates HUD, mode rendering
-- `ConfigManager`: simulation and settings values loaded/saved across runs
-
-## JUnit Test Commands
-- Run all unit tests:
-```bash
-./gradlew :core:test
-```
-
-- Run one test class:
-```bash
-./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.config.ConfigManagerTest"
-```
-
-- Open HTML test report after running tests:
-```bash
-open core/build/reports/tests/test/index.html
-```
-
-## Test Coverage Guide
-- `EntityTest` checks ECS entity add/get/remove/clear behavior.
-- `EntityUmlApiTest` checks canonical UML Entity methods (`add`, `remove`, `get`, `has`, `getAll`).
-- `EntityManagerTest` checks creation IDs, filtering, and collection safety.
-- `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
-- `MovementSystemTest` checks integration math (velocity + position updates).
-- `MovementManagerTest` checks manager-level movement pass over entities.
-- `MovementManagerConfigTest` checks gravity/friction config APIs.
-- `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
-- `ConfigManagerTest` checks singleton, load/get, and observer callback flow.
-- `ConfigVarTest` checks typed conversion/reset behavior.
-- `ConfigLoaderTest` checks load/save config round-trip.
-- `ConfigFileTest` checks file-layer reload/save behavior.
-- `CollisionDetectorTest` checks overlap and non-overlap collision detection.
-- `CollisionResolverTest` checks separation and velocity response path.
-- `InputMapTest` checks action binding and keyboard-driven action states.
-- `UiModelsTest` checks `Slider`, `Toggle`, `Button`, and `Score` model behavior.
-- `InputOutputTestScene` + `CompleteIOTest` are runtime/manual scene tests (not JUnit).
-
-What to look for:
-- JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
-- Runtime tests: scene opens, controls respond, no exceptions in terminal.
-
-## Project Structure (`|_` hierarchy + purpose)
+## Project Structure
 ```text
 oop-p2team2
 |_ build.gradle                         # Root Gradle config for all modules
@@ -203,3 +109,74 @@ oop-p2team2
 |     |_ Lwjgl3Launcher.java            # Desktop entrypoint for libGDX
 |     |_ StartupHelper.java             # Mac/JVM startup helper
 ```
+
+## UML
+<img width="8708" height="5769" alt="Abstract Engine UML Class Diagram (1)" src="https://github.com/user-attachments/assets/61f424c5-291f-4663-ad29-7fd62a83b54b" />
+
+## Build Commands
+```bash
+./gradlew :core:compileJava :lwjgl3:compileJava
+```
+
+## Run Commands (Desktop)
+- Default app start (menu):
+```bash
+./gradlew lwjgl3:run
+```
+
+- Start directly in simulation scene (`MainScene`):
+```bash
+./gradlew lwjgl3:run -Pscene=main
+```
+
+- Start Hong Yih runtime I/O test scene:
+```bash
+./gradlew lwjgl3:run -Pscene=io-test
+```
+
+- Start Hong Yih complete runtime I/O test scene:
+```bash
+./gradlew lwjgl3:run -Pscene=complete-io
+```
+
+## JUnit Test Commands
+- Run all unit tests:
+```bash
+./gradlew :core:test
+```
+
+- Run one test class:
+```bash
+./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.config.ConfigManagerTest"
+```
+
+- Open HTML test report after running tests:
+```bash
+open core/build/reports/tests/test/index.html
+```
+
+<img width="1382" height="726" alt="image" src="https://github.com/user-attachments/assets/c9492396-d50e-458f-b1f5-1bc8771b26bc" />
+
+
+## Test Coverage Guide
+- `EntityTest` checks ECS entity add/get/remove/clear behavior.
+- `EntityUmlApiTest` checks UML alias methods (`addComponent`, `getComponent`, etc.).
+- `EntityManagerTest` checks creation IDs, filtering, and collection safety.
+- `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
+- `MovementSystemTest` checks integration math (velocity + position updates).
+- `MovementManagerTest` checks manager-level movement pass over entities.
+- `MovementManagerConfigTest` checks gravity/friction config APIs.
+- `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
+- `ConfigManagerTest` checks singleton, typed config access, observer callback flow.
+- `ConfigVarTest` checks typed conversion/reset behavior.
+- `ConfigLoaderTest` checks load/save config round-trip.
+- `ConfigFileTest` checks file-layer reload/save behavior.
+- `CollisionDetectorTest` checks overlap and non-overlap collision detection.
+- `CollisionResolverTest` checks separation and velocity response path.
+- `InputMapTest` checks action binding and keyboard-driven action states.
+- `UiModelsTest` checks `Slider`, `Toggle`, `Button`, and `Score` model behavior.
+- `InputOutputTestScene` + `CompleteIOTest` are runtime/manual scene tests (not JUnit).
+
+What to look for:
+- JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
+- Runtime tests: scene opens, controls respond, no exceptions in terminal.
