@@ -159,6 +159,9 @@ oop-p2team2
 open core/build/reports/tests/test/index.html
 ```
 
+<img width="1382" height="726" alt="image" src="https://github.com/user-attachments/assets/c9492396-d50e-458f-b1f5-1bc8771b26bc" />
+
+
 ## Test Coverage Guide
 - `EntityTest` checks ECS entity add/get/remove/clear behavior.
 - `EntityUmlApiTest` checks UML alias methods (`addComponent`, `getComponent`, etc.).
