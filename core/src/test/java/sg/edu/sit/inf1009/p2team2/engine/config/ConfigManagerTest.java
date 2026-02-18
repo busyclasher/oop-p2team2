@@ -19,14 +19,14 @@ class ConfigManagerTest {
     }
 
     @Test
-    void loadSeedsDefaultsAndTypedAccessorsWork() {
+    void loadSeedsDefaultsAndGetReturnsExpectedValues() {
         ConfigManager manager = ConfigManager.getInstance();
         manager.load("test-config.json");
 
-        assertEquals(800, manager.getInt("display.width"));
-        assertEquals(600, manager.getInt("display.height"));
-        assertTrue(manager.getString("display.title").contains("P2Team2"));
-        assertFalse(manager.getBool("display.fullscreen"));
+        assertEquals(800, manager.get("display.width").asInt());
+        assertEquals(600, manager.get("display.height").asInt());
+        assertTrue(manager.get("display.title").asString().contains("P2Team2"));
+        assertFalse(manager.get("display.fullscreen").asBool());
     }
 
     @Test
@@ -41,7 +41,10 @@ class ConfigManagerTest {
             }
         });
 
-        manager.setValue("audio.volume", 0.25f);
+        ConfigVar oldValue = manager.get("audio.volume");
+        ConfigVar newValue = new ConfigVar(0.25f, oldValue == null ? 0.7f : oldValue.getDefaultValue());
+        manager.set("audio.volume", newValue);
+        manager.notifyObservers("audio.volume", oldValue, newValue);
 
         assertTrue(called[0]);
         ConfigVar stored = manager.get("audio.volume");

@@ -138,7 +138,6 @@ oop-p2team2
 |  |     |  |_ ConfigDispatcher.java    # Observer dispatch for config changes
 |  |     |  |_ ConfigListener.java      # Config change observer interface
 |  |     |  |_ ConfigVar.java           # Typed config value wrapper
-|  |     |  |_ ConfigurationManager.java# Backward-compatibility wrapper class
 |  |     |  |_ ConfigFile.java          # File-layer model wrapping reload/save
 |  |     |_ ui/
 |  |        |_ Button.java              # UI button model
@@ -148,7 +147,7 @@ oop-p2team2
 |  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
 |     |_ ecs/
 |     |  |_ EntityTest.java             # Unit tests for Entity component operations
-|     |  |_ EntityUmlApiTest.java       # Unit tests for UML alias Entity API
+|     |  |_ EntityUmlApiTest.java       # Unit tests for canonical UML Entity API
 |     |_ managers/
 |     |  |_ EntityManagerTest.java      # Unit tests for EntityManager behavior
 |     |  |_ EntityManagerUmlApiTest.java# Unit tests for UML alias manager API

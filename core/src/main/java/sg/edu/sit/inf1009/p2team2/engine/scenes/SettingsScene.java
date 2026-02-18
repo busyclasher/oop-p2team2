@@ -3,6 +3,7 @@ package sg.edu.sit.inf1009.p2team2.engine.scenes;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.output.Display;
@@ -88,9 +89,11 @@ public class SettingsScene extends Scene {
         }
 
         var config = context.getConfigManager();
-        config.setValue("display.fullscreen", fullscreenToggle.isEnabled());
-        config.setValue("audio.volume", volumeSlider == null ? 0.7f : volumeSlider.getValue() / 100f);
-        config.saveConfig();
+        boolean fullscreen = fullscreenToggle.isEnabled();
+        float volume = volumeSlider == null ? 0.7f : volumeSlider.getValue() / 100f;
+        config.set("display.fullscreen", new ConfigVar(fullscreen, false));
+        config.set("audio.volume", new ConfigVar(volume, 0.7f));
+        config.save(null);
 
         Display display = context.getOutputManager().getDisplay();
         boolean targetFullscreen = fullscreenToggle.isEnabled();
@@ -105,8 +108,10 @@ public class SettingsScene extends Scene {
         }
 
         var config = context.getConfigManager();
-        float currentVolume = config.getFloat("audio.volume");
-        boolean isFullscreen = config.getBool("display.fullscreen");
+        ConfigVar volumeSetting = config.get("audio.volume");
+        ConfigVar fullscreenSetting = config.get("display.fullscreen");
+        float currentVolume = volumeSetting == null ? 0.7f : volumeSetting.asFloat();
+        boolean isFullscreen = fullscreenSetting != null && fullscreenSetting.asBool();
 
         volumeSlider.setValue(currentVolume * 100f);
         fullscreenToggle.setValue(isFullscreen);
