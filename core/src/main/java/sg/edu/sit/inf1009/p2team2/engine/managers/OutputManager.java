@@ -3,74 +3,92 @@ package sg.edu.sit.inf1009.p2team2.engine.managers;
 import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.output.Display;
 import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
-import sg.edu.sit.inf1009.p2team2.engine.world.World;
 
 /**
  * Centralized output manager (rendering + audio).
  */
 public class OutputManager {
+    // Output devices
     private final Display display;
     private final Renderer renderer;
     private final Audio audio;
 
-    private World world;
-
+    /**
+     * Constructor
+     * @param width Window width
+     * @param height Window height
+     */
     public OutputManager(int width, int height) {
-        this.display = new Display(width, height, "Abstract Engine");
+        this(width, height, "Abstract Engine");
+    }
+
+    /**
+     * Constructor overload kept for backward compatibility.
+     *
+     * @param width Window width
+     * @param height Window height
+     * @param title Window title
+     */
+    public OutputManager(int width, int height, String title) {
+        this.display = new Display(width, height, title);
         this.renderer = new Renderer();
         this.audio = new Audio();
     }
 
+    /**
+     * Initialize output systems
+     * Call this AFTER construction, before using
+     */
     public void initialize() {
-        // TODO(HongYih): initialize display/audio/render resources.
         display.createWindow();
     }
 
-    public void beginFrame() {
-        // TODO(HongYih): clear + begin render pass.
-        renderer.begin();
-    }
-
-    public void endFrame() {
-        // TODO(HongYih): end render pass + present frame.
+    /**
+     * Update output systems - call once per frame
+     * 
+     * @param dt Delta time (not used currently, but good for future)
+     */
+    public void update(float dt) {
+        // Swap display buffers (show what was rendered)
         display.swapBuffers();
     }
 
-    public void playSound(String name) {
-        audio.playSound(name);
+    // ===== ACCESSORS =====
+    
+    /**
+     * Get the display device
+     * 
+     * @return Display instance for window management
+     */
+    public Display getDisplay() {
+        return display;
     }
-
-    public void playSound(String name, float volume) {
-        audio.playSound(name, volume);
-    }
-
-    public void playMusic(String name, boolean loop) {
-        audio.playMusic(name, loop);
-    }
-
+    
+    /**
+     * Get the renderer
+     * 
+     * @return Renderer instance for drawing
+     */
     public Renderer getRenderer() {
         return renderer;
     }
-
+    
+    /**
+     * Get the audio system
+     * 
+     * @return Audio instance for sound and music
+     */
+    public Audio getAudio() {
+        return audio;
+    }
+    
+    /**
+     * Clean up resources
+     * Call this when shutting down the engine
+     */
     public void dispose() {
-        // TODO(HongYih): dispose output resources in the correct order.
+        display.dispose();
         renderer.dispose();
         audio.dispose();
-        display.dispose();
-    }
-
-    public Object getAudio() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAudio'");
-    }
-
-    public boolean shouldClose() {
-        // TODO Auto-generated method stub
-        return display != null && display.shouldClose();
-    }
-
-    public Object getDisplay() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDisplay'");
     }
 }

@@ -1,87 +1,56 @@
 package sg.edu.sit.inf1009.p2team2.engine.collision;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
-
+import java.util.Map;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.managers.EntityManager;
 
 /**
- * Manages collision detection/resolution for the world.
+ * Coordinates detection and resolution of collisions each frame.
  */
 public class CollisionManager {
-    private Entity owner;
-    private Shape shape;
-    private boolean trigger;
-
-    private final List<Collider> colliders = new ArrayList<>();
+    private final EntityManager entityManager;
     private final CollisionDetector detector;
     private final CollisionResolver resolver;
+    private final Map<String, Collision> activeCollisions;
 
-    private final List<Collision> collisions = new ArrayList<>();
-    private final List<Collision> currentCollisions = new ArrayList<>();
-
-    public CollisionManager() {
-        this.detector = new CollisionDetector(owner, shape, trigger);
+    public CollisionManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.detector = new CollisionDetector();
         this.resolver = new CollisionResolver();
-    }
-
-    public Entity getOwner() {
-        return owner;
-    }
-
-    public Shape getWorldShape() {
-        return shape;
-    }
-
-    public boolean isTrigger() {
-        return trigger;
-    }
-
-    public boolean checkCollision(Collider a, Collider b) {
-        // TODO(Cody): implement collision test between a and b (using detector + shapes).
-        return false;
-    }
-
-    public void resolve(Collider a, Collider b) {
-        // TODO(Cody): resolve collision between a and b (impulses, separation, events).
-    }
-
-    public void register(Collider c) {
-        // TODO(Cody): register collider into collision system.
-        if (c != null) {
-            colliders.add(c);
-        }
-    }
-
-    public void unregister(Collider c) {
-        // TODO(Cody): unregister collider from collision system.
-        colliders.remove(c);
+        this.activeCollisions = new LinkedHashMap<>();
     }
 
     public void update(float dt) {
-        // TODO(Cody): detect + resolve collisions for this frame.
-        List<Collision> detected = detectCollisions();
-        resolveCollisions(detected);
-        updateCollisionEvents(detected);
+        List<Collision> collisions = detector.detectCollisions(entityManager.getAllEntities());
+        resolver.resolveCollisions(collisions);
+
+        activeCollisions.clear();
+        for (Collision collision : collisions) {
+            activeCollisions.put(buildKey(collision.getEntityA(), collision.getEntityB()), collision);
+        }
     }
 
-    private List<Collision> detectCollisions() {
-        // TODO(Cody): populate collisions list using broad/narrow phase detection.
-        return Collections.emptyList();
+    public void registerCollider(Entity entity) {
+        // Collider registration is implicit through entity components in this model.
     }
 
-    private void resolveCollisions(List<Collision> cs) {
-        // TODO(Cody): resolve all detected collisions.
+    public void unregisterCollider(Entity entity) {
+        if (entity == null) {
+            return;
+        }
+        String prefix = entity.getId() + ":";
+        activeCollisions.entrySet().removeIf(entry -> entry.getKey().startsWith(prefix)
+            || entry.getKey().contains(":" + entity.getId()));
     }
 
-    private void updateCollisionEvents(List<Collision> cs) {
-        // TODO(Cody): maintain currentCollisions and fire enter/stay/exit events.
-        notifyEvents(cs);
-    }
-
-    private void notifyEvents(List<Collision> collisions) {
-        // TODO(Cody): notify interested systems/entities about collision events.
+    private String buildKey(Entity entityA, Entity entityB) {
+        if (entityA == null || entityB == null) {
+            return "";
+        }
+        int a = Math.min(entityA.getId(), entityB.getId());
+        int b = Math.max(entityA.getId(), entityB.getId());
+        return a + ":" + b;
     }
 }
-

@@ -6,10 +6,7 @@ buildscript {
     google()
     maven { url = 'https://central.sonatype.com/repository/maven-snapshots/' }
   }
-  dependencies {
 
-
-  }
 }
 
 // Human-readable project name used by launchers/tasks (e.g., desktop window title).

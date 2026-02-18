@@ -13,6 +13,7 @@ public class Button {
     private String label;
     private boolean enabled = true;
     private Vector2 position;
+    private Runnable onClick;
 
     public Button(String label, Vector2 position) {       
         this.label = label;
@@ -44,13 +45,21 @@ public class Button {
     }
 
     public void click() {
-        // TODO(Ivan): trigger button action callback.
+        if (!enabled || onClick == null) {
+            return;
+        }
+        onClick.run();
     }
 
     public void render(Renderer renderer, boolean isSelected) {
-    // Draw the button with different styling based on selection state
-    Color color = isSelected ? Color.YELLOW : Color.WHITE;
-    renderer.drawText(label, position, "default_font", color);
-}
-}
+        if (renderer == null || position == null) {
+            return;
+        }
+        Color color = isSelected ? Color.YELLOW : Color.WHITE;
+        renderer.drawText(label, position, "default", color);
+    }
 
+    public void setOnClick(Runnable onClick) {
+        this.onClick = onClick;
+    }
+}

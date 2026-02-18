@@ -1,80 +1,136 @@
 package sg.edu.sit.inf1009.p2team2.engine.output;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics;
 
 /**
- * Window/display abstraction.
- *
- * For libGDX, the platform layer already manages the window. Keep this class as a
- * façade so the engine remains decoupled from the underlying toolkit details.
+ * DISPLAY - Abstract Engine
+ * Manages the game window and display settings.
+ * 
+ * Uses libGDX for cross-platform window management.
  */
 public class Display {
+    
     private int width;
     private int height;
     private String title;
-    private boolean fullscreen;
-    private boolean shouldClose = false;
-
+    private boolean isFullscreen;
+    
+    /**
+     * Constructor
+     * 
+     * @param width Window width in pixels
+     * @param height Window height in pixels
+     * @param title Window title
+     */
     public Display(int width, int height, String title) {
         this.width = width;
         this.height = height;
         this.title = title;
-        this.fullscreen = false;
+        this.isFullscreen = false;
     }
-
+    
+    /**
+     * Create the window
+     * Note: In libGDX, window is created automatically by the launcher.
+     * This method can be used for post-creation setup.
+     */
     public void createWindow() {
-        // TODO(HongYih): create/initialize the display/window (or map to libGDX setup).
+        // Window is created by libGDX launcher
+        // This method can set initial window properties
+        Gdx.graphics.setTitle(title);
     }
-
+    
+    /**
+     * Set window title
+     * 
+     * @param title New window title
+     */
     public void setTitle(String title) {
         this.title = title;
-        // TODO(HongYih): propagate to the platform window title.
+        Gdx.graphics.setTitle(title);
     }
-
+    
+    /**
+     * Resize the window
+     * 
+     * @param width New width
+     * @param height New height
+     */
     public void resize(int width, int height) {
         this.width = width;
         this.height = height;
-        // TODO(HongYih): propagate resize to the platform.
+        
+        if (!isFullscreen) {
+            Gdx.graphics.setWindowedMode(width, height);
+        }
     }
-
+    
+    /**
+     * Toggle fullscreen mode
+     */
     public void toggleFullscreen() {
-        this.fullscreen = !this.fullscreen;
-        // TODO(HongYih): apply fullscreen toggle to the platform.
-    if (isFullscreen()) {
-        // Get the current display mode of the monitor
-        com.badlogic.gdx.Graphics.DisplayMode mode = Gdx.graphics.getDisplayMode();
-        // Set to full screen
-        Gdx.graphics.setFullscreenMode(mode);
-    } else {
-        // Return to windowed mode (e.g., 800x600)
-        Gdx.graphics.setWindowedMode(800, 600);
+        isFullscreen = !isFullscreen;
+        
+        if (isFullscreen) {
+            Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();
+            Gdx.graphics.setFullscreenMode(displayMode);
+        } else {
+            Gdx.graphics.setWindowedMode(width, height);
+        }
     }
-    System.out.println("[Display] Fullscreen set to: " + fullscreen);
-    }
-
+    
+    /**
+     * Swap display buffers (present rendered frame)
+     * Note: In libGDX this is handled automatically, but we keep
+     * this method for abstraction consistency
+     */
     public void swapBuffers() {
-        // TODO(HongYih): swap buffers/present frame if applicable.
+        // libGDX handles buffer swapping automatically
+        // This is a placeholder for consistency with the abstract engine pattern
     }
-
+    
+    /**
+     * Check if window should close
+     * 
+     * @return true if user clicked close button
+     */
     public boolean shouldClose() {
-        // TODO(HongYih): map to platform close-request state.
-        return shouldClose;
+        // In libGDX, check if exit was requested
+        return false; // libGDX handles this differently via ApplicationListener
     }
-
+    
+    /**
+     * Get current window width
+     * 
+     * @return Width in pixels
+     */
     public int getWidth() {
-        return width;
+        return Gdx.graphics.getWidth();
     }
-
+    
+    /**
+     * Get current window height
+     * 
+     * @return Height in pixels
+     */
     public int getHeight() {
-        return height;
+        return Gdx.graphics.getHeight();
     }
-
+    
+    /**
+     * Check if currently in fullscreen mode
+     * 
+     * @return true if fullscreen
+     */
     public boolean isFullscreen() {
-        return fullscreen;
+        return isFullscreen;
     }
-
+    
+    /**
+     * Clean up resources
+     */
     public void dispose() {
-        // TODO(HongYih): dispose display resources if any.
+        // libGDX handles window cleanup
     }
 }
-

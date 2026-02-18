@@ -1,69 +1,147 @@
 package sg.edu.sit.inf1009.p2team2.engine.managers;
 
-import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.input.InputMap;
 import sg.edu.sit.inf1009.p2team2.engine.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.input.Mouse;
-import sg.edu.sit.inf1009.p2team2.engine.world.World;
+import com.badlogic.gdx.Gdx;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Centralized input manager (keyboard + mouse + action mapping).
+ * INPUT MANAGER - Abstract Engine
+ * Manages all input devices and provides input state to the application.
+ * 
+ * This is an ENGINE class - it has NO game-specific logic.
+ * It only captures raw input and provides APIs.
  */
 public class InputManager {
-    private final Keyboard keyboard;
-    private final Mouse mouse;
-    private final InputMap mapper;
-
-    private World world;
-    private final EntityManager entityManager;
-
-    public InputManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
+    
+    // Input devices (owned by this manager)
+    private Keyboard keyboard;
+    private Mouse mouse;
+    
+    // Input mappings (support multiple configurations)
+    private Map<String, InputMap> inputMaps;
+    private String activeMapId;
+    
+    /**
+     * Constructor - creates all input devices
+     */
+    public InputManager() {
         this.keyboard = new Keyboard();
         this.mouse = new Mouse();
-        this.mapper = new InputMap();
+        this.inputMaps = new HashMap<>();
+        this.activeMapId = "default";
+        
+        // Create default input map
+        InputMap defaultMap = new InputMap("default");
+        defaultMap.loadDefaults();
+        addInputMap("default", defaultMap);
     }
-
-    public void pollEvents() {
-        // TODO(HongYih): update keyboard/mouse states from the platform input backend.
+    
+    /**
+     * Update input state - call once per frame BEFORE processing input
+     * 
+     * @param dt Delta time (not used currently, but good for future)
+     */
+    public void update(float dt) {
         keyboard.update();
         mouse.update();
     }
-
-    public void processInput(float dt) {
-        // TODO(HongYih): convert raw input into actions and apply to entities/world.
+    
+    // ===== ACCESSORS =====
+    
+    /**
+     * Get the keyboard device
+     */
+    public Keyboard getKeyboard() {
+        return keyboard;
+    }
+    
+    /**
+     * Get the mouse device
+     */
+    public Mouse getMouse() {
+        return mouse;
+    }
+    
+    // ===== INPUT MAP MANAGEMENT =====
+    
+    /**
+     * Add a new input map configuration
+     * 
+     * @param id Unique identifier for this map
+     * @param map The InputMap to add
+     */
+    public void addInputMap(String id, InputMap map) {
+        inputMaps.put(id, map);
+    }
+    
+    /**
+     * Set which input map is currently active
+     * 
+     * @param id ID of the map to activate
+     */
+    public void setActiveMap(String id) {
+        if (inputMaps.containsKey(id)) {
+            this.activeMapId = id;
+        } else {
+            Gdx.app.error("InputManager", "InputMap not found: " + id);
+        }
+    }
+    
+    /**
+     * Get the currently active input map
+     */
+    public InputMap getActiveMap() {
+        return inputMaps.get(activeMapId);
     }
 
+    public InputMap getInputMap() {
+        return getActiveMap();
+    }
+    
+    // ===== ACTION QUERIES (using active map) =====
+    
+    /**
+     * Check if a named action is currently active
+     * 
+     * @param actionName Name of the action (e.g., "jump", "fire", "move_left")
+     * @return true if the action's bound key is currently held down
+     */
     public boolean isActionActive(String actionName) {
-        // TODO(HongYih): resolve actionName -> keyCode and check held state.
-        return false;
+        InputMap map = getActiveMap();
+        return map != null && map.isActionActive(actionName, keyboard);
     }
-
+    
+    /**
+     * Check if a named action was just pressed this frame
+     * 
+     * @param actionName Name of the action
+     * @return true if the action's bound key was just pressed
+     */
     public boolean isActionPressed(String actionName) {
-        // TODO(HongYih): resolve actionName -> keyCode and check pressed state.
-        return false;
+        InputMap map = getActiveMap();
+        return map != null && map.isActionPressed(actionName, keyboard);
     }
-
+    
+    /**
+     * Check if a named action was just released this frame
+     * 
+     * @param actionName Name of the action
+     * @return true if the action's bound key was just released
+     */
     public boolean isActionReleased(String actionName) {
-        // TODO(HongYih): resolve actionName -> keyCode and check released state.
-        return false;
+        InputMap map = getActiveMap();
+        return map != null && map.isActionReleased(actionName, keyboard);
     }
-
-    public Vector2 getMousePosition() {
-        return mouse.getPosition();
-    }
-
-    public boolean isMouseButtonDown() {
-        // TODO(HongYih): pick a default button or overload with a button parameter.
-        return false;
-    }
-
-    public void bindAction(String actionName, int keyCode) {
-        mapper.bindAction(actionName, keyCode);
-    }
-
+    
+    /**
+     * Clean up resources
+     */
     public void dispose() {
-        // TODO(HongYih): release any platform-specific input resources.
+        keyboard.reset();
+        mouse.reset();
+        inputMaps.clear();
     }
 }
-
