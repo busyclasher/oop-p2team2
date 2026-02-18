@@ -1,9 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
 import com.badlogic.gdx.graphics.Color;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Component;
+import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
-public class RenderableComponent implements Component {
+public class RenderableComponent implements ComponentAdapter {
     private String spriteId;
     private int zIndex;
     private Color color;
@@ -52,4 +52,3 @@ public class RenderableComponent implements Component {
         this.visible = true;
     }
 }
-

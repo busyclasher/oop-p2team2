@@ -11,16 +11,16 @@ import sg.edu.sit.inf1009.p2team2.engine.ecs.components.TransformComponent;
 class EntityUmlApiTest {
 
     @Test
-    void umlAliasMethodsWork() {
+    void umlMethodsWork() {
         Entity entity = new Entity(42);
         TransformComponent transform = new TransformComponent();
 
-        entity.addComponent(transform);
-        assertTrue(entity.hasComponent(TransformComponent.class));
-        assertNotNull(entity.getComponent(TransformComponent.class));
-        assertFalse(entity.getAllComponents().isEmpty());
+        entity.add(transform);
+        assertTrue(entity.has(TransformComponent.class));
+        assertNotNull(entity.get(TransformComponent.class));
+        assertFalse(entity.getAll().isEmpty());
 
-        entity.removeComponent(TransformComponent.class);
-        assertFalse(entity.hasComponent(TransformComponent.class));
+        entity.remove(TransformComponent.class);
+        assertFalse(entity.has(TransformComponent.class));
     }
 }

@@ -63,27 +63,6 @@ public class EntityManager {
         return matches;
     }
 
-    @SafeVarargs
-    public final List<Entity> getWith(Class<? extends ComponentAdapter>... componentTypes) {
-        Objects.requireNonNull(componentTypes, "componentTypes cannot be null");
-        List<Entity> matches = new ArrayList<>();
-        for (Entity entity : entities) {
-            if (hasAllComponents(entity, componentTypes)) {
-                matches.add(entity);
-            }
-        }
-        return matches;
-    }
-
-    private boolean hasAllComponents(Entity entity, Class<? extends ComponentAdapter>[] componentTypes) {
-        for (Class<? extends ComponentAdapter> componentType : componentTypes) {
-            if (componentType == null || !entity.has(componentType)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void update(float dt) {
         // Intentionally lightweight for skeleton phase.
     }
@@ -94,27 +73,5 @@ public class EntityManager {
 
     public int size() {
         return entities.size();
-    }
-
-    // Compatibility wrappers for older callsites.
-
-    public Entity create() {
-        return createEntity();
-    }
-
-    public void add(Entity entity) {
-        addEntity(entity);
-    }
-
-    public void remove(int id) {
-        removeEntity(id);
-    }
-
-    public Entity getById(int id) {
-        return getEntity(id);
-    }
-
-    public List<Entity> getAll() {
-        return getAllEntities();
     }
 }

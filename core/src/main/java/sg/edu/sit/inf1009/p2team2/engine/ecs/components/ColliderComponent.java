@@ -1,9 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
 import com.badlogic.gdx.math.Rectangle;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Component;
+import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
-public class ColliderComponent implements Component {
+public class ColliderComponent implements ComponentAdapter {
     private Rectangle bounds;
     private boolean isTrigger;
     private int layer;
@@ -55,4 +55,3 @@ public class ColliderComponent implements Component {
         bounds.setPosition(x, y);
     }
 }
-

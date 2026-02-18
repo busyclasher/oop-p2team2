@@ -101,10 +101,8 @@ oop-p2team2
 |  |     |  |_ MenuScene.java           # Main menu scene and scene navigation
 |  |     |  |_ MainScene.java           # Empty simulation skeleton (logic deferred)
 |  |     |  |_ SettingsScene.java       # Settings scene with load/save hooks
-|  |     |  |_ LeaderboardScene.java    # Leaderboard scene skeleton
 |  |     |_ ecs/
 |  |     |  |_ ComponentAdapter.java    # UML marker interface for components
-|  |     |  |_ Component.java           # Compatibility marker extending ComponentAdapter
 |  |     |  |_ Entity.java              # ECS entity storing component map
 |  |     |  |_ components/
 |  |     |     |_ TransformComponent.java   # Position/rotation/scale data
@@ -112,7 +110,6 @@ oop-p2team2
 |  |     |     |_ RenderableComponent.java  # Render metadata (sprite/color/visibility)
 |  |     |     |_ InputComponent.java       # Input binding metadata
 |  |     |     |_ ColliderComponent.java    # Collision bounds/layer/trigger data
-|  |     |     |_ TagComponent.java         # Generic tag/label component
 |  |     |_ systems/
 |  |     |  |_ MovementSystem.java      # Integration math for movement components
 |  |     |_ input/

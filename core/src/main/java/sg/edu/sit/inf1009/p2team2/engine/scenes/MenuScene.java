@@ -57,8 +57,7 @@ public class MenuScene extends Scene {
         
         menuItems.add(new MenuItem("Start Game", new Vector2(centerX, startY)));
         menuItems.add(new MenuItem("Settings", new Vector2(centerX, startY - spacing)));
-        menuItems.add(new MenuItem("Leaderboard", new Vector2(centerX, startY - spacing * 2)));
-        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 3)));
+        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 2)));
         
         System.out.println("[MenuScene] Loaded " + menuItems.size() + " menu items");
     }
@@ -192,11 +191,6 @@ public class MenuScene extends Scene {
             case "Settings":
                 System.out.println("[MenuScene] Opening settings...");
                 context.getSceneManager().push(new SettingsScene(context));
-                break;
-                
-            case "Leaderboard":
-                System.out.println("[MenuScene] Opening leaderboard...");
-                context.getSceneManager().push(new LeaderboardScene(context));
                 break;
                 
             case "Exit":
