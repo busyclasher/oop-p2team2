@@ -69,6 +69,8 @@ public class MainScene extends Scene {
     private int targetEntityCount;
     private int backgroundIndex;
 
+    private static final String BACKGROUND_SPRITE = "mainscene.png";
+
     private boolean paused;
     private boolean collisionsEnabled;
     private boolean musicPlaying;

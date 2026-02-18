@@ -33,6 +33,8 @@ public class SettingsScene extends Scene {
     private int presetIndex;
     private int selectedRow;
 
+    private static final String BACKGROUND_SPRITE = "settings.png";
+
     public SettingsScene(EngineContext context) {
         super(context);
         this.presetIndex = 0;
