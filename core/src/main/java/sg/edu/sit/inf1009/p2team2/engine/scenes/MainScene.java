@@ -21,6 +21,7 @@ import sg.edu.sit.inf1009.p2team2.engine.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.input.Mouse;
 import sg.edu.sit.inf1009.p2team2.engine.managers.EntityManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.MovementManager;
+import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
 
 /**
@@ -28,11 +29,35 @@ import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
  * scene flow, entities, movement, collision, input/output and config usage.
  */
 public class MainScene extends Scene {
+    private enum DemoMode {
+        INTERACTIVE,
+        SHAPES,
+        COLORS,
+        TEXT,
+        STRESS
+    }
+
     private static final int[] ENTITY_PRESETS = {20, 100, 400};
     private static final float BORDER_PADDING = 8f;
     private static final float PLAYER_SIZE = 30f;
     private static final float NPC_SIZE = 22f;
     private static final float DEFAULT_PLAYER_SPEED = 240f;
+    private static final String MUSIC_TRACK_ID = "simulation-theme";
+    private static final String SPAWN_SOUND_ID = "spawn-marker";
+    private static final float DEFAULT_FRICTION = 0.10f;
+
+    private static final Color[] BACKGROUND_COLORS = {
+        new Color(0.07f, 0.08f, 0.11f, 1f),
+        new Color(0.08f, 0.11f, 0.08f, 1f),
+        new Color(0.10f, 0.08f, 0.12f, 1f),
+        new Color(0.10f, 0.10f, 0.10f, 1f),
+        new Color(0.06f, 0.10f, 0.12f, 1f)
+    };
+
+    private static final Color[] TEST_COLORS = {
+        Color.RED, Color.GREEN, Color.BLUE, Color.YELLOW, Color.CYAN,
+        Color.MAGENTA, Color.ORANGE, Color.PINK, Color.WHITE, Color.LIGHT_GRAY
+    };
 
     private EntityManager entityManager;
     private MovementManager movementManager;
@@ -42,10 +67,14 @@ public class MainScene extends Scene {
     private int playerEntityId;
     private int presetIndex;
     private int targetEntityCount;
+    private int backgroundIndex;
 
     private boolean paused;
     private boolean collisionsEnabled;
+    private boolean musicPlaying;
     private float playerSpeed;
+    private float animationTime;
+    private DemoMode currentMode;
 
     private float worldWidth;
     private float worldHeight;
@@ -55,9 +84,13 @@ public class MainScene extends Scene {
         this.playerEntityId = -1;
         this.presetIndex = 0;
         this.targetEntityCount = ENTITY_PRESETS[0];
+        this.backgroundIndex = 0;
         this.paused = false;
         this.collisionsEnabled = true;
+        this.musicPlaying = false;
         this.playerSpeed = DEFAULT_PLAYER_SPEED;
+        this.animationTime = 0f;
+        this.currentMode = DemoMode.INTERACTIVE;
         this.worldWidth = 800f;
         this.worldHeight = 600f;
     }
@@ -69,6 +102,7 @@ public class MainScene extends Scene {
 
     @Override
     public void onExit() {
+        stopSimulationMusic();
         persistSimulationConfig();
     }
 
@@ -78,8 +112,11 @@ public class MainScene extends Scene {
         this.movementManager = new MovementManager(entityManager);
         this.collisionManager = new CollisionManager(entityManager);
         this.random = new Random(1009L);
+        this.animationTime = 0f;
+        this.currentMode = DemoMode.INTERACTIVE;
 
         refreshWorldBounds();
+        prepareAudioResources();
         loadSimulationConfig();
         buildSimulationWorld();
     }
@@ -89,6 +126,7 @@ public class MainScene extends Scene {
         if (entityManager != null) {
             entityManager.clear();
         }
+        stopSimulationMusic();
         playerEntityId = -1;
     }
 
@@ -99,6 +137,7 @@ public class MainScene extends Scene {
         }
 
         refreshWorldBounds();
+        animationTime += Math.max(0f, dt);
         if (paused) {
             return;
         }
@@ -121,10 +160,12 @@ public class MainScene extends Scene {
         }
 
         Renderer renderer = context.getOutputManager().getRenderer();
+        renderer.setClearColor(BACKGROUND_COLORS[backgroundIndex]);
         renderer.clear();
         renderer.begin();
 
         renderEntities(renderer);
+        renderModeOverlay(renderer);
         renderHud(renderer);
 
         renderer.end();
@@ -147,16 +188,31 @@ public class MainScene extends Scene {
             return;
         }
 
+        handleModeSwitchInput(keyboard);
+
         if (keyboard.isKeyPressed(Input.Keys.TAB)) {
             paused = !paused;
         }
-        if (keyboard.isKeyPressed(Input.Keys.F)) {
+        if (keyboard.isKeyPressed(Input.Keys.C)) {
             collisionsEnabled = !collisionsEnabled;
         }
-        if (keyboard.isKeyPressed(Input.Keys.M)) {
+        if (keyboard.isKeyPressed(Input.Keys.P)) {
             cycleEntityPreset();
         }
+        if (keyboard.isKeyPressed(Input.Keys.F)) {
+            toggleFullscreen();
+        }
+        if (keyboard.isKeyPressed(Input.Keys.M)) {
+            toggleMusic();
+        }
+        if (keyboard.isKeyPressed(Input.Keys.PLUS) || keyboard.isKeyPressed(Input.Keys.EQUALS)) {
+            adjustMasterVolume(0.05f);
+        }
+        if (keyboard.isKeyPressed(Input.Keys.MINUS)) {
+            adjustMasterVolume(-0.05f);
+        }
         if (keyboard.isKeyPressed(Input.Keys.SPACE)) {
+            backgroundIndex = (backgroundIndex + 1) % BACKGROUND_COLORS.length;
             addNpcEntities(10);
         }
         if (keyboard.isKeyPressed(Input.Keys.BACKSPACE)) {
@@ -165,15 +221,23 @@ public class MainScene extends Scene {
         if (keyboard.isKeyPressed(Input.Keys.ENTER)) {
             buildSimulationWorld();
         }
-        if (keyboard.isKeyPressed(Input.Keys.PLUS) || keyboard.isKeyPressed(Input.Keys.EQUALS)) {
-            movementManager.setFriction(movementManager.getFriction() + 0.05f);
-        }
-        if (keyboard.isKeyPressed(Input.Keys.MINUS)) {
+        if (keyboard.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
             movementManager.setFriction(movementManager.getFriction() - 0.05f);
+        }
+        if (keyboard.isKeyPressed(Input.Keys.RIGHT_BRACKET)) {
+            movementManager.setFriction(movementManager.getFriction() + 0.05f);
         }
 
         if (mouse.isButtonPressed(0)) {
             spawnNpcAt(mouse.getPosition().x - NPC_SIZE * 0.5f, mouse.getPosition().y - NPC_SIZE * 0.5f);
+            playSpawnSound();
+        }
+        if (mouse.isButtonPressed(1)) {
+            removeNpcEntities(1);
+        }
+        float scroll = mouse.getScrollDelta();
+        if (scroll != 0f) {
+            playerSpeed = Math.max(60f, Math.min(500f, playerSpeed + scroll * 5f));
         }
 
         if (!paused) {
@@ -273,6 +337,86 @@ public class MainScene extends Scene {
         } else if (delta < 0) {
             removeNpcEntities(-delta);
         }
+    }
+
+    private void handleModeSwitchInput(Keyboard keyboard) {
+        if (keyboard.isKeyPressed(Input.Keys.NUM_1)) {
+            currentMode = DemoMode.INTERACTIVE;
+        } else if (keyboard.isKeyPressed(Input.Keys.NUM_2)) {
+            currentMode = DemoMode.SHAPES;
+        } else if (keyboard.isKeyPressed(Input.Keys.NUM_3)) {
+            currentMode = DemoMode.COLORS;
+        } else if (keyboard.isKeyPressed(Input.Keys.NUM_4)) {
+            currentMode = DemoMode.TEXT;
+        } else if (keyboard.isKeyPressed(Input.Keys.NUM_5)) {
+            currentMode = DemoMode.STRESS;
+        }
+    }
+
+    private void toggleFullscreen() {
+        if (context == null || context.getOutputManager() == null || context.getOutputManager().getDisplay() == null) {
+            return;
+        }
+        context.getOutputManager().getDisplay().toggleFullscreen();
+    }
+
+    private void prepareAudioResources() {
+        Audio audio = getAudio();
+        if (audio == null) {
+            return;
+        }
+        audio.loadMusic("audio/simulation_theme.ogg", MUSIC_TRACK_ID);
+        audio.loadSound("audio/spawn_click.wav", SPAWN_SOUND_ID);
+    }
+
+    private void toggleMusic() {
+        if (musicPlaying) {
+            stopSimulationMusic();
+        } else {
+            startSimulationMusic();
+        }
+    }
+
+    private void stopSimulationMusic() {
+        Audio audio = getAudio();
+        if (audio == null) {
+            return;
+        }
+        audio.stopMusic();
+        musicPlaying = false;
+    }
+
+    private void startSimulationMusic() {
+        Audio audio = getAudio();
+        if (audio == null) {
+            return;
+        }
+        audio.playMusic(MUSIC_TRACK_ID, true);
+        musicPlaying = true;
+    }
+
+    private void playSpawnSound() {
+        Audio audio = getAudio();
+        if (audio == null) {
+            return;
+        }
+        audio.playSound(SPAWN_SOUND_ID, 1.0f, false);
+    }
+
+    private void adjustMasterVolume(float delta) {
+        Audio audio = getAudio();
+        if (audio == null) {
+            return;
+        }
+        float next = Math.max(0f, Math.min(1f, audio.getMasterVolume() + delta));
+        audio.setMasterVolume(next);
+    }
+
+    private Audio getAudio() {
+        if (context == null || context.getOutputManager() == null) {
+            return null;
+        }
+        return context.getOutputManager().getAudio();
     }
 
     private void updatePlayerInput(Keyboard keyboard) {
@@ -378,8 +522,82 @@ public class MainScene extends Scene {
         }
     }
 
+    private void renderModeOverlay(Renderer renderer) {
+        Mouse mouse = context.getInputManager() == null ? null : context.getInputManager().getMouse();
+        Vector2 mousePos = mouse == null ? new Vector2(worldWidth * 0.5f, worldHeight * 0.5f) : mouse.getPosition();
+        Vector2 playerCenter = getPlayerCenter();
+
+        renderer.drawCircle(mousePos, 20f, Color.RED, false);
+        renderer.drawCircle(mousePos, 3f, Color.YELLOW, true);
+        renderer.drawLine(playerCenter, mousePos, Color.ORANGE, 2f);
+
+        switch (currentMode) {
+            case SHAPES:
+                renderShapesMode(renderer, mousePos);
+                break;
+            case COLORS:
+                renderColorsMode(renderer);
+                break;
+            case TEXT:
+                renderTextMode(renderer);
+                break;
+            case STRESS:
+                renderStressMode(renderer);
+                break;
+            case INTERACTIVE:
+            default:
+                break;
+        }
+    }
+
+    private void renderShapesMode(Renderer renderer, Vector2 mousePos) {
+        renderer.drawRect(new Rectangle(40f, 120f, 120f, 80f), Color.GREEN, true);
+        renderer.drawRect(new Rectangle(180f, 120f, 120f, 80f), Color.WHITE, false);
+        renderer.drawCircle(new Vector2(380f, 160f), 40f, Color.CYAN, false);
+        renderer.drawCircle(new Vector2(500f, 160f), 28f, Color.PINK, true);
+        renderer.drawLine(new Vector2(560f, 120f), new Vector2(mousePos.x, mousePos.y), Color.LIME, 2f);
+    }
+
+    private void renderColorsMode(Renderer renderer) {
+        float x = 40f;
+        float y = 120f;
+        for (int i = 0; i < TEST_COLORS.length; i++) {
+            renderer.drawRect(new Rectangle(x, y, 40f, 28f), TEST_COLORS[i], true);
+            renderer.drawRect(new Rectangle(x, y, 40f, 28f), Color.DARK_GRAY, false);
+            x += 48f;
+            if ((i + 1) % 5 == 0) {
+                x = 40f;
+                y += 36f;
+            }
+        }
+    }
+
+    private void renderTextMode(Renderer renderer) {
+        renderer.drawText("TEXT MODE: renderer.drawText showcase", new Vector2(40f, 220f), "default", Color.WHITE);
+        renderer.drawText("Scene: MainScene", new Vector2(40f, 196f), "default", Color.YELLOW);
+        renderer.drawText("Managers wired through EngineContext", new Vector2(40f, 172f), "default", Color.CYAN);
+        renderer.drawText("Mode switching: 1-5", new Vector2(40f, 148f), "default", Color.LIGHT_GRAY);
+    }
+
+    private void renderStressMode(Renderer renderer) {
+        for (int i = 0; i < 120; i++) {
+            float angle = animationTime * 0.7f + i * 0.15f;
+            float cx = worldWidth * 0.5f + (float) Math.cos(angle) * (80f + (i % 5) * 16f);
+            float cy = worldHeight * 0.5f + (float) Math.sin(angle) * (80f + (i % 7) * 14f);
+            Color color = TEST_COLORS[i % TEST_COLORS.length];
+            renderer.drawCircle(new Vector2(cx, cy), 3f + (i % 4), color, true);
+        }
+    }
+
     private void renderHud(Renderer renderer) {
         float top = worldHeight - 20f;
+        Mouse mouse = context.getInputManager() == null ? null : context.getInputManager().getMouse();
+        Vector2 mousePos = mouse == null ? new Vector2() : mouse.getPosition();
+        Vector2 playerCenter = getPlayerCenter();
+        Audio audio = getAudio();
+        float masterVolume = audio == null ? 0f : audio.getMasterVolume();
+        int activeCollisions = collisionManager == null ? 0 : collisionManager.getActiveCollisionCount();
+
         renderer.drawText("ABSTRACT ENGINE SIMULATION", new Vector2(16f, top), "default", Color.WHITE);
         renderer.drawText(
             "Managers: Scene + Entity + Movement + Collision + Input/Output + Config",
@@ -390,6 +608,7 @@ public class MainScene extends Scene {
         renderer.drawText(
             "Entities: " + entityManager.size() + " (preset " + ENTITY_PRESETS[presetIndex] + ")"
                 + " | Collision: " + (collisionsEnabled ? "ON" : "OFF")
+                + " | ActiveCollisions: " + activeCollisions
                 + " | State: " + (paused ? "PAUSED" : "RUNNING"),
             new Vector2(16f, top - 48f),
             "default",
@@ -397,20 +616,36 @@ public class MainScene extends Scene {
         );
         renderer.drawText(
             "GravityY: " + movementManager.getGravity().y + " | Friction: " + movementManager.getFriction()
-                + " | PlayerSpeed: " + playerSpeed,
+                + " | PlayerSpeed: " + playerSpeed
+                + " | Music: " + (musicPlaying ? "ON" : "OFF")
+                + " | Volume: " + Math.round(masterVolume * 100f) + "%",
             new Vector2(16f, top - 72f),
             "default",
             Color.CYAN
         );
         renderer.drawText(
-            "Controls: WASD/Arrows move player | SPACE +10 | BACKSPACE -10 | M preset 20/100/400",
+            "Mouse(" + Math.round(mousePos.x) + "," + Math.round(mousePos.y) + ")"
+                + " | Player(" + Math.round(playerCenter.x) + "," + Math.round(playerCenter.y) + ")"
+                + " | Mode: " + currentMode,
+            new Vector2(16f, top - 96f),
+            "default",
+            Color.YELLOW
+        );
+        renderer.drawText(
+            "Controls: WASD/Arrows move player | LeftClick +1 | RightClick -1 | Scroll speed",
             new Vector2(16f, 48f),
             "default",
             Color.LIGHT_GRAY
         );
         renderer.drawText(
-            "TAB pause | F collision toggle | +/- friction | ENTER reset | Left Click spawn | ESC menu",
+            "1-5 mode | SPACE +10 + BG | BACKSPACE -10 | P preset | C collisions | F fullscreen",
             new Vector2(16f, 24f),
+            "default",
+            Color.LIGHT_GRAY
+        );
+        renderer.drawText(
+            "M music | +/- volume | [ ] friction | TAB pause | ENTER reset | ESC menu",
+            new Vector2(16f, 8f),
             "default",
             Color.LIGHT_GRAY
         );
@@ -435,29 +670,37 @@ public class MainScene extends Scene {
         ConfigManager config = context.getConfigManager();
         ensureDefaultConfig(config, "simulation.presetIndex", Integer.valueOf(0));
         ensureDefaultConfig(config, "simulation.gravityY", Float.valueOf(0f));
-        ensureDefaultConfig(config, "simulation.friction", Float.valueOf(0.10f));
+        ensureDefaultConfig(config, "simulation.friction", Float.valueOf(DEFAULT_FRICTION));
         ensureDefaultConfig(config, "simulation.playerSpeed", Float.valueOf(DEFAULT_PLAYER_SPEED));
         ensureDefaultConfig(config, "simulation.collisionsEnabled", Boolean.TRUE);
+        ensureDefaultConfig(config, "simulation.musicEnabled", Boolean.FALSE);
+        ensureDefaultConfig(config, "audio.volume", Float.valueOf(0.7f));
 
         ConfigVar preset = config.get("simulation.presetIndex");
         ConfigVar gravityY = config.get("simulation.gravityY");
         ConfigVar friction = config.get("simulation.friction");
         ConfigVar speed = config.get("simulation.playerSpeed");
         ConfigVar collisionFlag = config.get("simulation.collisionsEnabled");
+        ConfigVar musicFlag = config.get("simulation.musicEnabled");
         ConfigVar volume = config.get("audio.volume");
 
         presetIndex = clampPresetIndex(preset == null ? 0 : preset.asInt());
         targetEntityCount = ENTITY_PRESETS[presetIndex];
         collisionsEnabled = collisionFlag == null || collisionFlag.asBool();
+        musicPlaying = musicFlag != null && musicFlag.asBool();
         playerSpeed = Math.max(60f, speed == null ? DEFAULT_PLAYER_SPEED : speed.asFloat());
 
         float gravityValue = gravityY == null ? 0f : gravityY.asFloat();
-        float frictionValue = friction == null ? 0.10f : friction.asFloat();
+        float frictionValue = friction == null ? DEFAULT_FRICTION : friction.asFloat();
         movementManager.setGravity(new Vector2(0f, gravityValue));
         movementManager.setFriction(frictionValue);
 
-        if (volume != null && context.getOutputManager() != null && context.getOutputManager().getAudio() != null) {
-            context.getOutputManager().getAudio().setMasterVolume(volume.asFloat());
+        Audio audio = getAudio();
+        if (volume != null && audio != null) {
+            audio.setMasterVolume(volume.asFloat());
+        }
+        if (musicPlaying) {
+            startSimulationMusic();
         }
     }
 
@@ -469,9 +712,14 @@ public class MainScene extends Scene {
         ConfigManager config = context.getConfigManager();
         config.set("simulation.presetIndex", new ConfigVar(Integer.valueOf(presetIndex), Integer.valueOf(0)));
         config.set("simulation.gravityY", new ConfigVar(Float.valueOf(movementManager.getGravity().y), Float.valueOf(0f)));
-        config.set("simulation.friction", new ConfigVar(Float.valueOf(movementManager.getFriction()), Float.valueOf(0.10f)));
+        config.set("simulation.friction", new ConfigVar(Float.valueOf(movementManager.getFriction()), Float.valueOf(DEFAULT_FRICTION)));
         config.set("simulation.playerSpeed", new ConfigVar(Float.valueOf(playerSpeed), Float.valueOf(DEFAULT_PLAYER_SPEED)));
         config.set("simulation.collisionsEnabled", new ConfigVar(Boolean.valueOf(collisionsEnabled), Boolean.TRUE));
+        config.set("simulation.musicEnabled", new ConfigVar(Boolean.valueOf(musicPlaying), Boolean.FALSE));
+        Audio audio = getAudio();
+        if (audio != null) {
+            config.set("audio.volume", new ConfigVar(Float.valueOf(audio.getMasterVolume()), Float.valueOf(0.7f)));
+        }
         config.save(null);
     }
 
@@ -490,6 +738,26 @@ public class MainScene extends Scene {
             return ENTITY_PRESETS.length - 1;
         }
         return index;
+    }
+
+    private Vector2 getPlayerCenter() {
+        Entity player = entityManager == null ? null : entityManager.getEntity(playerEntityId);
+        if (player == null) {
+            return new Vector2(worldWidth * 0.5f, worldHeight * 0.5f);
+        }
+        TransformComponent transform = player.get(TransformComponent.class);
+        ColliderComponent collider = player.get(ColliderComponent.class);
+        if (transform == null || transform.getPosition() == null) {
+            return new Vector2(worldWidth * 0.5f, worldHeight * 0.5f);
+        }
+        if (collider == null || collider.getBounds() == null) {
+            return transform.getPosition().cpy();
+        }
+        Rectangle bounds = collider.getBounds();
+        return new Vector2(
+            transform.getPosition().x + bounds.width * 0.5f,
+            transform.getPosition().y + bounds.height * 0.5f
+        );
     }
 
     private Vector2 randomVelocity() {

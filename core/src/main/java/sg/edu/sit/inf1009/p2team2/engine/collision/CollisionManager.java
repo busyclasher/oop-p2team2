@@ -45,6 +45,10 @@ public class CollisionManager {
             || entry.getKey().contains(":" + entity.getId()));
     }
 
+    public int getActiveCollisionCount() {
+        return activeCollisions.size();
+    }
+
     private String buildKey(Entity entityA, Entity entityB) {
         if (entityA == null || entityB == null) {
             return "";

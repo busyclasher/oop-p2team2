@@ -41,12 +41,18 @@ This repo contains the UML-aligned abstract engine and a runnable simulation pro
 ## Simulation Controls (`MainScene`)
 - `WASD` / Arrow keys: move player entity
 - `Left Click`: spawn one NPC at cursor position
-- `SPACE`: spawn 10 NPC entities
+- `Right Click`: remove one NPC entity
+- `SPACE`: spawn 10 NPC entities and cycle background palette
 - `BACKSPACE`: remove 10 NPC entities
-- `M`: cycle scalability preset (`20`, `100`, `400` entities)
-- `F`: toggle collision manager on/off
+- `1-5`: switch demo modes (`INTERACTIVE`, `SHAPES`, `COLORS`, `TEXT`, `STRESS`)
+- `P`: cycle scalability preset (`20`, `100`, `400` entities)
+- `C`: toggle collision manager on/off
+- `F`: toggle fullscreen (display manager)
+- `M`: toggle music
+- `+` / `-`: increase/decrease master volume
+- `[` / `]`: decrease/increase movement friction
+- `Mouse Scroll`: adjust player speed
 - `TAB`: pause/resume simulation update
-- `+` / `-`: increase/decrease movement friction
 - `ENTER`: rebuild world with current preset
 - `ESC`: return to menu scene
 
@@ -55,7 +61,7 @@ Manager coverage shown in runtime:
 - `EntityManager`: create/remove/query entities while running
 - `MovementManager`: per-frame integration of transform/velocity
 - `CollisionManager`: collision detection + resolution between entities
-- `InputManager` + `OutputManager`: keyboard/mouse interaction and on-screen rendering
+- `InputManager` + `OutputManager`: keyboard/mouse interaction, cursor-follow line/circle, coordinates HUD, mode rendering
 - `ConfigManager`: simulation and settings values loaded/saved across runs
 
 ## JUnit Test Commands
