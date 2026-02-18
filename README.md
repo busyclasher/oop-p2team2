@@ -1,93 +1,209 @@
 # INF1009 P2 Team 2 - Abstract Engine (Part 1)
 
-This repository contains the Part 1 "Abstract Engine" codebase for INF1009 Object Oriented Programming.
-The goal for Part 1 is to build a non-contextual engine (no simulation/game-specific logic) that can be reused for many simulations.
-
 Base package: `sg.edu.sit.inf1009.p2team2`
 
-## Tech Stack
+This repo contains the UML-aligned abstract engine and a runnable simulation prototype for Part 1.
 
+## Tools Used
 - Java 17
-- Gradle (wrapper included)
+- Gradle Wrapper
 - libGDX (`core` + `lwjgl3`)
 
-## Run (Desktop)
 
-```bash
-./gradlew lwjgl3:run
+## Project Structure (`|_` hierarchy + purpose)
+```text
+oop-p2team2
+|_ build.gradle                         # Root Gradle config for all modules
+|_ settings.gradle                      # Multi-module declaration (`core`, `lwjgl3`)
+|_ assets/                              # Shared runtime assets used by libGDX
+|_ core/
+|  |_ build.gradle                      # Core module dependencies + JUnit setup
+|  |_ src/main/java/sg/edu/sit/inf1009/p2team2/
+|  |  |_ Main.java                      # App entry (startup scene selector + engine lifecycle)
+|  |  |_ engine/
+|  |     |_ core/
+|  |     |  |_ EngineContext.java       # Central engine orchestrator and manager owner
+|  |     |_ managers/
+|  |     |  |_ SceneManager.java        # Scene stack management (push/pop/update/render)
+|  |     |  |_ EntityManager.java       # Entity lifecycle + query/filter APIs
+|  |     |  |_ MovementManager.java     # Movement pass over entity Transform/Velocity
+|  |     |  |_ InputManager.java        # Keyboard/mouse + action-map routing
+|  |     |  |_ OutputManager.java       # Display/Renderer/Audio composition
+|  |     |_ scenes/
+|  |     |  |_ Scene.java               # Abstract base scene interface
+|  |     |  |_ MenuScene.java           # Main menu scene and scene navigation
+|  |     |  |_ MainScene.java           # Manager-integrated simulation prototype scene
+|  |     |  |_ SettingsScene.java       # Settings scene with load/save hooks
+|  |     |_ ecs/
+|  |     |  |_ ComponentAdapter.java    # UML marker interface for components
+|  |     |  |_ Entity.java              # ECS entity storing component map
+|  |     |  |_ components/
+|  |     |     |_ TransformComponent.java   # Position/rotation/scale data
+|  |     |     |_ VelocityComponent.java    # Velocity/acceleration data
+|  |     |     |_ RenderableComponent.java  # Render metadata (sprite/color/visibility)
+|  |     |     |_ InputComponent.java       # Input binding metadata
+|  |     |     |_ ColliderComponent.java    # Collision bounds/layer/trigger data
+|  |     |_ systems/
+|  |     |  |_ MovementSystem.java      # Integration math for movement components
+|  |     |_ input/
+|  |     |  |_ Keyboard.java            # Frame-based key state tracker
+|  |     |  |_ Mouse.java               # Frame-based mouse state tracker
+|  |     |  |_ InputMap.java            # Action-to-key bindings and action queries
+|  |     |_ output/
+|  |     |  |_ Display.java             # Window/fullscreen abstraction
+|  |     |  |_ Renderer.java            # Drawing primitives + sprite/text/shape APIs
+|  |     |  |_ Audio.java               # Sound/music load/play/volume APIs
+|  |     |  |_ SoundBuffer.java         # Sound wrapper model
+|  |     |  |_ MusicTrack.java          # Music wrapper model
+|  |     |_ collision/
+|  |     |  |_ Shape.java               # Abstract collision shape base
+|  |     |  |_ ShapeType.java           # Shape enum (`CIRCLE`, `RECTANGLE`)
+|  |     |  |_ Circle.java              # Circle collision primitive
+|  |     |  |_ Rectangle.java           # Rectangle collision primitive
+|  |     |  |_ Collision.java           # Collision event data between entities
+|  |     |  |_ CollisionDetector.java   # Pairwise collision detection
+|  |     |  |_ CollisionResolver.java   # Collision response/resolution operations
+|  |     |  |_ CollisionManager.java    # Detect + resolve orchestration per frame
+|  |     |_ config/
+|  |     |  |_ ConfigManager.java       # Singleton config control facade
+|  |     |  |_ ConfigRegistry.java      # Key/value config storage
+|  |     |  |_ ConfigLoader.java        # Config load/save adapter (properties-based)
+|  |     |  |_ ConfigDispatcher.java    # Observer dispatch for config changes
+|  |     |  |_ ConfigListener.java      # Config change observer interface
+|  |     |  |_ ConfigVar.java           # Typed config value wrapper
+|  |     |  |_ ConfigFile.java          # File-layer model wrapping reload/save
+|  |     |_ ui/
+|  |        |_ Button.java              # UI button model
+|  |        |_ Slider.java              # UI slider model
+|  |        |_ Toggle.java              # UI toggle model
+|  |        |_ Score.java               # Score value model
+|  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
+|     |_ ecs/
+|     |  |_ EntityTest.java             # Unit tests for Entity component operations
+|     |  |_ EntityUmlApiTest.java       # Unit tests for canonical UML Entity API
+|     |_ managers/
+|     |  |_ EntityManagerTest.java      # Unit tests for EntityManager behavior
+|     |  |_ EntityManagerUmlApiTest.java# Unit tests for canonical UML manager API
+|     |  |_ MovementManagerTest.java    # Unit tests for movement manager pass
+|     |  |_ MovementManagerConfigTest.java # Unit tests for gravity/friction config API
+|     |  |_ SceneManagerTest.java       # Unit tests for scene lifecycle stack behavior
+|     |_ systems/
+|     |  |_ MovementSystemTest.java     # Unit tests for integration math
+|     |_ config/
+|     |  |_ ConfigManagerTest.java      # Unit tests for singleton/config observer flow
+|     |  |_ ConfigVarTest.java          # Unit tests for typed config value conversion
+|     |  |_ ConfigLoaderTest.java       # Unit tests for config persistence adapter
+|     |  |_ ConfigFileTest.java         # Unit tests for config file layer
+|     |_ collision/
+|     |  |_ CollisionDetectorTest.java  # Unit tests for AABB overlap detection
+|     |  |_ CollisionResolverTest.java  # Unit tests for collision response
+|     |_ input/
+|     |  |_ InputMapTest.java           # Unit tests for action-binding logic
+|     |_ ui/
+|     |  |_ UiModelsTest.java           # Unit tests for UI model classes
+|     |_ scenes/tests/
+|        |_ InputOutputTestScene.java   # Runtime/manual test scene (I/O)
+|        |_ CompleteIOTest.java         # Runtime/manual comprehensive I/O scene
+|_ lwjgl3/
+|  |_ build.gradle                      # Desktop run packaging and scene-property pass-through
+|  |_ src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/
+|     |_ Lwjgl3Launcher.java            # Desktop entrypoint for libGDX
+|     |_ StartupHelper.java             # Mac/JVM startup helper
 ```
 
-## Project Layout
+## UML
+<img width="8708" height="5769" alt="Abstract Engine UML Class Diagram (1)" src="https://github.com/user-attachments/assets/61f424c5-291f-4663-ad29-7fd62a83b54b" />
 
-- `core/`: engine code shared by all platforms
-- `lwjgl3/`: desktop launcher (LWJGL3)
-
-Key entrypoints:
-
-- `core/src/main/java/sg/edu/sit/inf1009/p2team2/Main.java` (placeholder application)
-- `lwjgl3/src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/Lwjgl3Launcher.java` (desktop launcher)
-
-## Engine Skeleton (UML-Aligned)
-
-This repo currently contains a skeleton implementation (class names + file structure + method signatures + TODOs).
-Do not add context-specific simulation logic in Part 1.
-
-Managers (must-have):
-
-- Scene Management (Owner: Ivan)
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/SceneManager.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/Scene.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/MenuScene.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/SettingsScene.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/scenes/LeadershipBoardScene.java`
-
-- Entity Management (Owner: Nat)
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/EntityManager.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ecs/Entity.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ecs/Component.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ecs/components/*`
-
-- Movement Management (Owner: Hasif)
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/MovementManager.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/systems/MovementSystem.java`
-
-- Input/Output Management (Owner: HongYih)
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/InputManager.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/input/*`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/managers/OutputManager.java`
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/output/*`
-
-- Collision Management (Owner: Cody)
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/collision/*`
-
-- Configuration Management (Owner: Alvin)
-  - `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/config/*`
-
-Shared wiring:
-
-- `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/core/EngineContext.java`
-- `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/world/World.java`
-
-UI models (used by scenes):
-
-- `core/src/main/java/sg/edu/sit/inf1009/p2team2/engine/ui/*`
-
-## Team Workflow (Reduce Merge Conflicts)
-
-1. One owner per core file. Only the owner edits their file unless agreed.
-2. Use feature branches: `feature/<name>-<area>`
-3. Keep commits small and descriptive (avoid sweeping reformatting).
-4. Before pushing/PR:
-
+## Build Commands
 ```bash
 ./gradlew :core:compileJava :lwjgl3:compileJava
 ```
 
-## Next Steps (Implementation Phase)
+## Run Commands (Desktop)
+- Default app start (menu):
+```bash
+./gradlew lwjgl3:run
+```
 
-- Ivan: implement scene stack behavior + transitions + UI input handling.
-- Nat: extend ECS/entity lifecycle and provide safe iteration/query helpers.
-- Hasif: integrate MovementManager/System with EntityManager queries and delta-time updates.
-- HongYih: wire libGDX input + rendering + audio implementations behind the facades.
-- Alvin: implement config load/save, observers, defaults, and typed accessors.
-- Cody: implement collision detection/resolution + collision events.
+- Start directly in simulation scene (`MainScene`):
+```bash
+./gradlew lwjgl3:run -Pscene=main
+```
+
+- Start Hong Yih runtime I/O test scene:
+```bash
+./gradlew lwjgl3:run -Pscene=io-test
+```
+
+- Start Hong Yih complete runtime I/O test scene:
+```bash
+./gradlew lwjgl3:run -Pscene=complete-io
+```
+
+## Simulation Controls (`MainScene`)
+- `WASD` / Arrow keys: move player entity
+- `Left Click`: spawn one NPC at cursor position
+- `Right Click`: remove one NPC entity
+- `SPACE`: spawn 10 NPC entities and cycle background palette
+- `BACKSPACE`: remove 10 NPC entities
+- `1-5`: switch demo modes (`INTERACTIVE`, `SHAPES`, `COLORS`, `TEXT`, `STRESS`)
+- `P`: cycle scalability preset (`20`, `100`, `400` entities)
+- `C`: toggle collision manager on/off
+- `F`: toggle fullscreen (display manager)
+- `M`: toggle music
+- `+` / `-`: increase/decrease master volume
+- `[` / `]`: decrease/increase movement friction
+- `Mouse Scroll`: adjust player speed
+- `TAB`: pause/resume simulation update
+- `ENTER`: rebuild world with current preset
+- `ESC`: return to menu scene
+
+Manager coverage shown in runtime:
+- `SceneManager`: menu -> main -> menu transitions
+- `EntityManager`: create/remove/query entities while running
+- `MovementManager`: per-frame integration of transform/velocity
+- `CollisionManager`: collision detection + resolution between entities
+- `InputManager` + `OutputManager`: keyboard/mouse interaction, cursor-follow line/circle, coordinates HUD, mode rendering
+- `ConfigManager`: simulation and settings values loaded/saved across runs
+
+## JUnit Test Commands
+- Run all unit tests:
+```bash
+./gradlew :core:test
+```
+
+- Run one test class:
+```bash
+./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.config.ConfigManagerTest"
+```
+
+- Open HTML test report after running tests:
+```bash
+open core/build/reports/tests/test/index.html
+```
+- Output:
+<img width="1382" height="726" alt="image" src="https://github.com/user-attachments/assets/c9492396-d50e-458f-b1f5-1bc8771b26bc" />
+
+## Test Coverage Guide
+- `EntityTest` checks ECS entity add/get/remove/clear behavior.
+- `EntityUmlApiTest` checks canonical UML Entity methods (`add`, `remove`, `get`, `has`, `getAll`).
+- `EntityManagerTest` checks creation IDs, filtering, and collection safety.
+- `EntityManagerUmlApiTest` checks UML manager methods (`createEntity`, `getEntity`, string component query).
+- `MovementSystemTest` checks integration math (velocity + position updates).
+- `MovementManagerTest` checks manager-level movement pass over entities.
+- `MovementManagerConfigTest` checks gravity/friction config APIs.
+- `SceneManagerTest` checks push/pop lifecycle hooks and active scene behavior.
+- `ConfigManagerTest` checks singleton, load/get, and observer callback flow.
+- `ConfigVarTest` checks typed conversion/reset behavior.
+- `ConfigLoaderTest` checks load/save config round-trip.
+- `ConfigFileTest` checks file-layer reload/save behavior.
+- `CollisionDetectorTest` checks overlap and non-overlap collision detection.
+- `CollisionResolverTest` checks separation and velocity response path.
+- `InputMapTest` checks action binding and keyboard-driven action states.
+- `UiModelsTest` checks `Slider`, `Toggle`, `Button`, and `Score` model behavior.
+- `InputOutputTestScene` + `CompleteIOTest` are runtime/manual scene tests (not JUnit).
+
+What to look for:
+- JUnit: `BUILD SUCCESSFUL` in terminal and all tests green in HTML report.
+- Runtime tests: scene opens, controls respond, no exceptions in terminal.
+

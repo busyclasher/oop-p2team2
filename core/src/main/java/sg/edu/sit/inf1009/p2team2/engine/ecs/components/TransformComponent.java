@@ -1,9 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
 import com.badlogic.gdx.math.Vector2;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Component;
+import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
-public class TransformComponent implements Component {
+public class TransformComponent implements ComponentAdapter {
     private Vector2 position;
     private float rotation;
     private Vector2 scale;
@@ -38,4 +38,3 @@ public class TransformComponent implements Component {
         this.scale = scale;
     }
 }
-

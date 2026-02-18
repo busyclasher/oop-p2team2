@@ -20,28 +20,19 @@ public abstract class Scene {
         // Optional hook.
     }
 
-    public void load() {
-        // TODO(Ivan): load assets/resources required by this scene.
-    }
+    public abstract void load();
 
-    public void unload() {
-        // TODO(Ivan): unload assets/resources required by this scene.
-    }
+    public abstract void unload();
 
-    public void update() {
-        // TODO(Ivan): update scene state.
-    }
+    public abstract void update(float dt);
 
-    public void render() {
-        // TODO(Ivan): render scene using OutputManager/Renderer.
-    }
+    public abstract void render();
 
     public void handleInput() {
-        // TODO(Ivan): route user input to scene controls.
+        // Optional hook.
     }
 
     public EngineContext getContext() {
         return context;
     }
 }
-

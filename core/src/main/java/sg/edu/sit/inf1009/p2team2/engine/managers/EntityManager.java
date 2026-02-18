@@ -3,7 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.managers;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
 
 /**
@@ -19,23 +21,21 @@ public class EntityManager {
     public EntityManager() {
     }
 
-    public Entity create() {
+    public Entity createEntity() {
         Entity entity = new Entity(nextId++);
-        add(entity);
+        addEntity(entity);
         return entity;
     }
 
-    public void add(Entity entity) {
-        if (entity != null) {
-            entities.add(entity);
-        }
+    public void addEntity(Entity entity) {
+        entities.add(Objects.requireNonNull(entity, "entity cannot be null"));
     }
 
-    public void remove(int id) {
+    public void removeEntity(int id) {
         entities.removeIf(e -> e.getId() == id);
     }
 
-    public Entity getById(int id) {
+    public Entity getEntity(int id) {
         for (Entity entity : entities) {
             if (entity.getId() == id) {
                 return entity;
@@ -44,8 +44,27 @@ public class EntityManager {
         return null;
     }
 
-    public List<Entity> getAll() {
+    public List<Entity> getAllEntities() {
         return Collections.unmodifiableList(entities);
+    }
+
+    public List<Entity> getEntitiesWithComponent(String componentType) {
+        Objects.requireNonNull(componentType, "componentType cannot be null");
+        List<Entity> matches = new ArrayList<>();
+        for (Entity entity : entities) {
+            for (ComponentAdapter component : entity.getAll()) {
+                if (component != null
+                    && component.getClass().getSimpleName().equals(componentType)) {
+                    matches.add(entity);
+                    break;
+                }
+            }
+        }
+        return matches;
+    }
+
+    public void update(float dt) {
+        // Intentionally lightweight for skeleton phase.
     }
 
     public void clear() {
@@ -56,4 +75,3 @@ public class EntityManager {
         return entities.size();
     }
 }
-

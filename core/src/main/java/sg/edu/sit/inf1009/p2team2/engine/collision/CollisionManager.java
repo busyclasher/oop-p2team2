@@ -1,25 +1,30 @@
 package sg.edu.sit.inf1009.p2team2.engine.collision;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+=======
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+>>>>>>> 42d5b94b77bf64c118933a395c0fd6b4a32cce08
 import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.managers.EntityManager;
 
 /**
- * Manages collision detection/resolution for the world.
+ * Coordinates detection and resolution of collisions each frame.
  */
 public class CollisionManager {
-    private Entity owner;
-    private Shape shape;
-    private boolean trigger;
-
-    private final List<Collider> colliders = new ArrayList<>();
+    private final EntityManager entityManager;
     private final CollisionDetector detector;
     private final CollisionResolver resolver;
+    private final Map<String, Collision> activeCollisions;
 
+<<<<<<< HEAD
     private final List<Collision> collisions = new ArrayList<>();
     private final List<Collision> currentCollisions = new ArrayList<>();
     private final List<CollisionListener> listeners = new ArrayList<>();
@@ -61,15 +66,26 @@ public class CollisionManager {
 
     public void unregister(Collider c) {
         colliders.remove(c);
+=======
+    public CollisionManager(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.detector = new CollisionDetector();
+        this.resolver = new CollisionResolver();
+        this.activeCollisions = new LinkedHashMap<>();
+>>>>>>> 42d5b94b77bf64c118933a395c0fd6b4a32cce08
     }
 
     public void update(float dt) {
-        // TODO(Cody): detect + resolve collisions for this frame.
-        List<Collision> detected = detectCollisions();
-        resolveCollisions(detected);
-        updateCollisionEvents(detected);
+        List<Collision> collisions = detector.detectCollisions(entityManager.getAllEntities());
+        resolver.resolveCollisions(collisions);
+
+        activeCollisions.clear();
+        for (Collision collision : collisions) {
+            activeCollisions.put(buildKey(collision.getEntityA(), collision.getEntityB()), collision);
+        }
     }
 
+<<<<<<< HEAD
     private List<Collision> detectCollisions() {
         collisions.clear();
         int count = colliders.size();
@@ -246,5 +262,31 @@ public class CollisionManager {
         public int hashCode() {
             return hash;
         }
+=======
+    public void registerCollider(Entity entity) {
+        // Collider registration is implicit through entity components in this model.
+    }
+
+    public void unregisterCollider(Entity entity) {
+        if (entity == null) {
+            return;
+        }
+        String prefix = entity.getId() + ":";
+        activeCollisions.entrySet().removeIf(entry -> entry.getKey().startsWith(prefix)
+            || entry.getKey().contains(":" + entity.getId()));
+    }
+
+    public int getActiveCollisionCount() {
+        return activeCollisions.size();
+    }
+
+    private String buildKey(Entity entityA, Entity entityB) {
+        if (entityA == null || entityB == null) {
+            return "";
+        }
+        int a = Math.min(entityA.getId(), entityB.getId());
+        int b = Math.max(entityA.getId(), entityB.getId());
+        return a + ":" + b;
+>>>>>>> 42d5b94b77bf64c118933a395c0fd6b4a32cce08
     }
 }

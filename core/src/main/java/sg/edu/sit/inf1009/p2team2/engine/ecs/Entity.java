@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class Entity {
     private final int id;
-    private final Map<Class<? extends Component>, Component> components = new HashMap<>();
+    private final Map<Class<? extends ComponentAdapter>, ComponentAdapter> components = new HashMap<>();
 
     public Entity(int id) {
         this.id = id;
@@ -21,27 +21,36 @@ public class Entity {
         return id;
     }
 
-    public void add(Component component) {
+    public void add(ComponentAdapter component) {
         if (component == null) {
             throw new IllegalArgumentException("component cannot be null");
         }
         components.put(component.getClass(), component);
     }
 
-    public void remove(Class<? extends Component> componentType) {
+    public void remove(Class<? extends ComponentAdapter> componentType) {
+        if (componentType == null) {
+            return;
+        }
         components.remove(componentType);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Component> T get(Class<T> componentType) {
+    public <T extends ComponentAdapter> T get(Class<T> componentType) {
+        if (componentType == null) {
+            return null;
+        }
         return (T) components.get(componentType);
     }
 
-    public boolean has(Class<? extends Component> componentType) {
+    public boolean has(Class<? extends ComponentAdapter> componentType) {
+        if (componentType == null) {
+            return false;
+        }
         return components.containsKey(componentType);
     }
 
-    public Collection<Component> getAll() {
+    public Collection<ComponentAdapter> getAll() {
         return components.values();
     }
 
@@ -49,4 +58,3 @@ public class Entity {
         components.clear();
     }
 }
-

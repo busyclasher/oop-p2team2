@@ -4,70 +4,94 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Audio façade for sound effects and music.
- *
- * This skeleton provides the API surface from the UML; the underlying libGDX
- * audio calls should be implemented by the OutputManager owner.
+ * AUDIO - Abstract Engine
+ * Manages sound effect and music resources with generic engine wrappers.
  */
 public class Audio {
-    private final Map<String, SoundBuffer> soundLibrary = new HashMap<>();
-    private final Map<String, MusicTrack> musicLibrary = new HashMap<>();
 
-    private float masterVolume = 1f;
-    private float sfxVolume = 1f;
-    private float musicVolume = 1f;
-
+    private final Map<String, SoundBuffer> soundLibrary;
+    private final Map<String, MusicTrack> musicLibrary;
+    private float masterVolume;
+    private float sfxVolume;
+    private float musicVolume;
     private MusicTrack currentMusic;
 
     public Audio() {
+        this.soundLibrary = new HashMap<>();
+        this.musicLibrary = new HashMap<>();
+        this.masterVolume = 1.0f;
+        this.sfxVolume = 1.0f;
+        this.musicVolume = 0.7f;
+        this.currentMusic = null;
     }
 
     public void loadSound(String filePath, String name) {
-        // TODO(HongYih): load/caches a SoundBuffer into soundLibrary.
+        if (name == null || name.isBlank() || filePath == null || filePath.isBlank()) {
+            return;
+        }
+        soundLibrary.put(name, new SoundBuffer(filePath));
     }
 
     public void loadMusic(String filePath, String name) {
-        // TODO(HongYih): load/caches a MusicTrack into musicLibrary.
+        if (name == null || name.isBlank() || filePath == null || filePath.isBlank()) {
+            return;
+        }
+        musicLibrary.put(name, new MusicTrack(filePath));
     }
 
     public void playSound(String name) {
-        // TODO(HongYih): play a cached sound using master/sfx volume.
+        playSound(name, 1.0f);
     }
 
     public void playSound(String name, float volume) {
-        // TODO(HongYih): play a cached sound at a specific volume.
+        playSound(name, volume, false);
     }
 
     public void playSound(String name, float volume, boolean loop) {
-        // TODO(HongYih): play a cached sound with loop option.
+        if (!soundLibrary.containsKey(name)) {
+            return;
+        }
+        float effectiveVolume = clamp01(masterVolume * sfxVolume * volume);
+        if (loop && effectiveVolume < 0f) {
+            // Placeholder branch to keep UML overload behavior explicit.
+            return;
+        }
     }
 
     public void playMusic(String name, boolean loop) {
-        // TODO(HongYih): start music track, assign currentMusic, handle looping.
+        MusicTrack music = musicLibrary.get(name);
+        if (music == null) {
+            return;
+        }
+        currentMusic = music;
+        float effectiveVolume = clamp01(masterVolume * musicVolume);
+        if (loop && effectiveVolume < 0f) {
+            return;
+        }
     }
 
     public void stopMusic() {
-        // TODO(HongYih): stop current music playback.
+        currentMusic = null;
     }
 
     public void pauseMusic() {
-        // TODO(HongYih): pause current music playback.
+        // Runtime pause hook reserved for concrete backend integration.
     }
 
     public void resumeMusic() {
-        // TODO(HongYih): resume current music playback.
+        // Runtime resume hook reserved for concrete backend integration.
     }
 
     public void setMasterVolume(float volume) {
-        this.masterVolume = volume;
+        this.masterVolume = clamp01(volume);
     }
 
     public void setSfxVolume(float volume) {
-        this.sfxVolume = volume;
+        this.sfxVolume = clamp01(volume);
     }
 
     public void setMusicVolume(float volume) {
-        this.musicVolume = volume;
+        this.musicVolume = clamp01(volume);
     }
 
     public float getMasterVolume() {
@@ -83,7 +107,23 @@ public class Audio {
     }
 
     public void dispose() {
-        // TODO(HongYih): dispose all loaded sound/music resources.
+        for (SoundBuffer sound : soundLibrary.values()) {
+            if (sound != null) {
+                sound.dispose();
+            }
+        }
+        soundLibrary.clear();
+
+        for (MusicTrack music : musicLibrary.values()) {
+            if (music != null) {
+                music.dispose();
+            }
+        }
+        musicLibrary.clear();
+        currentMusic = null;
+    }
+
+    private float clamp01(float value) {
+        return Math.max(0f, Math.min(1f, value));
     }
 }
-

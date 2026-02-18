@@ -1,85 +1,145 @@
 package sg.edu.sit.inf1009.p2team2.engine.managers;
 
 import java.util.Stack;
-
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
 
 /**
- * Manages scene transitions and a stack of scenes.
+ * SCENE MANAGER - Abstract Engine (Control)
+ * Manages scene stack and transitions
+ * 
+ * Following UML specification exactly:
+ * - context: EngineContext
+ * - scenes: Stack<Scene>
+ * 
+ * @author Ivan
  */
 public class SceneManager {
-    private Scene currentScene;
-    private final Stack<Scene> scenes = new Stack<>();
+    
     private final EngineContext context;
-
+    private final Stack<Scene> scenes;
+    private Scene currentScene;
+    
+    /**
+     * Constructor
+     * 
+     * @param context Engine context
+     */
     public SceneManager(EngineContext context) {
         this.context = context;
+        this.scenes = new Stack<>();
+        this.currentScene = null;
     }
-
+    
+    /**
+     * Push a new scene onto the stack
+     * The new scene becomes active
+     * 
+     * @param scene Scene to push
+     */
     public void push(Scene scene) {
-        // TODO(Ivan): call onExit/onEnter correctly when stacking scenes.
         if (scene == null) {
+            System.err.println("[SceneManager] Cannot push null scene");
             return;
         }
+        
+        // Pause current scene
+        if (!scenes.isEmpty()) {
+            scenes.peek().onExit();
+        }
+        
+        // Add new scene
         scenes.push(scene);
+        
+        // Activate new scene
+        scene.load();
+        scene.onEnter();
         currentScene = scene;
+        
+        System.out.println("[SceneManager] Pushed scene: " + scene.getClass().getSimpleName());
     }
-
+    
+    /**
+     * Pop the current scene from the stack
+     * The previous scene becomes active again
+     */
     public void pop() {
-        // TODO(Ivan): pop current scene and restore previous.
         if (scenes.isEmpty()) {
-            currentScene = null;
+            System.err.println("[SceneManager] Cannot pop - stack is empty");
             return;
         }
-        scenes.pop();
-        currentScene = scenes.isEmpty() ? null : scenes.peek();
-    }
-
-    public void set(Scene scene) {
-        // TODO(Ivan): replace stack with a single active scene.
-        scenes.clear();
-        push(scene);
-    }
-
-    public Scene peek() {
-        return scenes.isEmpty() ? null : scenes.peek();
-    }
-
-    public void changeScene(String name) {
-        // TODO(Ivan): map scene name -> concrete Scene and switch to it.
-        // Example: if ("menu".equalsIgnoreCase(name)) set(new MenuScene(context));
-    }
-
-    public void load() {
-        if (currentScene != null) {
-            currentScene.load();
+        
+        // Remove and cleanup current scene
+        Scene removed = scenes.pop();
+        removed.onExit();
+        removed.unload();
+        
+        System.out.println("[SceneManager] Popped scene: " + removed.getClass().getSimpleName());
+        
+        // Resume previous scene
+        if (!scenes.isEmpty()) {
+            currentScene = scenes.peek();
+            currentScene.onEnter();
+            System.out.println("[SceneManager] Resumed scene: " + currentScene.getClass().getSimpleName());
+        } else {
+            currentScene = null;
         }
     }
-
-    public void update() {
+    
+    /**
+     * Get the current active scene without removing it
+     * 
+     * @return Current scene, or null if stack is empty
+     */
+    public Scene peek() {
+        return currentScene;
+    }
+    
+    /**
+     * Update the current scene
+     * 
+     * @param dt Delta time
+     */
+    public void update(float dt) {
         if (currentScene != null) {
             currentScene.handleInput();
-            currentScene.update();
+            currentScene.update(dt);
         }
     }
-
+    
+    /**
+     * Render the current scene
+     */
     public void render() {
         if (currentScene != null) {
             currentScene.render();
         }
     }
-
-    public void changeScene(Scene newScene) {
-        set(newScene);
+    
+    /**
+     * Check if scene stack is empty
+     * 
+     * @return true if no scenes
+     */
+    public boolean isEmpty() {
+        return scenes.isEmpty();
     }
-
-    public String getActiveSceneName() {
-        return currentScene == null ? "" : currentScene.getClass().getSimpleName();
+    
+    /**
+     * Clear all scenes from the stack
+     */
+    public void clear() {
+        while (!scenes.isEmpty()) {
+            pop();
+        }
+        System.out.println("[SceneManager] Cleared all scenes");
     }
-
-    public EngineContext getContext() {
-        return context;
+    
+    /**
+     * Clean up resources
+     */
+    public void dispose() {
+        clear();
+        System.out.println("[SceneManager] Disposed");
     }
 }
-
