@@ -291,7 +291,8 @@ public class SettingsScene extends Scene {
         ConfigVar presetSetting = config.get("simulation.presetIndex");
 
         float currentVolume = volumeSetting == null ? 0.7f : volumeSetting.asFloat();
-        boolean isFullscreen = fullscreenSetting != null && fullscreenSetting.asBool();
+        Display display = context.getOutputManager() == null ? null : context.getOutputManager().getDisplay();
+        boolean isFullscreen = display != null ? display.isFullscreen() : fullscreenSetting != null && fullscreenSetting.asBool();
         float friction = frictionSetting == null ? 0.10f : frictionSetting.asFloat();
         float gravityY = gravitySetting == null ? 0f : gravitySetting.asFloat();
         float speed = speedSetting == null ? 240f : speedSetting.asFloat();
