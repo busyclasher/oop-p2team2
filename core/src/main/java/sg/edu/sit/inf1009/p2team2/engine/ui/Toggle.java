@@ -41,6 +41,10 @@ public class Toggle {
         // Toggle is data-only in abstract engine skeleton.
     }
 
+    public void setPosition(float x, float y) {
+        this.position.set(x, y);
+    }
+
     public void render(Renderer renderer, boolean selected) {
         if (renderer == null) {
             return;

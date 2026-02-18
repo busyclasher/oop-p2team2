@@ -113,47 +113,74 @@ public class SettingsScene extends Scene {
     public void render() {
         var renderer = context.getOutputManager().getRenderer();
 
+        float centerX = 400f;
+        float centerY = 300f;
+        var display = context.getOutputManager().getDisplay();
+        if (display != null) {
+            centerX = display.getWidth() / 2f;
+            centerY = display.getHeight() / 2f;
+        }
+
+        float rowSpacing = 60f;
+        float totalHeight = (ROW_COUNT - 1) * rowSpacing;
+        float topY = centerY + totalHeight / 2f;
+        float labelX = centerX - 220f;
+        float sliderX = centerX + 40f;
+        float valueX = centerX + 230f;
+
+        updateControlPositions(sliderX, topY, rowSpacing);
+
         renderer.clear();
         renderer.begin();
         
         // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
-        renderer.drawText("", new Vector2(320, 550), "default", Color.WHITE);
+        float titleX = centerX - 80f;
+        float titleY = topY + 70f;
+        renderer.drawText("SETTINGS", new Vector2(titleX, titleY), "default", Color.WHITE);
 
         if (volumeSlider != null) {
             volumeSlider.render(renderer, selectedRow == ROW_VOLUME);
-            renderer.drawText(label("Volume", ROW_VOLUME), new Vector2(180, 565), "default", rowColor(ROW_VOLUME));
-            renderer.drawText(formatPercent(volumeSlider.getValue()), new Vector2(630, 565), "default", rowColor(ROW_VOLUME));
+            float rowY = topY - (ROW_VOLUME * rowSpacing);
+            renderer.drawText(label("Volume", ROW_VOLUME), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_VOLUME));
+            renderer.drawText(formatPercent(volumeSlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_VOLUME));
         }
         if (fullscreenToggle != null) {
             fullscreenToggle.render(renderer, selectedRow == ROW_FULLSCREEN);
-            renderer.drawText(label("Fullscreen", ROW_FULLSCREEN), new Vector2(180, 505), "default", rowColor(ROW_FULLSCREEN));
+            float rowY = topY - (ROW_FULLSCREEN * rowSpacing);
+            renderer.drawText(label("Fullscreen", ROW_FULLSCREEN), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_FULLSCREEN));
         }
         if (frictionSlider != null) {
             frictionSlider.render(renderer, selectedRow == ROW_FRICTION);
-            renderer.drawText(label("Friction", ROW_FRICTION), new Vector2(180, 445), "default", rowColor(ROW_FRICTION));
-            renderer.drawText(formatFloat(frictionSlider.getValue()), new Vector2(630, 445), "default", rowColor(ROW_FRICTION));
+            float rowY = topY - (ROW_FRICTION * rowSpacing);
+            renderer.drawText(label("Friction", ROW_FRICTION), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_FRICTION));
+            renderer.drawText(formatFloat(frictionSlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_FRICTION));
         }
         if (gravitySlider != null) {
             gravitySlider.render(renderer, selectedRow == ROW_GRAVITY);
-            renderer.drawText(label("Gravity Y", ROW_GRAVITY), new Vector2(180, 385), "default", rowColor(ROW_GRAVITY));
-            renderer.drawText(formatFloat(gravitySlider.getValue()), new Vector2(630, 385), "default", rowColor(ROW_GRAVITY));
+            float rowY = topY - (ROW_GRAVITY * rowSpacing);
+            renderer.drawText(label("Gravity Y", ROW_GRAVITY), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_GRAVITY));
+            renderer.drawText(formatFloat(gravitySlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_GRAVITY));
         }
         if (speedSlider != null) {
             speedSlider.render(renderer, selectedRow == ROW_SPEED);
-            renderer.drawText(label("Player Speed", ROW_SPEED), new Vector2(180, 325), "default", rowColor(ROW_SPEED));
-            renderer.drawText(formatInt(speedSlider.getValue()), new Vector2(630, 325), "default", rowColor(ROW_SPEED));
+            float rowY = topY - (ROW_SPEED * rowSpacing);
+            renderer.drawText(label("Player Speed", ROW_SPEED), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_SPEED));
+            renderer.drawText(formatInt(speedSlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_SPEED));
         }
         if (collisionsToggle != null) {
             collisionsToggle.render(renderer, selectedRow == ROW_COLLISIONS);
-            renderer.drawText(label("Collisions", ROW_COLLISIONS), new Vector2(180, 265), "default", rowColor(ROW_COLLISIONS));
+            float rowY = topY - (ROW_COLLISIONS * rowSpacing);
+            renderer.drawText(label("Collisions", ROW_COLLISIONS), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_COLLISIONS));
         }
 
-        renderer.drawText(label("Entity Preset", ROW_PRESET), new Vector2(180, 205), "default", rowColor(ROW_PRESET));
-        renderer.drawText(String.valueOf(ENTITY_PRESETS[presetIndex]), new Vector2(630, 205), "default", rowColor(ROW_PRESET));
+        float presetY = topY - (ROW_PRESET * rowSpacing);
+        renderer.drawText(label("Entity Preset", ROW_PRESET), new Vector2(labelX, presetY + 5f), "default", rowColor(ROW_PRESET));
+        renderer.drawText(String.valueOf(ENTITY_PRESETS[presetIndex]), new Vector2(valueX, presetY + 5f), "default", rowColor(ROW_PRESET));
 
-        renderer.drawText("UP/DOWN select | LEFT/RIGHT adjust | SPACE/ENTER toggle", new Vector2(20, 48), "default", Color.LIGHT_GRAY);
-        renderer.drawText("R reset defaults | ESC save + return", new Vector2(20, 24), "default", Color.LIGHT_GRAY);
+        float hintY = (topY - totalHeight) - 40f;
+        renderer.drawText("UP/DOWN select | LEFT/RIGHT adjust | SPACE/ENTER toggle", new Vector2(centerX - 280f, hintY), "default", Color.LIGHT_GRAY);
+        renderer.drawText("R reset defaults | ESC save + return", new Vector2(centerX - 280f, hintY - 24f), "default", Color.LIGHT_GRAY);
         renderer.end();
     }
 
@@ -216,6 +243,27 @@ public class SettingsScene extends Scene {
         boolean targetFullscreen = fullscreen;
         if (display != null && targetFullscreen != display.isFullscreen()) {
             display.toggleFullscreen();
+        }
+    }
+
+    private void updateControlPositions(float sliderX, float topY, float rowSpacing) {
+        if (volumeSlider != null) {
+            volumeSlider.setPosition(sliderX, topY - (ROW_VOLUME * rowSpacing));
+        }
+        if (fullscreenToggle != null) {
+            fullscreenToggle.setPosition(sliderX, topY - (ROW_FULLSCREEN * rowSpacing));
+        }
+        if (frictionSlider != null) {
+            frictionSlider.setPosition(sliderX, topY - (ROW_FRICTION * rowSpacing));
+        }
+        if (gravitySlider != null) {
+            gravitySlider.setPosition(sliderX, topY - (ROW_GRAVITY * rowSpacing));
+        }
+        if (speedSlider != null) {
+            speedSlider.setPosition(sliderX, topY - (ROW_SPEED * rowSpacing));
+        }
+        if (collisionsToggle != null) {
+            collisionsToggle.setPosition(sliderX, topY - (ROW_COLLISIONS * rowSpacing));
         }
     }
 

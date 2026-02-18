@@ -71,6 +71,8 @@ public class MenuScene extends Scene {
     
     @Override
     public void update(float dt) {
+
+        updateMenuLayout();
         
         // Decrease cooldown
         if (keyboardCooldown > 0) {
@@ -82,6 +84,8 @@ public class MenuScene extends Scene {
     public void handleInput() {
         Keyboard keyboard = context.getInputManager().getKeyboard();
         Mouse mouse = context.getInputManager().getMouse();
+
+        updateMenuLayout();
         
         // KEYBOARD NAVIGATION (always works)
         if (keyboard.isKeyPressed(Input.Keys.UP)) {
@@ -146,14 +150,27 @@ public class MenuScene extends Scene {
         renderer.clear();
         renderer.begin();
         
-         // Draw background centered and scaled to the window
+        // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
-        renderer.drawText("", new Vector2(320, 550), "default", Color.WHITE);
+
+        float centerX = 400f;
+        float centerY = 300f;
+        var display = context.getOutputManager().getDisplay();
+        if (display != null) {
+            centerX = display.getWidth() / 2f;
+            centerY = display.getHeight() / 2f;
+        }
+
+        float spacing = 70f;
+        float titleX = centerX - 80f;
+        float titleY = centerY + spacing * 2f;
+        float hintX = centerX - 280f;
+        float hintY = centerY - spacing * 3f;
         
         // Draw title
         renderer.drawText(
             "MAIN MENU",
-            new Vector2(320, 550),
+            new Vector2(titleX, titleY),
             "default",
             Color.WHITE
         );
@@ -167,7 +184,7 @@ public class MenuScene extends Scene {
         // Draw controls hint
         renderer.drawText(
             "Arrow Keys / WASD / Mouse to navigate | Enter / Click to select",
-            new Vector2(120, 50),
+            new Vector2(hintX, hintY),
             "default",
             new Color(0.7f, 0.7f, 0.7f, 1f)
         );
@@ -199,6 +216,28 @@ public class MenuScene extends Scene {
                 context.stop();
                 Gdx.app.exit();
                 break;
+        }
+    }
+
+    private void updateMenuLayout() {
+        if (menuItems == null || menuItems.isEmpty()) {
+            return;
+        }
+
+        float centerX = 400f;
+        float centerY = 300f;
+        var display = context.getOutputManager().getDisplay();
+        if (display != null) {
+            centerX = display.getWidth() / 2f;
+            centerY = display.getHeight() / 2f;
+        }
+
+        float spacing = 70f;
+        float totalHeight = (menuItems.size() - 1) * spacing;
+        float startY = centerY + totalHeight / 2f;
+
+        for (int i = 0; i < menuItems.size(); i++) {
+            menuItems.get(i).position.set(centerX, startY - i * spacing);
         }
     }
     
