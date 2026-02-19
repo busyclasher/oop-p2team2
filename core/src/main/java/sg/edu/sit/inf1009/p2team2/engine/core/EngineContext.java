@@ -1,7 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.core;
 
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
+import sg.edu.sit.inf1009.p2team2.engine.config.DisplayConfigListener;
+import sg.edu.sit.inf1009.p2team2.engine.config.AudioConfigListener;
 import sg.edu.sit.inf1009.p2team2.engine.managers.InputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
@@ -30,6 +32,8 @@ public class EngineContext {
     
     // Engine state
     private boolean running;
+    private final DisplayConfigListener displayConfigListener;
+    private final AudioConfigListener audioConfigListener;
     private float deltaTime;
     
     /**
@@ -47,16 +51,20 @@ public class EngineContext {
         this.inputManager = new InputManager();
         
         // 3. Output manager (reads config for window size, title)
-        ConfigVar widthSetting = configManager.get("display.width");
-        ConfigVar heightSetting = configManager.get("display.height");
-        int width = widthSetting == null ? 800 : widthSetting.asInt();
-        int height = heightSetting == null ? 600 : heightSetting.asInt();
+        int width = configManager.get(ConfigKeys.DISPLAY_WIDTH);
+        int height = configManager.get(ConfigKeys.DISPLAY_HEIGHT);
         
         // Use defaults if config doesn't have values
         width = (width > 0) ? width : 800;
         height = (height > 0) ? height : 600;
         
         this.outputManager = new OutputManager(width, height);
+        this.displayConfigListener = new DisplayConfigListener(configManager, outputManager);
+        this.audioConfigListener = new AudioConfigListener(configManager, outputManager);
+        this.configManager.addObserver(displayConfigListener);
+        this.configManager.addObserver(audioConfigListener);
+        this.displayConfigListener.applyInitial();
+        this.audioConfigListener.applyInitial();
         
         // 4. Scene manager (depends on context)
         this.sceneManager = new SceneManager(this);
@@ -179,6 +187,8 @@ public class EngineContext {
      */
     public void dispose() {
         System.out.println("[EngineContext] Disposing engine...");
+        configManager.removeObserver(displayConfigListener);
+        configManager.removeObserver(audioConfigListener);
         
         sceneManager.dispose();
         outputManager.dispose();

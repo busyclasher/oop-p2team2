@@ -3,7 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.scenes;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.input.Keyboard;
@@ -230,13 +232,13 @@ public class SettingsScene extends Scene {
         float gravityY = gravitySlider.getValue();
         float speed = speedSlider.getValue();
         boolean collisions = collisionsToggle.isEnabled();
-        config.set("display.fullscreen", new ConfigVar(fullscreen, false));
-        config.set("audio.volume", new ConfigVar(volume, 0.7f));
-        config.set("simulation.friction", new ConfigVar(friction, 0.10f));
-        config.set("simulation.gravityY", new ConfigVar(gravityY, 0f));
-        config.set("simulation.playerSpeed", new ConfigVar(speed, 240f));
-        config.set("simulation.collisionsEnabled", new ConfigVar(collisions, true));
-        config.set("simulation.presetIndex", new ConfigVar(Integer.valueOf(presetIndex), Integer.valueOf(0)));
+        config.set(ConfigKeys.DISPLAY_FULLSCREEN, Boolean.valueOf(fullscreen));
+        config.set(ConfigKeys.AUDIO_VOLUME, Float.valueOf(volume));
+        config.set(ConfigKeys.SIMULATION_FRICTION, Float.valueOf(friction));
+        config.set(ConfigKeys.SIMULATION_GRAVITY_Y, Float.valueOf(gravityY));
+        config.set(ConfigKeys.SIMULATION_PLAYER_SPEED, Float.valueOf(speed));
+        config.set(ConfigKeys.SIMULATION_COLLISIONS_ENABLED, Boolean.valueOf(collisions));
+        config.set(ConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
         config.save(null);
 
         Display display = context.getOutputManager().getDisplay();
@@ -274,21 +276,21 @@ public class SettingsScene extends Scene {
         }
 
         ConfigManager config = context.getConfigManager();
-        ensureConfig(config, "audio.volume", Float.valueOf(0.7f));
-        ensureConfig(config, "display.fullscreen", Boolean.FALSE);
-        ensureConfig(config, "simulation.friction", Float.valueOf(0.10f));
-        ensureConfig(config, "simulation.gravityY", Float.valueOf(0f));
-        ensureConfig(config, "simulation.playerSpeed", Float.valueOf(240f));
-        ensureConfig(config, "simulation.collisionsEnabled", Boolean.TRUE);
-        ensureConfig(config, "simulation.presetIndex", Integer.valueOf(0));
+        ensureConfig(config, ConfigKeys.AUDIO_VOLUME);
+        ensureConfig(config, ConfigKeys.DISPLAY_FULLSCREEN);
+        ensureConfig(config, ConfigKeys.SIMULATION_FRICTION);
+        ensureConfig(config, ConfigKeys.SIMULATION_GRAVITY_Y);
+        ensureConfig(config, ConfigKeys.SIMULATION_PLAYER_SPEED);
+        ensureConfig(config, ConfigKeys.SIMULATION_COLLISIONS_ENABLED);
+        ensureConfig(config, ConfigKeys.SIMULATION_PRESET_INDEX);
 
-        ConfigVar volumeSetting = config.get("audio.volume");
-        ConfigVar fullscreenSetting = config.get("display.fullscreen");
-        ConfigVar frictionSetting = config.get("simulation.friction");
-        ConfigVar gravitySetting = config.get("simulation.gravityY");
-        ConfigVar speedSetting = config.get("simulation.playerSpeed");
-        ConfigVar collisionSetting = config.get("simulation.collisionsEnabled");
-        ConfigVar presetSetting = config.get("simulation.presetIndex");
+        ConfigVar volumeSetting = config.get(ConfigKeys.AUDIO_VOLUME.name());
+        ConfigVar fullscreenSetting = config.get(ConfigKeys.DISPLAY_FULLSCREEN.name());
+        ConfigVar frictionSetting = config.get(ConfigKeys.SIMULATION_FRICTION.name());
+        ConfigVar gravitySetting = config.get(ConfigKeys.SIMULATION_GRAVITY_Y.name());
+        ConfigVar speedSetting = config.get(ConfigKeys.SIMULATION_PLAYER_SPEED.name());
+        ConfigVar collisionSetting = config.get(ConfigKeys.SIMULATION_COLLISIONS_ENABLED.name());
+        ConfigVar presetSetting = config.get(ConfigKeys.SIMULATION_PRESET_INDEX.name());
 
         float currentVolume = volumeSetting == null ? 0.7f : volumeSetting.asFloat();
         Display display = context.getOutputManager() == null ? null : context.getOutputManager().getDisplay();
@@ -364,9 +366,9 @@ public class SettingsScene extends Scene {
         presetIndex = 0;
     }
 
-    private void ensureConfig(ConfigManager config, String key, Object value) {
-        if (config.get(key) == null) {
-            config.set(key, new ConfigVar(value, value));
+    private <T> void ensureConfig(ConfigManager config, ConfigKey<T> key) {
+        if (config.get(key.name()) == null) {
+            config.set(key, key.defaultValue());
         }
     }
 

@@ -14,7 +14,7 @@ import java.util.Properties;
  *
  * Skeleton behavior: return defaults and keep save as no-op for now.
  */
-public class ConfigLoader {
+public class ConfigLoader implements IConfigLoader {
 
     public ConfigLoader() {
     }
@@ -33,7 +33,8 @@ public class ConfigLoader {
         Properties properties = new Properties();
         try (InputStream in = Files.newInputStream(path)) {
             properties.load(in);
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            System.err.println("[ConfigLoader] Failed to load '" + filePath + "': " + e.getMessage());
             return defaults;
         }
 
@@ -60,7 +61,8 @@ public class ConfigLoader {
             if (path.getParent() != null) {
                 Files.createDirectories(path.getParent());
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            System.err.println("[ConfigLoader] Failed to create config directory for '" + filePath + "': " + e.getMessage());
             return;
         }
 
@@ -74,18 +76,18 @@ public class ConfigLoader {
 
         try (OutputStream out = Files.newOutputStream(path)) {
             properties.store(out, "P2Team2 engine config");
-        } catch (IOException ignored) {
-            // Intentionally no-op for skeleton robustness.
+        } catch (IOException e) {
+            System.err.println("[ConfigLoader] Failed to save '" + filePath + "': " + e.getMessage());
         }
     }
 
     private Map<String, ConfigVar> defaultSettings() {
         Map<String, ConfigVar> defaults = new LinkedHashMap<>();
-        defaults.put("display.width", new ConfigVar(800, 800));
-        defaults.put("display.height", new ConfigVar(600, 600));
-        defaults.put("display.fullscreen", new ConfigVar(false, false));
-        defaults.put("display.title", new ConfigVar("P2Team2AbstractEngine", "P2Team2AbstractEngine"));
-        defaults.put("audio.volume", new ConfigVar(0.7f, 0.7f));
+        defaults.put(ConfigKeys.DISPLAY_WIDTH.name(), ConfigKeys.DISPLAY_WIDTH.toVar(ConfigKeys.DISPLAY_WIDTH.defaultValue()));
+        defaults.put(ConfigKeys.DISPLAY_HEIGHT.name(), ConfigKeys.DISPLAY_HEIGHT.toVar(ConfigKeys.DISPLAY_HEIGHT.defaultValue()));
+        defaults.put(ConfigKeys.DISPLAY_FULLSCREEN.name(), ConfigKeys.DISPLAY_FULLSCREEN.toVar(ConfigKeys.DISPLAY_FULLSCREEN.defaultValue()));
+        defaults.put(ConfigKeys.DISPLAY_TITLE.name(), ConfigKeys.DISPLAY_TITLE.toVar(ConfigKeys.DISPLAY_TITLE.defaultValue()));
+        defaults.put(ConfigKeys.AUDIO_VOLUME.name(), ConfigKeys.AUDIO_VOLUME.toVar(ConfigKeys.AUDIO_VOLUME.defaultValue()));
         return defaults;
     }
 

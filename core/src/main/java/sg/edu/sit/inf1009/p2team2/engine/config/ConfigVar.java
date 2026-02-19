@@ -1,5 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
+import java.util.Objects;
+
 /**
  * Typed configuration value holder.
  */
@@ -75,5 +77,9 @@ public class ConfigVar {
 
     public Object getDefaultValue() {
         return defaultValue;
+    }
+
+    public boolean hasSameValue(ConfigVar other) {
+        return other != null && Objects.equals(this.value, other.value);
     }
 }

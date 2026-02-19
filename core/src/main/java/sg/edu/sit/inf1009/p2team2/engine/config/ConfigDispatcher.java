@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Broadcasts configuration changes to registered listeners.
  */
-public class ConfigDispatcher {
+public class ConfigDispatcher implements IConfigDispatcher {
     private final List<ConfigListener> observers = new ArrayList<>();
 
     public ConfigDispatcher() {
