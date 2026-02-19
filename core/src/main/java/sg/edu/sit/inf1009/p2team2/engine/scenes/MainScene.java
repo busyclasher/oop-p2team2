@@ -7,7 +7,9 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import sg.edu.sit.inf1009.p2team2.engine.collision.Circle;
 import sg.edu.sit.inf1009.p2team2.engine.collision.CollisionManager;
+import sg.edu.sit.inf1009.p2team2.engine.collision.Shape;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -120,7 +122,7 @@ public class MainScene extends Scene {
         refreshWorldBounds();
         prepareAudioResources();
         loadSimulationConfig();
-        buildSimulationWorld();
+        setupDemoEntities();
     }
 
     @Override
@@ -224,7 +226,7 @@ public class MainScene extends Scene {
             removeNpcEntities(10);
         }
         if (keyboard.isKeyPressed(Input.Keys.ENTER)) {
-            buildSimulationWorld();
+            setupDemoEntities();
         }
         if (keyboard.isKeyPressed(Input.Keys.LEFT_BRACKET)) {
             movementManager.setFriction(movementManager.getFriction() - 0.05f);
@@ -264,6 +266,10 @@ public class MainScene extends Scene {
         addNpcEntities(Math.max(0, targetEntityCount - 1));
     }
 
+    private void setupDemoEntities() {
+        buildSimulationWorld();
+    }
+
     private Entity createEntity(float x, float y, float size, boolean isPlayer) {
         Entity entity = entityManager.createEntity();
 
@@ -281,7 +287,7 @@ public class MainScene extends Scene {
         }
 
         ColliderComponent collider = new ColliderComponent();
-        collider.setBounds(new Rectangle(x, y, size, size));
+        collider.setShape(new sg.edu.sit.inf1009.p2team2.engine.collision.Rectangle(x, y, size, size));
         collider.setLayer(isPlayer ? 1 : 0);
         collider.setMask(0xFFFF);
         collider.setTrigger(false);
@@ -307,12 +313,16 @@ public class MainScene extends Scene {
 
     private void addNpcEntities(int count) {
         for (int i = 0; i < count; i++) {
-            spawnNpcAt(randomX(NPC_SIZE), randomY(NPC_SIZE));
+            spawnEntity(randomX(NPC_SIZE), randomY(NPC_SIZE));
         }
     }
 
     private void spawnNpcAt(float x, float y) {
-        createEntity(clampToWorldX(x, NPC_SIZE), clampToWorldY(y, NPC_SIZE), NPC_SIZE, false);
+        spawnEntity(clampToWorldX(x, NPC_SIZE), clampToWorldY(y, NPC_SIZE));
+    }
+
+    private Entity spawnEntity(float x, float y) {
+        return createEntity(x, y, NPC_SIZE, false);
     }
 
     private void removeNpcEntities(int count) {
@@ -468,7 +478,7 @@ public class MainScene extends Scene {
             if (transform == null || collider == null || transform.getPosition() == null) {
                 continue;
             }
-            collider.updatePosition(transform.getPosition().x, transform.getPosition().y);
+            setColliderPosition(collider, transform.getPosition().x, transform.getPosition().y);
         }
     }
 
@@ -477,13 +487,14 @@ public class MainScene extends Scene {
             TransformComponent transform = entity.get(TransformComponent.class);
             VelocityComponent velocity = entity.get(VelocityComponent.class);
             ColliderComponent collider = entity.get(ColliderComponent.class);
+            Rectangle bounds = getColliderBounds(collider);
             if (transform == null || velocity == null || collider == null
-                || transform.getPosition() == null || velocity.getVelocity() == null || collider.getBounds() == null) {
+                || transform.getPosition() == null || velocity.getVelocity() == null || bounds == null) {
                 continue;
             }
 
-            float width = collider.getBounds().width;
-            float height = collider.getBounds().height;
+            float width = bounds.width;
+            float height = bounds.height;
             float x = transform.getPosition().x;
             float y = transform.getPosition().y;
 
@@ -504,7 +515,7 @@ public class MainScene extends Scene {
             }
 
             transform.getPosition().set(x, y);
-            collider.updatePosition(x, y);
+            setColliderPosition(collider, x, y);
         }
     }
 
@@ -516,11 +527,11 @@ public class MainScene extends Scene {
         for (Entity entity : entityManager.getAllEntities()) {
             ColliderComponent collider = entity.get(ColliderComponent.class);
             RenderableComponent renderable = entity.get(RenderableComponent.class);
-            if (collider == null || collider.getBounds() == null || renderable == null || !renderable.isVisible()) {
+            Rectangle bounds = getColliderBounds(collider);
+            if (collider == null || bounds == null || renderable == null || !renderable.isVisible()) {
                 continue;
             }
 
-            Rectangle bounds = collider.getBounds();
             Color fill = renderable.getColor() == null ? Color.WHITE : renderable.getColor();
             renderer.drawRect(bounds, fill, true);
             renderer.drawRect(bounds, entity.getId() == playerEntityId ? Color.WHITE : Color.DARK_GRAY, false);
@@ -752,17 +763,51 @@ public class MainScene extends Scene {
         }
         TransformComponent transform = player.get(TransformComponent.class);
         ColliderComponent collider = player.get(ColliderComponent.class);
+        Rectangle bounds = getColliderBounds(collider);
         if (transform == null || transform.getPosition() == null) {
             return new Vector2(worldWidth * 0.5f, worldHeight * 0.5f);
         }
-        if (collider == null || collider.getBounds() == null) {
+        if (collider == null || bounds == null) {
             return transform.getPosition().cpy();
         }
-        Rectangle bounds = collider.getBounds();
         return new Vector2(
             transform.getPosition().x + bounds.width * 0.5f,
             transform.getPosition().y + bounds.height * 0.5f
         );
+    }
+
+    private Rectangle getColliderBounds(ColliderComponent collider) {
+        if (collider == null) {
+            return null;
+        }
+
+        Shape shape = collider.getShape();
+        if (shape instanceof sg.edu.sit.inf1009.p2team2.engine.collision.Rectangle rect) {
+            Vector2 position = rect.getPosition();
+            return new Rectangle(position.x, position.y, rect.getWidth(), rect.getHeight());
+        }
+        if (shape instanceof Circle circle) {
+            Vector2 center = circle.getCenter();
+            float radius = circle.getRadius();
+            return new Rectangle(center.x - radius, center.y - radius, radius * 2f, radius * 2f);
+        }
+        return null;
+    }
+
+    private void setColliderPosition(ColliderComponent collider, float x, float y) {
+        if (collider == null) {
+            return;
+        }
+
+        Shape shape = collider.getShape();
+        if (shape instanceof sg.edu.sit.inf1009.p2team2.engine.collision.Rectangle rect) {
+            rect.setPosition(new Vector2(x, y));
+            return;
+        }
+        if (shape instanceof Circle circle) {
+            float radius = circle.getRadius();
+            circle.setCenter(new Vector2(x + radius, y + radius));
+        }
     }
 
     private Vector2 randomVelocity() {
