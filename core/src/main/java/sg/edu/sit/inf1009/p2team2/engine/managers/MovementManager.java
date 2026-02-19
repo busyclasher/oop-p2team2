@@ -37,8 +37,8 @@ public class MovementManager {
             if (transform == null || velocity == null) {
                 continue;
             }
-            applyGravity(velocity, dt);
-            applyFriction(velocity, dt);
+            movementSystem.applyGravity(velocity, gravity, dt);
+            movementSystem.applyFriction(velocity, friction, dt);
             movementSystem.integrate(transform, velocity, dt);
         }
     }
@@ -57,21 +57,5 @@ public class MovementManager {
 
     public float getFriction() {
         return friction;
-    }
-
-    private void applyGravity(VelocityComponent velocity, float dt) {
-        if (gravity == null || velocity.getVelocity() == null) {
-            return;
-        }
-        velocity.getVelocity().x += gravity.x * dt;
-        velocity.getVelocity().y += gravity.y * dt;
-    }
-
-    private void applyFriction(VelocityComponent velocity, float dt) {
-        if (friction <= 0f || velocity.getVelocity() == null) {
-            return;
-        }
-        float damping = Math.max(0f, 1f - friction * dt);
-        velocity.getVelocity().scl(damping);
     }
 }
