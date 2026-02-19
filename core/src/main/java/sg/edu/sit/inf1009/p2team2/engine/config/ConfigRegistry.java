@@ -8,16 +8,16 @@ import java.util.Map;
  * Stores configuration variables keyed by name.
  */
 public class ConfigRegistry implements IConfigStore {
-    private final Map<String, ConfigVar> settings = new LinkedHashMap<>();
+    private final Map<String, ConfigVar<?>> settings = new LinkedHashMap<>();
 
     public ConfigRegistry() {
     }
 
-    public ConfigVar find(String key) {
+    public ConfigVar<?> find(String key) {
         return settings.get(key);
     }
 
-    public boolean update(String key, ConfigVar var) {
+    public boolean update(String key, ConfigVar<?> var) {
         if (key == null || key.isBlank() || var == null) {
             return false;
         }
@@ -29,7 +29,7 @@ public class ConfigRegistry implements IConfigStore {
         settings.clear();
     }
 
-    public Map<String, ConfigVar> getAll() {
+    public Map<String, ConfigVar<?>> getAll() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(settings));
     }
 }

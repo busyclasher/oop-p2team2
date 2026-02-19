@@ -23,7 +23,7 @@ public class ConfigDispatcher implements IConfigDispatcher {
         observers.remove(listener);
     }
 
-    public void notify(String key, ConfigVar value) {
+    public void notify(String key, ConfigVar<?> value) {
         for (ConfigListener listener : observers) {
             listener.onConfigChanged(key, value);
         }

@@ -13,7 +13,7 @@ public class DisplayConfigListener implements ConfigListener {
     }
 
     @Override
-    public void onConfigChanged(String key, ConfigVar value) {
+    public void onConfigChanged(String key, ConfigVar<?> value) {
         if (key == null || value == null || outputManager == null) {
             return;
         }
@@ -24,7 +24,7 @@ public class DisplayConfigListener implements ConfigListener {
         }
 
         if (ConfigKeys.DISPLAY_FULLSCREEN.name().equals(key)) {
-            boolean target = value.asBool();
+            boolean target = ConfigKeys.DISPLAY_FULLSCREEN.read(value);
             if (display.isFullscreen() != target) {
                 display.toggleFullscreen();
             }
@@ -32,7 +32,7 @@ public class DisplayConfigListener implements ConfigListener {
         }
 
         if (ConfigKeys.DISPLAY_TITLE.name().equals(key)) {
-            display.setTitle(value.asString());
+            display.setTitle(ConfigKeys.DISPLAY_TITLE.read(value));
             return;
         }
 
@@ -45,8 +45,15 @@ public class DisplayConfigListener implements ConfigListener {
         if (configManager == null) {
             return;
         }
-        onConfigChanged(ConfigKeys.DISPLAY_TITLE.name(), configManager.get(ConfigKeys.DISPLAY_TITLE.name()));
-        onConfigChanged(ConfigKeys.DISPLAY_FULLSCREEN.name(), configManager.get(ConfigKeys.DISPLAY_FULLSCREEN.name()));
+        Display display = outputManager == null ? null : outputManager.getDisplay();
+        if (display == null) {
+            return;
+        }
+        display.setTitle(configManager.get(ConfigKeys.DISPLAY_TITLE));
+        boolean targetFullscreen = configManager.get(ConfigKeys.DISPLAY_FULLSCREEN);
+        if (display.isFullscreen() != targetFullscreen) {
+            display.toggleFullscreen();
+        }
         applySizeFromConfig();
     }
 

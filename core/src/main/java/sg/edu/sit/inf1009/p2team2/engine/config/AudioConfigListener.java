@@ -13,14 +13,14 @@ public class AudioConfigListener implements ConfigListener {
     }
 
     @Override
-    public void onConfigChanged(String key, ConfigVar value) {
+    public void onConfigChanged(String key, ConfigVar<?> value) {
         if (!ConfigKeys.AUDIO_VOLUME.name().equals(key) || value == null || outputManager == null) {
             return;
         }
 
         Audio audio = outputManager.getAudio();
         if (audio != null) {
-            audio.setMasterVolume(value.asFloat());
+            audio.setMasterVolume(ConfigKeys.AUDIO_VOLUME.read(value));
         }
     }
 
@@ -28,6 +28,9 @@ public class AudioConfigListener implements ConfigListener {
         if (configManager == null) {
             return;
         }
-        onConfigChanged(ConfigKeys.AUDIO_VOLUME.name(), configManager.get(ConfigKeys.AUDIO_VOLUME.name()));
+        Audio audio = outputManager == null ? null : outputManager.getAudio();
+        if (audio != null) {
+            audio.setMasterVolume(configManager.get(ConfigKeys.AUDIO_VOLUME));
+        }
     }
 }

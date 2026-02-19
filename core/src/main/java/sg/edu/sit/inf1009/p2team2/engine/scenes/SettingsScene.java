@@ -3,10 +3,10 @@ package sg.edu.sit.inf1009.p2team2.engine.scenes;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
@@ -137,48 +137,73 @@ public class SettingsScene extends Scene {
         
         // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
-        float titleX = centerX - 80f;
+        
+        // Draw semi-transparent overlay box around the settings controls
+        float overlayPadding = 30f;
+        float overlayLeft = labelX - overlayPadding;
+        float overlayRight = valueX + overlayPadding;
+        float overlayTop = topY + 40f;
+        float overlayBottom = topY - (ROW_PRESET * rowSpacing) - overlayPadding;
+        
+        com.badlogic.gdx.math.Rectangle overlayBox = new com.badlogic.gdx.math.Rectangle(
+            overlayLeft, overlayBottom, 
+            overlayRight - overlayLeft, 
+            overlayTop - overlayBottom
+        );
+        Color overlayColor = new Color(0.3f, 0.3f, 0.3f, 0.6f); // Grey with 60% opacity
+        renderer.drawRect(overlayBox, overlayColor, true);
+        // Draw white outline
+        renderer.drawRect(overlayBox, Color.WHITE, false);
+        
+        // Left-align settings within the overlay box
+        float boxLabelX = overlayLeft + 20f;
+        float boxSliderX = boxLabelX + 140f;
+        float boxValueX = overlayRight - 80f;
+        
+        updateControlPositions(boxSliderX, topY, rowSpacing);
+        
+        float titleX = overlayLeft + 120f;
         float titleY = topY + 70f;
         renderer.drawText("SETTINGS", new Vector2(titleX, titleY), "default", Color.WHITE);
 
         if (volumeSlider != null) {
             volumeSlider.render(renderer, selectedRow == ROW_VOLUME);
             float rowY = topY - (ROW_VOLUME * rowSpacing);
-            renderer.drawText(label("Volume", ROW_VOLUME), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_VOLUME));
-            renderer.drawText(formatPercent(volumeSlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_VOLUME));
+            renderer.drawText(label("Volume", ROW_VOLUME), new Vector2(boxLabelX, rowY + 5f), "default", rowColor(ROW_VOLUME));
+            renderer.drawText(formatPercent(volumeSlider.getValue()), new Vector2(boxValueX, rowY + 5f), "default", rowColor(ROW_VOLUME));
         }
         if (fullscreenToggle != null) {
             fullscreenToggle.render(renderer, selectedRow == ROW_FULLSCREEN);
             float rowY = topY - (ROW_FULLSCREEN * rowSpacing);
-            renderer.drawText(label("Fullscreen", ROW_FULLSCREEN), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_FULLSCREEN));
+            renderer.drawText(label("Fullscreen", ROW_FULLSCREEN), new Vector2(boxLabelX, rowY + 5f), "default", rowColor(ROW_FULLSCREEN));
         }
         if (frictionSlider != null) {
             frictionSlider.render(renderer, selectedRow == ROW_FRICTION);
             float rowY = topY - (ROW_FRICTION * rowSpacing);
-            renderer.drawText(label("Friction", ROW_FRICTION), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_FRICTION));
-            renderer.drawText(formatFloat(frictionSlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_FRICTION));
+            renderer.drawText(label("Friction", ROW_FRICTION), new Vector2(boxLabelX, rowY + 5f), "default", rowColor(ROW_FRICTION));
+            renderer.drawText(formatFloat(frictionSlider.getValue()), new Vector2(boxValueX, rowY + 5f), "default", rowColor(ROW_FRICTION));
         }
         if (gravitySlider != null) {
             gravitySlider.render(renderer, selectedRow == ROW_GRAVITY);
             float rowY = topY - (ROW_GRAVITY * rowSpacing);
-            renderer.drawText(label("Gravity Y", ROW_GRAVITY), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_GRAVITY));
-            renderer.drawText(formatFloat(gravitySlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_GRAVITY));
+            renderer.drawText(label("Gravity Y", ROW_GRAVITY), new Vector2(boxLabelX, rowY + 5f), "default", rowColor(ROW_GRAVITY));
+            renderer.drawText(formatFloat(gravitySlider.getValue()), new Vector2(boxValueX, rowY + 5f), "default", rowColor(ROW_GRAVITY));
         }
         if (speedSlider != null) {
             speedSlider.render(renderer, selectedRow == ROW_SPEED);
             float rowY = topY - (ROW_SPEED * rowSpacing);
-            renderer.drawText(label("Player Speed", ROW_SPEED), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_SPEED));
-            renderer.drawText(formatInt(speedSlider.getValue()), new Vector2(valueX, rowY + 5f), "default", rowColor(ROW_SPEED));
+            renderer.drawText(label("Player Speed", ROW_SPEED), new Vector2(boxLabelX, rowY + 5f), "default", rowColor(ROW_SPEED));
+            renderer.drawText(formatInt(speedSlider.getValue()), new Vector2(boxValueX, rowY + 5f), "default", rowColor(ROW_SPEED));
         }
         if (collisionsToggle != null) {
             collisionsToggle.render(renderer, selectedRow == ROW_COLLISIONS);
             float rowY = topY - (ROW_COLLISIONS * rowSpacing);
-            renderer.drawText(label("Collisions", ROW_COLLISIONS), new Vector2(labelX, rowY + 5f), "default", rowColor(ROW_COLLISIONS));
+            renderer.drawText(label("Collisions", ROW_COLLISIONS), new Vector2(boxLabelX, rowY + 5f), "default", rowColor(ROW_COLLISIONS));
         }
 
         float presetY = topY - (ROW_PRESET * rowSpacing);
-        renderer.drawText(label("Entity Preset", ROW_PRESET), new Vector2(labelX, presetY + 5f), "default", rowColor(ROW_PRESET));
-        renderer.drawText(String.valueOf(ENTITY_PRESETS[presetIndex]), new Vector2(valueX, presetY + 5f), "default", rowColor(ROW_PRESET));
+        renderer.drawText(label("Entity Preset", ROW_PRESET), new Vector2(boxLabelX, presetY + 5f), "default", rowColor(ROW_PRESET));
+        renderer.drawText(String.valueOf(ENTITY_PRESETS[presetIndex]), new Vector2(boxValueX, presetY + 5f), "default", rowColor(ROW_PRESET));
 
         float hintY = (topY - totalHeight) - 40f;
         renderer.drawText("UP/DOWN select | LEFT/RIGHT adjust | SPACE/ENTER toggle", new Vector2(centerX - 280f, hintY), "default", Color.LIGHT_GRAY);
@@ -234,11 +259,11 @@ public class SettingsScene extends Scene {
         boolean collisions = collisionsToggle.isEnabled();
         config.set(ConfigKeys.DISPLAY_FULLSCREEN, Boolean.valueOf(fullscreen));
         config.set(ConfigKeys.AUDIO_VOLUME, Float.valueOf(volume));
-        config.set(ConfigKeys.SIMULATION_FRICTION, Float.valueOf(friction));
-        config.set(ConfigKeys.SIMULATION_GRAVITY_Y, Float.valueOf(gravityY));
-        config.set(ConfigKeys.SIMULATION_PLAYER_SPEED, Float.valueOf(speed));
-        config.set(ConfigKeys.SIMULATION_COLLISIONS_ENABLED, Boolean.valueOf(collisions));
-        config.set(ConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
+        config.set(SimulationConfigKeys.SIMULATION_FRICTION, Float.valueOf(friction));
+        config.set(SimulationConfigKeys.SIMULATION_GRAVITY_Y, Float.valueOf(gravityY));
+        config.set(SimulationConfigKeys.SIMULATION_PLAYER_SPEED, Float.valueOf(speed));
+        config.set(SimulationConfigKeys.SIMULATION_COLLISIONS_ENABLED, Boolean.valueOf(collisions));
+        config.set(SimulationConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
         config.save(null);
 
         Display display = context.getOutputManager().getDisplay();
@@ -278,28 +303,20 @@ public class SettingsScene extends Scene {
         ConfigManager config = context.getConfigManager();
         ensureConfig(config, ConfigKeys.AUDIO_VOLUME);
         ensureConfig(config, ConfigKeys.DISPLAY_FULLSCREEN);
-        ensureConfig(config, ConfigKeys.SIMULATION_FRICTION);
-        ensureConfig(config, ConfigKeys.SIMULATION_GRAVITY_Y);
-        ensureConfig(config, ConfigKeys.SIMULATION_PLAYER_SPEED);
-        ensureConfig(config, ConfigKeys.SIMULATION_COLLISIONS_ENABLED);
-        ensureConfig(config, ConfigKeys.SIMULATION_PRESET_INDEX);
+        ensureConfig(config, SimulationConfigKeys.SIMULATION_FRICTION);
+        ensureConfig(config, SimulationConfigKeys.SIMULATION_GRAVITY_Y);
+        ensureConfig(config, SimulationConfigKeys.SIMULATION_PLAYER_SPEED);
+        ensureConfig(config, SimulationConfigKeys.SIMULATION_COLLISIONS_ENABLED);
+        ensureConfig(config, SimulationConfigKeys.SIMULATION_PRESET_INDEX);
 
-        ConfigVar volumeSetting = config.get(ConfigKeys.AUDIO_VOLUME.name());
-        ConfigVar fullscreenSetting = config.get(ConfigKeys.DISPLAY_FULLSCREEN.name());
-        ConfigVar frictionSetting = config.get(ConfigKeys.SIMULATION_FRICTION.name());
-        ConfigVar gravitySetting = config.get(ConfigKeys.SIMULATION_GRAVITY_Y.name());
-        ConfigVar speedSetting = config.get(ConfigKeys.SIMULATION_PLAYER_SPEED.name());
-        ConfigVar collisionSetting = config.get(ConfigKeys.SIMULATION_COLLISIONS_ENABLED.name());
-        ConfigVar presetSetting = config.get(ConfigKeys.SIMULATION_PRESET_INDEX.name());
-
-        float currentVolume = volumeSetting == null ? 0.7f : volumeSetting.asFloat();
+        float currentVolume = config.get(ConfigKeys.AUDIO_VOLUME);
         Display display = context.getOutputManager() == null ? null : context.getOutputManager().getDisplay();
-        boolean isFullscreen = display != null ? display.isFullscreen() : fullscreenSetting != null && fullscreenSetting.asBool();
-        float friction = frictionSetting == null ? 0.10f : frictionSetting.asFloat();
-        float gravityY = gravitySetting == null ? 0f : gravitySetting.asFloat();
-        float speed = speedSetting == null ? 240f : speedSetting.asFloat();
-        boolean collisions = collisionSetting == null || collisionSetting.asBool();
-        int loadedPreset = presetSetting == null ? 0 : presetSetting.asInt();
+        boolean isFullscreen = display != null ? display.isFullscreen() : config.get(ConfigKeys.DISPLAY_FULLSCREEN);
+        float friction = config.get(SimulationConfigKeys.SIMULATION_FRICTION);
+        float gravityY = config.get(SimulationConfigKeys.SIMULATION_GRAVITY_Y);
+        float speed = config.get(SimulationConfigKeys.SIMULATION_PLAYER_SPEED);
+        boolean collisions = config.get(SimulationConfigKeys.SIMULATION_COLLISIONS_ENABLED);
+        int loadedPreset = config.get(SimulationConfigKeys.SIMULATION_PRESET_INDEX);
 
         volumeSlider.setValue(currentVolume * 100f);
         fullscreenToggle.setValue(isFullscreen);
@@ -367,7 +384,7 @@ public class SettingsScene extends Scene {
     }
 
     private <T> void ensureConfig(ConfigManager config, ConfigKey<T> key) {
-        if (config.get(key.name()) == null) {
+        if (!config.has(key)) {
             config.set(key, key.defaultValue());
         }
     }

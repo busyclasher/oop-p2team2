@@ -11,7 +11,6 @@ import sg.edu.sit.inf1009.p2team2.engine.collision.CollisionManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.components.ColliderComponent;
@@ -675,36 +674,28 @@ public class MainScene extends Scene {
 
     private void loadSimulationConfig() {
         ConfigManager config = context.getConfigManager();
-        ensureDefaultConfig(config, ConfigKeys.SIMULATION_PRESET_INDEX);
-        ensureDefaultConfig(config, ConfigKeys.SIMULATION_GRAVITY_Y);
-        ensureDefaultConfig(config, ConfigKeys.SIMULATION_FRICTION);
-        ensureDefaultConfig(config, ConfigKeys.SIMULATION_PLAYER_SPEED);
-        ensureDefaultConfig(config, ConfigKeys.SIMULATION_COLLISIONS_ENABLED);
-        ensureDefaultConfig(config, ConfigKeys.SIMULATION_MUSIC_ENABLED);
+        ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_PRESET_INDEX);
+        ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_GRAVITY_Y);
+        ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_FRICTION);
+        ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_PLAYER_SPEED);
+        ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_COLLISIONS_ENABLED);
+        ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_MUSIC_ENABLED);
         ensureDefaultConfig(config, ConfigKeys.AUDIO_VOLUME);
 
-        ConfigVar preset = config.get(ConfigKeys.SIMULATION_PRESET_INDEX.name());
-        ConfigVar gravityY = config.get(ConfigKeys.SIMULATION_GRAVITY_Y.name());
-        ConfigVar friction = config.get(ConfigKeys.SIMULATION_FRICTION.name());
-        ConfigVar speed = config.get(ConfigKeys.SIMULATION_PLAYER_SPEED.name());
-        ConfigVar collisionFlag = config.get(ConfigKeys.SIMULATION_COLLISIONS_ENABLED.name());
-        ConfigVar musicFlag = config.get(ConfigKeys.SIMULATION_MUSIC_ENABLED.name());
-        ConfigVar volume = config.get(ConfigKeys.AUDIO_VOLUME.name());
-
-        presetIndex = clampPresetIndex(preset == null ? 0 : preset.asInt());
+        presetIndex = clampPresetIndex(config.get(SimulationConfigKeys.SIMULATION_PRESET_INDEX));
         targetEntityCount = ENTITY_PRESETS[presetIndex];
-        collisionsEnabled = collisionFlag == null || collisionFlag.asBool();
-        musicPlaying = musicFlag != null && musicFlag.asBool();
-        playerSpeed = Math.max(60f, speed == null ? DEFAULT_PLAYER_SPEED : speed.asFloat());
+        collisionsEnabled = config.get(SimulationConfigKeys.SIMULATION_COLLISIONS_ENABLED);
+        musicPlaying = config.get(SimulationConfigKeys.SIMULATION_MUSIC_ENABLED);
+        playerSpeed = Math.max(60f, config.get(SimulationConfigKeys.SIMULATION_PLAYER_SPEED));
 
-        float gravityValue = gravityY == null ? 0f : gravityY.asFloat();
-        float frictionValue = friction == null ? DEFAULT_FRICTION : friction.asFloat();
+        float gravityValue = config.get(SimulationConfigKeys.SIMULATION_GRAVITY_Y);
+        float frictionValue = config.get(SimulationConfigKeys.SIMULATION_FRICTION);
         movementManager.setGravity(new Vector2(0f, gravityValue));
         movementManager.setFriction(frictionValue);
 
         Audio audio = getAudio();
-        if (volume != null && audio != null) {
-            audio.setMasterVolume(volume.asFloat());
+        if (audio != null) {
+            audio.setMasterVolume(config.get(ConfigKeys.AUDIO_VOLUME));
         }
         if (musicPlaying) {
             startSimulationMusic();
@@ -717,12 +708,12 @@ public class MainScene extends Scene {
         }
 
         ConfigManager config = context.getConfigManager();
-        config.set(ConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
-        config.set(ConfigKeys.SIMULATION_GRAVITY_Y, Float.valueOf(movementManager.getGravity().y));
-        config.set(ConfigKeys.SIMULATION_FRICTION, Float.valueOf(movementManager.getFriction()));
-        config.set(ConfigKeys.SIMULATION_PLAYER_SPEED, Float.valueOf(playerSpeed));
-        config.set(ConfigKeys.SIMULATION_COLLISIONS_ENABLED, Boolean.valueOf(collisionsEnabled));
-        config.set(ConfigKeys.SIMULATION_MUSIC_ENABLED, Boolean.valueOf(musicPlaying));
+        config.set(SimulationConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
+        config.set(SimulationConfigKeys.SIMULATION_GRAVITY_Y, Float.valueOf(movementManager.getGravity().y));
+        config.set(SimulationConfigKeys.SIMULATION_FRICTION, Float.valueOf(movementManager.getFriction()));
+        config.set(SimulationConfigKeys.SIMULATION_PLAYER_SPEED, Float.valueOf(playerSpeed));
+        config.set(SimulationConfigKeys.SIMULATION_COLLISIONS_ENABLED, Boolean.valueOf(collisionsEnabled));
+        config.set(SimulationConfigKeys.SIMULATION_MUSIC_ENABLED, Boolean.valueOf(musicPlaying));
         Audio audio = getAudio();
         if (audio != null) {
             config.set(ConfigKeys.AUDIO_VOLUME, Float.valueOf(audio.getMasterVolume()));
@@ -731,7 +722,7 @@ public class MainScene extends Scene {
     }
 
     private <T> void ensureDefaultConfig(ConfigManager config, ConfigKey<T> key) {
-        if (config.get(key.name()) != null) {
+        if (config.has(key)) {
             return;
         }
         config.set(key, key.defaultValue());

@@ -5,5 +5,5 @@ public interface IConfigDispatcher {
 
     void removeObserver(ConfigListener listener);
 
-    void notify(String key, ConfigVar value);
+    void notify(String key, ConfigVar<?> value);
 }
