@@ -32,4 +32,20 @@ public class MovementSystem {
         tmp.set(velocity).scl(dt);
         position.add(tmp);
     }
+
+    public void applyGravity(VelocityComponent velocity, Vector2 gravity, float dt) {
+        if (dt <= 0f || velocity == null || gravity == null || velocity.getVelocity() == null) {
+            return;
+        }
+        velocity.getVelocity().x += gravity.x * dt;
+        velocity.getVelocity().y += gravity.y * dt;
+    }
+
+    public void applyFriction(VelocityComponent velocity, float friction, float dt) {
+        if (dt <= 0f || friction <= 0f || velocity == null || velocity.getVelocity() == null) {
+            return;
+        }
+        float damping = Math.max(0f, 1f - friction * dt);
+        velocity.getVelocity().scl(damping);
+    }
 }

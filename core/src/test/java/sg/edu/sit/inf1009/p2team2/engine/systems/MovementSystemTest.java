@@ -27,4 +27,28 @@ class MovementSystemTest {
         assertEquals(11f, velocity.getVelocity().x, 0.0001f);
         assertEquals(5.5f, transform.getPosition().x, 0.0001f);
     }
+
+    @Test
+    void applyGravityAdjustsVelocity() {
+        MovementSystem system = new MovementSystem();
+
+        VelocityComponent velocity = new VelocityComponent();
+        velocity.setVelocity(new Vector2(0f, 0f));
+
+        system.applyGravity(velocity, new Vector2(0f, -9.8f), 0.5f);
+
+        assertEquals(-4.9f, velocity.getVelocity().y, 0.0001f);
+    }
+
+    @Test
+    void applyFrictionDampensVelocity() {
+        MovementSystem system = new MovementSystem();
+
+        VelocityComponent velocity = new VelocityComponent();
+        velocity.setVelocity(new Vector2(10f, 0f));
+
+        system.applyFriction(velocity, 0.2f, 0.5f);
+
+        assertEquals(9f, velocity.getVelocity().x, 0.0001f);
+    }
 }
