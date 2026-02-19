@@ -1,27 +1,30 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
-import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.collision.Circle;
+import sg.edu.sit.inf1009.p2team2.engine.collision.Rectangle;
+import sg.edu.sit.inf1009.p2team2.engine.collision.Shape;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
 public class ColliderComponent implements ComponentAdapter {
-    private Rectangle bounds;
+    private Shape shape;
     private boolean isTrigger;
     private int layer;
     private int mask;
 
     public ColliderComponent() {
-        this.bounds = new Rectangle();
+        this.shape = new Rectangle(0f, 0f, 0f, 0f);
         this.isTrigger = false;
         this.layer = 0;
         this.mask = 0;
     }
 
-    public Rectangle getBounds() {
-        return bounds;
+    public Shape getShape() {
+        return shape;
     }
 
-    public void setBounds(Rectangle bounds) {
-        this.bounds = bounds;
+    public void setShape(Shape shape) {
+        this.shape = shape;
     }
 
     public boolean isTrigger() {
@@ -48,10 +51,54 @@ public class ColliderComponent implements ComponentAdapter {
         this.mask = mask;
     }
 
-    public void updatePosition(float x, float y) {
-        if (bounds == null) {
-            bounds = new Rectangle();
+    /**
+     * Backward-compatibility accessor for existing runtime rendering code.
+     * This mirrors the current shape as an AABB rectangle.
+     */
+    public com.badlogic.gdx.math.Rectangle getBounds() {
+        if (shape instanceof Rectangle rect) {
+            Vector2 position = rect.getPosition();
+            return new com.badlogic.gdx.math.Rectangle(
+                position.x,
+                position.y,
+                rect.getWidth(),
+                rect.getHeight()
+            );
         }
-        bounds.setPosition(x, y);
+        if (shape instanceof Circle circle) {
+            Vector2 center = circle.getCenter();
+            float radius = circle.getRadius();
+            return new com.badlogic.gdx.math.Rectangle(
+                center.x - radius,
+                center.y - radius,
+                radius * 2f,
+                radius * 2f
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Backward-compatibility mutator for existing tests/scene code.
+     */
+    public void setBounds(com.badlogic.gdx.math.Rectangle bounds) {
+        if (bounds == null) {
+            this.shape = null;
+            return;
+        }
+        this.shape = new Rectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
+
+    public void updatePosition(float x, float y) {
+        if (shape instanceof Rectangle rect) {
+            rect.setPosition(new Vector2(x, y));
+            return;
+        }
+        if (shape instanceof Circle circle) {
+            float radius = circle.getRadius();
+            circle.setCenter(new Vector2(x + radius, y + radius));
+            return;
+        }
+        shape = new Rectangle(x, y, 0f, 0f);
     }
 }
