@@ -115,13 +115,8 @@ public class SettingsScene extends Scene {
     public void render() {
         var renderer = context.getOutputManager().getRenderer();
 
-        float centerX = 400f;
-        float centerY = 300f;
-        var display = context.getOutputManager().getDisplay();
-        if (display != null) {
-            centerX = display.getWidth() / 2f;
-            centerY = display.getHeight() / 2f;
-        }
+        float centerX = renderer.getWorldWidth() / 2f;
+        float centerY = renderer.getWorldHeight() / 2f;
 
         float rowSpacing = 60f;
         float totalHeight = (ROW_COUNT - 1) * rowSpacing;

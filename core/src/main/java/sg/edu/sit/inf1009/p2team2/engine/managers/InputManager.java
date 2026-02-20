@@ -64,6 +64,10 @@ public class InputManager {
     public Mouse getMouse() {
         return mouse;
     }
+
+    public void setMouseCoordinateTransformer(Mouse.CoordinateTransformer transformer) {
+        mouse.setCoordinateTransformer(transformer);
+    }
     
     // ===== INPUT MAP MANAGEMENT =====
     
