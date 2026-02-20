@@ -39,6 +39,13 @@ public class Main extends ApplicationAdapter {
         
         // 2. Initialize the engine (after libGDX context is ready)
         engine.initialize();
+        engine.getOutputManager().getRenderer().resizeViewport(
+            Gdx.graphics.getWidth(),
+            Gdx.graphics.getHeight()
+        );
+        engine.getInputManager().setMouseCoordinateTransformer((screenX, screenY) ->
+            engine.getOutputManager().getRenderer().screenToWorld(screenX, screenY)
+        );
         
         // 3. Start the engine
         engine.start();
@@ -89,6 +96,7 @@ public class Main extends ApplicationAdapter {
         // Update display size
         if (engine != null) {
             engine.getOutputManager().getDisplay().resize(width, height);
+            engine.getOutputManager().getRenderer().resizeViewport(width, height);
         }
     }
     

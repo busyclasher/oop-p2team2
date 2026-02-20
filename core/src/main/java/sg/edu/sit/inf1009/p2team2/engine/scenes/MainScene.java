@@ -608,6 +608,7 @@ public class MainScene extends Scene {
 
     private void renderHud(Renderer renderer) {
         float top = worldHeight - 20f;
+        float bottomBase = 20f;
         Mouse mouse = context.getInputManager() == null ? null : context.getInputManager().getMouse();
         Vector2 mousePos = mouse == null ? new Vector2() : mouse.getPosition();
         Vector2 playerCenter = getPlayerCenter();
@@ -650,37 +651,31 @@ public class MainScene extends Scene {
         );
         renderer.drawText(
             "Controls: WASD/Arrows move player | LeftClick +1 | RightClick -1 | Scroll speed",
-            new Vector2(16f, 48f),
+            new Vector2(16f, bottomBase + 40f),
             "default",
             Color.LIGHT_GRAY
         );
         renderer.drawText(
             "1-5 mode | SPACE +10 + BG | BACKSPACE -10 | P preset | C collisions | F fullscreen",
-            new Vector2(16f, 24f),
+            new Vector2(16f, bottomBase + 20f),
             "default",
             Color.LIGHT_GRAY
         );
         renderer.drawText(
             "M music | +/- volume | [ ] friction | TAB pause | ENTER reset | ESC menu",
-            new Vector2(16f, 8f),
+            new Vector2(16f, bottomBase),
             "default",
             Color.LIGHT_GRAY
         );
     }
 
     private void refreshWorldBounds() {
-        if (context == null || context.getOutputManager() == null || context.getOutputManager().getDisplay() == null) {
+        if (context == null || context.getOutputManager() == null || context.getOutputManager().getRenderer() == null) {
             return;
         }
-
-        int width = context.getOutputManager().getDisplay().getWidth();
-        int height = context.getOutputManager().getDisplay().getHeight();
-        if (width > 100) {
-            worldWidth = width;
-        }
-        if (height > 100) {
-            worldHeight = height;
-        }
+        Renderer renderer = context.getOutputManager().getRenderer();
+        worldWidth = renderer.getWorldWidth();
+        worldHeight = renderer.getWorldHeight();
     }
 
     private void loadSimulationConfig() {

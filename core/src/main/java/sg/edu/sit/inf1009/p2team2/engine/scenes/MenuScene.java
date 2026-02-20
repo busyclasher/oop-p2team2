@@ -153,13 +153,8 @@ public class MenuScene extends Scene {
         // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
 
-        float centerX = 400f;
-        float centerY = 300f;
-        var display = context.getOutputManager().getDisplay();
-        if (display != null) {
-            centerX = display.getWidth() / 2f;
-            centerY = display.getHeight() / 2f;
-        }
+        float centerX = renderer.getWorldWidth() / 2f;
+        float centerY = renderer.getWorldHeight() / 2f;
 
         float spacing = 70f;
         float titleX = centerX - 80f;
@@ -224,13 +219,9 @@ public class MenuScene extends Scene {
             return;
         }
 
-        float centerX = 400f;
-        float centerY = 300f;
-        var display = context.getOutputManager().getDisplay();
-        if (display != null) {
-            centerX = display.getWidth() / 2f;
-            centerY = display.getHeight() / 2f;
-        }
+        Renderer renderer = context.getOutputManager().getRenderer();
+        float centerX = renderer.getWorldWidth() / 2f;
+        float centerY = renderer.getWorldHeight() / 2f;
 
         float spacing = 70f;
         float totalHeight = (menuItems.size() - 1) * spacing;

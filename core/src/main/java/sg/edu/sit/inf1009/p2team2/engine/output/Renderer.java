@@ -7,8 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,11 +29,18 @@ import java.util.Map;
  * - Added isDrawing() check method
  */
 public class Renderer {
+    private static final float WORLD_WIDTH = 1280f;
+    private static final float WORLD_HEIGHT = 720f;
     
     private Color clearColor;
     private SpriteBatch spriteBatch;
     private ShapeRenderer shapeRenderer;
     private BitmapFont defaultFont;
+    private int viewportWidth;
+    private int viewportHeight;
+    private OrthographicCamera camera;
+    private Viewport viewport;
+    private Vector3 tempScreenPosition;
     
     // Sprite cache
     private Map<String, Texture> spriteCache;
@@ -43,6 +54,46 @@ public class Renderer {
         this.shapeRenderer = new ShapeRenderer();
         this.defaultFont = new BitmapFont(); // libGDX default font
         this.spriteCache = new HashMap<>();
+        this.viewportWidth = 0;
+        this.viewportHeight = 0;
+        this.camera = new OrthographicCamera();
+        this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
+        this.tempScreenPosition = new Vector3();
+
+        syncViewport();
+    }
+
+    /**
+     * Resize renderer projection to match the window/framebuffer size.
+     *
+     * @param width viewport width
+     * @param height viewport height
+     */
+    public void resizeViewport(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
+        viewportWidth = width;
+        viewportHeight = height;
+        viewport.update(width, height, true);
+        spriteBatch.setProjectionMatrix(camera.combined);
+        shapeRenderer.setProjectionMatrix(camera.combined);
+    }
+
+    /**
+     * Keep renderer projection in sync with the current window size.
+     */
+    private void syncViewport() {
+        if (Gdx.graphics == null) {
+            return;
+        }
+
+        int width = Gdx.graphics.getWidth();
+        int height = Gdx.graphics.getHeight();
+        if (width != viewportWidth || height != viewportHeight) {
+            resizeViewport(width, height);
+        }
     }
     
     /**
@@ -67,7 +118,30 @@ public class Renderer {
      * Call this before any draw calls
      */
     public void begin() {
+        syncViewport();
+        spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
+    }
+
+    /**
+     * Convert screen-space coordinates to world-space coordinates.
+     *
+     * @param screenX screen x
+     * @param screenY screen y
+     * @return world-space position
+     */
+    public Vector2 screenToWorld(float screenX, float screenY) {
+        tempScreenPosition.set(screenX, screenY, 0f);
+        viewport.unproject(tempScreenPosition);
+        return new Vector2(tempScreenPosition.x, tempScreenPosition.y);
+    }
+
+    public float getWorldWidth() {
+        return viewport.getWorldWidth();
+    }
+
+    public float getWorldHeight() {
+        return viewport.getWorldHeight();
     }
     
     /**
@@ -169,8 +243,8 @@ public class Renderer {
      * @param spriteId Path to background image
      */
     public void drawBackground(String spriteId) {
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
+        float screenWidth = viewport.getWorldWidth();
+        float screenHeight = viewport.getWorldHeight();
         
         Vector2 center = new Vector2(screenWidth / 2f, screenHeight / 2f);
         
@@ -229,6 +303,9 @@ public class Renderer {
      * @param filled true for filled, false for outline
      */
     public void drawRect(Rectangle rect, Color color, boolean filled) {
+        syncViewport();
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
         // Must end sprite batch before using shape renderer
         boolean batchWasActive = spriteBatch.isDrawing();
         if (batchWasActive) {
@@ -255,6 +332,9 @@ public class Renderer {
      * @param filled true for filled, false for outline
      */
     public void drawCircle(Vector2 center, float radius, Color color, boolean filled) {
+        syncViewport();
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
         boolean batchWasActive = spriteBatch.isDrawing();
         if (batchWasActive) {
             spriteBatch.end();
@@ -279,6 +359,9 @@ public class Renderer {
      * @param thickness Line thickness (currently unused in libGDX basic line)
      */
     public void drawLine(Vector2 start, Vector2 end, Color color, float thickness) {
+        syncViewport();
+        shapeRenderer.setProjectionMatrix(camera.combined);
+
         boolean batchWasActive = spriteBatch.isDrawing();
         if (batchWasActive) {
             spriteBatch.end();

@@ -15,6 +15,10 @@ import java.util.Map;
  * - Scroll delta
  */
 public class Mouse {
+    @FunctionalInterface
+    public interface CoordinateTransformer {
+        Vector2 toWorld(float screenX, float screenY);
+    }
     
     // Mouse position
     private Vector2 position;
@@ -27,6 +31,7 @@ public class Mouse {
     
     // Scroll wheel delta
     private float scrollDelta;
+    private CoordinateTransformer coordinateTransformer;
     
     /**
      * Constructor
@@ -36,6 +41,7 @@ public class Mouse {
         this.buttonStates = new HashMap<>();
         this.previousButtonStates = new HashMap<>();
         this.scrollDelta = 0;
+        this.coordinateTransformer = null;
     }
     
     /**
@@ -46,9 +52,14 @@ public class Mouse {
         previousButtonStates.clear();
         previousButtonStates.putAll(buttonStates);
         
-        // Update position from libGDX
-        float screenHeight = Gdx.graphics.getHeight();
-        position.set(Gdx.input.getX(), screenHeight - Gdx.input.getY());
+        float screenX = Gdx.input.getX();
+        float screenY = Gdx.input.getY();
+        if (coordinateTransformer != null) {
+            position.set(coordinateTransformer.toWorld(screenX, screenY));
+        } else {
+            float screenHeight = Gdx.graphics.getHeight();
+            position.set(screenX, screenHeight - screenY);
+        }
         
         // Scroll delta is handled by libGDX input processor
         // (will be set via setScrollDelta if using InputProcessor)
@@ -123,6 +134,10 @@ public class Mouse {
      */
     public void setScrollDelta(float delta) {
         this.scrollDelta = delta;
+    }
+
+    public void setCoordinateTransformer(CoordinateTransformer coordinateTransformer) {
+        this.coordinateTransformer = coordinateTransformer;
     }
     
     /**
