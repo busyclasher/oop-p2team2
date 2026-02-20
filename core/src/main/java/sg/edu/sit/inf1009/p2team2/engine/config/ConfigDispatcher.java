@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Broadcasts configuration changes to registered listeners.
  */
-public class ConfigDispatcher {
+public class ConfigDispatcher implements IConfigDispatcher {
     private final List<ConfigListener> observers = new ArrayList<>();
 
     public ConfigDispatcher() {
@@ -23,8 +23,9 @@ public class ConfigDispatcher {
         observers.remove(listener);
     }
 
-    public void notify(String key, ConfigVar value) {
-        for (ConfigListener listener : observers) {
+    public void notify(String key, ConfigVar<?> value) {
+        List<ConfigListener> snapshot = new ArrayList<>(observers);
+        for (ConfigListener listener : snapshot) {
             listener.onConfigChanged(key, value);
         }
     }

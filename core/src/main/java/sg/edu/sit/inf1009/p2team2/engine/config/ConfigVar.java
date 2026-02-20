@@ -1,28 +1,54 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
+import java.util.Objects;
+
 /**
  * Typed configuration value holder.
  */
-public class ConfigVar {
-    private Object value;
-    private Object defaultValue;
+public class ConfigVar<T> {
+    private T value;
+    private T defaultValue;
 
     public ConfigVar() {
         this(null, null);
     }
 
-    public ConfigVar(Object value, Object defaultValue) {
+    public ConfigVar(T value, T defaultValue) {
         this.value = value;
         this.defaultValue = defaultValue;
     }
 
+    public void reset() {
+        this.value = defaultValue;
+    }
+
+    public T getValue() {
+        return value;
+    }
+
+    public void setValue(T value) {
+        this.value = value;
+    }
+
+    public T getDefaultValue() {
+        return defaultValue;
+    }
+
+    public boolean hasSameValue(ConfigVar other) {
+        return other != null && Objects.equals(this.value, other.value);
+    }
+
     public int asInt() {
-        if (value instanceof Number number) {
+        Object raw = resolvedValue();
+        if (raw instanceof Number number) {
             return number.intValue();
         }
-        if (value instanceof String str) {
+        if (raw instanceof Boolean bool) {
+            return bool ? 1 : 0;
+        }
+        if (raw instanceof String text) {
             try {
-                return Integer.parseInt(str);
+                return Integer.parseInt(text.trim());
             } catch (NumberFormatException ignored) {
                 return 0;
             }
@@ -31,12 +57,16 @@ public class ConfigVar {
     }
 
     public float asFloat() {
-        if (value instanceof Number number) {
+        Object raw = resolvedValue();
+        if (raw instanceof Number number) {
             return number.floatValue();
         }
-        if (value instanceof String str) {
+        if (raw instanceof Boolean bool) {
+            return bool ? 1f : 0f;
+        }
+        if (raw instanceof String text) {
             try {
-                return Float.parseFloat(str);
+                return Float.parseFloat(text.trim());
             } catch (NumberFormatException ignored) {
                 return 0f;
             }
@@ -45,35 +75,30 @@ public class ConfigVar {
     }
 
     public boolean asBool() {
-        if (value instanceof Boolean bool) {
+        Object raw = resolvedValue();
+        if (raw instanceof Boolean bool) {
             return bool;
         }
-        if (value instanceof String str) {
-            return Boolean.parseBoolean(str);
+        if (raw instanceof Number number) {
+            return number.floatValue() != 0f;
         }
-        if (value instanceof Number number) {
-            return number.intValue() != 0;
+        if (raw instanceof String text) {
+            String normalized = text.trim();
+            return "true".equalsIgnoreCase(normalized)
+                || "1".equals(normalized)
+                || "yes".equalsIgnoreCase(normalized)
+                || "y".equalsIgnoreCase(normalized)
+                || "on".equalsIgnoreCase(normalized);
         }
         return false;
     }
 
     public String asString() {
-        return value == null ? "" : String.valueOf(value);
+        Object raw = resolvedValue();
+        return raw == null ? "" : String.valueOf(raw);
     }
 
-    public void reset() {
-        this.value = defaultValue;
-    }
-
-    public Object getValue() {
-        return value;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    public Object getDefaultValue() {
-        return defaultValue;
+    private Object resolvedValue() {
+        return value != null ? value : defaultValue;
     }
 }

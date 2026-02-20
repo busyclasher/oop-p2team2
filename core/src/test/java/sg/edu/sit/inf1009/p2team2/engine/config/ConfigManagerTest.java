@@ -1,54 +1,96 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class ConfigManagerTest {
 
     @Test
-    void getInstanceReturnsSingleton() {
+    void singletonGetInstanceReturnsStableReference() {
         ConfigManager first = ConfigManager.getInstance();
         ConfigManager second = ConfigManager.getInstance();
 
+        assertNotNull(first);
         assertSame(first, second);
     }
 
     @Test
-    void loadSeedsDefaultsAndGetReturnsExpectedValues() {
-        ConfigManager manager = ConfigManager.getInstance();
-        manager.load("test-config.json");
+    void typedKeyApisReadAndWriteValues() {
+        ConfigManager manager = createManager();
 
-        assertEquals(800, manager.get("display.width").asInt());
-        assertEquals(600, manager.get("display.height").asInt());
-        assertTrue(manager.get("display.title").asString().contains("P2Team2"));
-        assertFalse(manager.get("display.fullscreen").asBool());
+        manager.set(ConfigKeys.DISPLAY_WIDTH, Integer.valueOf(1024));
+
+        assertEquals(1024, manager.get(ConfigKeys.DISPLAY_WIDTH));
     }
 
     @Test
-    void setAndObserverNotificationWorks() {
-        ConfigManager manager = ConfigManager.getInstance();
-        manager.load("test-config.json");
+    void typedKeyValidationRejectsInvalidValues() {
+        ConfigManager manager = createManager();
 
-        final boolean[] called = {false};
-        manager.addObserver((key, val) -> {
-            if ("audio.volume".equals(key) && val != null) {
-                called[0] = true;
-            }
-        });
+        assertThrows(IllegalArgumentException.class, () -> manager.set(ConfigKeys.DISPLAY_WIDTH, Integer.valueOf(0)));
+    }
 
-        ConfigVar oldValue = manager.get("audio.volume");
-        ConfigVar newValue = new ConfigVar(0.25f, oldValue == null ? 0.7f : oldValue.getDefaultValue());
-        manager.set("audio.volume", newValue);
-        manager.notifyObservers("audio.volume", oldValue, newValue);
+    @Test
+    void stringApisSupportFallbackTypeReads() {
+        ConfigManager manager = createManager();
 
-        assertTrue(called[0]);
-        ConfigVar stored = manager.get("audio.volume");
-        assertNotNull(stored);
-        assertEquals(0.25f, stored.asFloat(), 0.0001f);
+        manager.set("test.int", new ConfigVar<>(Integer.valueOf(7), Integer.valueOf(0)));
+        manager.set("test.float", new ConfigVar<>(Float.valueOf(2.5f), Float.valueOf(0f)));
+        manager.set("test.bool", new ConfigVar<>(Boolean.TRUE, Boolean.FALSE));
+        manager.set("test.string", new ConfigVar<>("hello", ""));
+
+        assertEquals(7, manager.getInt("test.int", 1));
+        assertEquals(2.5f, manager.getFloat("test.float", 1f), 0.0001f);
+        assertEquals(true, manager.getBool("test.bool", false));
+        assertEquals("hello", manager.getString("test.string", "fallback"));
+        assertEquals(99, manager.getInt("missing", 99));
+    }
+
+    @Test
+    void observerNotifiedOnlyWhenValueChanges() {
+        ConfigManager manager = createManager();
+        TestListener listener = new TestListener();
+        manager.addObserver(listener);
+
+        manager.set("custom.key", new ConfigVar<>("a", "a"));
+        manager.set("custom.key", new ConfigVar<>("a", "a"));
+        manager.set("custom.key", new ConfigVar<>("b", "a"));
+
+        assertEquals(2, listener.notifications);
+    }
+
+    private ConfigManager createManager() {
+        InMemoryLoader loader = new InMemoryLoader();
+        return new ConfigManager(new ConfigRegistry(), loader, new ConfigDispatcher());
+    }
+
+    private static final class InMemoryLoader implements IConfigLoader {
+        private final Map<String, ConfigVar<?>> values = new LinkedHashMap<>();
+
+        @Override
+        public Map<String, ConfigVar<?>> loadFromFile(String filePath) {
+            return new LinkedHashMap<>(values);
+        }
+
+        @Override
+        public void saveToFile(String filePath, Map<String, ConfigVar<?>> settings) {
+            values.clear();
+            values.putAll(settings);
+        }
+    }
+
+    private static final class TestListener implements ConfigListener {
+        int notifications;
+
+        @Override
+        public void onConfigChanged(String key, ConfigVar<?> val) {
+            notifications++;
+        }
     }
 }

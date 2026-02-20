@@ -1,26 +1,35 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * File loader/saver for configuration data.
  *
  * Skeleton behavior: return defaults and keep save as no-op for now.
  */
-public class ConfigLoader {
+public class ConfigLoader implements IConfigLoader {
+    private final List<IConfigFormat> formats;
 
     public ConfigLoader() {
+        this(Arrays.asList(new JsonConfigFormat(), new PropertiesConfigFormat()));
     }
 
-    public Map<String, ConfigVar> loadFromFile(String filePath) {
-        Map<String, ConfigVar> defaults = defaultSettings();
+    public ConfigLoader(List<IConfigFormat> formats) {
+        this.formats = formats == null ? new ArrayList<>() : new ArrayList<>(formats);
+        if (this.formats.isEmpty()) {
+            this.formats.add(new PropertiesConfigFormat());
+        }
+    }
+
+    public Map<String, ConfigVar<?>> loadFromFile(String filePath) {
+        Map<String, ConfigVar<?>> defaults = defaultSettings();
         if (filePath == null || filePath.isBlank()) {
             return defaults;
         }
@@ -30,27 +39,30 @@ public class ConfigLoader {
             return defaults;
         }
 
-        Properties properties = new Properties();
-        try (InputStream in = Files.newInputStream(path)) {
-            properties.load(in);
-        } catch (IOException ignored) {
-            return defaults;
-        }
-
-        for (String key : properties.stringPropertyNames()) {
-            String rawValue = properties.getProperty(key);
-            Object parsed = parseValue(rawValue);
-            ConfigVar existing = defaults.get(key);
-            if (existing != null) {
-                defaults.put(key, new ConfigVar(parsed, existing.getDefaultValue()));
-            } else {
-                defaults.put(key, new ConfigVar(parsed, parsed));
+        IConfigFormat format = resolveFormat(path);
+        try {
+            Map<String, ConfigVar<?>> loaded = format.load(path);
+            for (Map.Entry<String, ConfigVar<?>> entry : loaded.entrySet()) {
+                String key = entry.getKey();
+                ConfigVar<?> value = entry.getValue();
+                if (key == null || value == null) {
+                    continue;
+                }
+                ConfigVar<?> existing = defaults.get(key);
+                if (existing != null) {
+                    defaults.put(key, new ConfigVar<>(value.getValue(), existing.getDefaultValue()));
+                } else {
+                    defaults.put(key, new ConfigVar<>(value.getValue(), value.getValue()));
+                }
             }
+        } catch (IOException e) {
+            System.err.println("[ConfigLoader] Failed to load '" + filePath + "': " + e.getMessage());
+            return defaults;
         }
         return defaults;
     }
 
-    public void saveToFile(String filePath, Map<String, ConfigVar> settings) {
+    public void saveToFile(String filePath, Map<String, ConfigVar<?>> settings) {
         if (filePath == null || filePath.isBlank() || settings == null) {
             return;
         }
@@ -60,50 +72,35 @@ public class ConfigLoader {
             if (path.getParent() != null) {
                 Files.createDirectories(path.getParent());
             }
-        } catch (IOException ignored) {
+        } catch (IOException e) {
+            System.err.println("[ConfigLoader] Failed to create config directory for '" + filePath + "': " + e.getMessage());
             return;
         }
 
-        Properties properties = new Properties();
-        for (Map.Entry<String, ConfigVar> entry : settings.entrySet()) {
-            if (entry.getKey() == null || entry.getValue() == null) {
-                continue;
-            }
-            properties.setProperty(entry.getKey(), entry.getValue().asString());
-        }
-
-        try (OutputStream out = Files.newOutputStream(path)) {
-            properties.store(out, "P2Team2 engine config");
-        } catch (IOException ignored) {
-            // Intentionally no-op for skeleton robustness.
+        IConfigFormat format = resolveFormat(path);
+        try {
+            format.save(path, settings);
+        } catch (IOException e) {
+            System.err.println("[ConfigLoader] Failed to save '" + filePath + "': " + e.getMessage());
         }
     }
 
-    private Map<String, ConfigVar> defaultSettings() {
-        Map<String, ConfigVar> defaults = new LinkedHashMap<>();
-        defaults.put("display.width", new ConfigVar(800, 800));
-        defaults.put("display.height", new ConfigVar(600, 600));
-        defaults.put("display.fullscreen", new ConfigVar(false, false));
-        defaults.put("display.title", new ConfigVar("P2Team2AbstractEngine", "P2Team2AbstractEngine"));
-        defaults.put("audio.volume", new ConfigVar(0.7f, 0.7f));
+    private Map<String, ConfigVar<?>> defaultSettings() {
+        Map<String, ConfigVar<?>> defaults = new LinkedHashMap<>();
+        defaults.put(ConfigKeys.DISPLAY_WIDTH.name(), ConfigKeys.DISPLAY_WIDTH.toVar(ConfigKeys.DISPLAY_WIDTH.defaultValue()));
+        defaults.put(ConfigKeys.DISPLAY_HEIGHT.name(), ConfigKeys.DISPLAY_HEIGHT.toVar(ConfigKeys.DISPLAY_HEIGHT.defaultValue()));
+        defaults.put(ConfigKeys.DISPLAY_FULLSCREEN.name(), ConfigKeys.DISPLAY_FULLSCREEN.toVar(ConfigKeys.DISPLAY_FULLSCREEN.defaultValue()));
+        defaults.put(ConfigKeys.DISPLAY_TITLE.name(), ConfigKeys.DISPLAY_TITLE.toVar(ConfigKeys.DISPLAY_TITLE.defaultValue()));
+        defaults.put(ConfigKeys.AUDIO_VOLUME.name(), ConfigKeys.AUDIO_VOLUME.toVar(ConfigKeys.AUDIO_VOLUME.defaultValue()));
         return defaults;
     }
 
-    private Object parseValue(String rawValue) {
-        if (rawValue == null) {
-            return "";
-        }
-        String value = rawValue.trim();
-        if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
-            return Boolean.parseBoolean(value);
-        }
-        try {
-            if (value.contains(".")) {
-                return Float.parseFloat(value);
+    private IConfigFormat resolveFormat(Path path) {
+        for (IConfigFormat format : formats) {
+            if (format.supports(path)) {
+                return format;
             }
-            return Integer.parseInt(value);
-        } catch (NumberFormatException ignored) {
-            return value;
         }
+        return formats.get(formats.size() - 1);
     }
 }
