@@ -4,9 +4,6 @@ import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.config.DisplayConfigListener;
 import sg.edu.sit.inf1009.p2team2.engine.config.AudioConfigListener;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigDispatcher;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigLoader;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigRegistry;
 import sg.edu.sit.inf1009.p2team2.engine.managers.InputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
 import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
@@ -44,7 +41,7 @@ public class EngineContext {
      * Creates all managers in the correct order
      */
     public EngineContext() {
-        this(new ConfigManager(new ConfigRegistry(), new ConfigLoader(), new ConfigDispatcher()));
+        this(ConfigManager.getInstance());
     }
 
     public EngineContext(ConfigManager configManager) {

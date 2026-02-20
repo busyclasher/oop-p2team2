@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -40,12 +42,16 @@ public class JsonConfigFormat implements IConfigFormat {
     public void save(Path path, Map<String, ConfigVar<?>> settings) throws IOException {
         StringBuilder sb = new StringBuilder();
         sb.append("{\n");
-        int i = 0;
-        int total = settings.size();
+        List<Map.Entry<String, ConfigVar<?>>> validEntries = new ArrayList<>();
         for (Map.Entry<String, ConfigVar<?>> entry : settings.entrySet()) {
             if (entry.getKey() == null || entry.getValue() == null) {
                 continue;
             }
+            validEntries.add(entry);
+        }
+
+        for (int i = 0; i < validEntries.size(); i++) {
+            Map.Entry<String, ConfigVar<?>> entry = validEntries.get(i);
             sb.append("  \"").append(escape(entry.getKey())).append("\": ");
             Object value = entry.getValue().getValue();
             if (value instanceof Number || value instanceof Boolean) {
@@ -53,8 +59,7 @@ public class JsonConfigFormat implements IConfigFormat {
             } else {
                 sb.append("\"").append(escape(value == null ? "" : String.valueOf(value))).append("\"");
             }
-            i++;
-            if (i < total) {
+            if (i + 1 < validEntries.size()) {
                 sb.append(",");
             }
             sb.append("\n");

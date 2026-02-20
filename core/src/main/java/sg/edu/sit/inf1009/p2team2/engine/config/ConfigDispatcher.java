@@ -24,7 +24,8 @@ public class ConfigDispatcher implements IConfigDispatcher {
     }
 
     public void notify(String key, ConfigVar<?> value) {
-        for (ConfigListener listener : observers) {
+        List<ConfigListener> snapshot = new ArrayList<>(observers);
+        for (ConfigListener listener : snapshot) {
             listener.onConfigChanged(key, value);
         }
     }

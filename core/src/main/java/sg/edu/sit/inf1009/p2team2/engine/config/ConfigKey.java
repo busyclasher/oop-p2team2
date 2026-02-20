@@ -50,7 +50,7 @@ public final class ConfigKey<T> {
         return type.cast(raw);
     }
 
-    public ConfigVar toVar(T value) {
+    public ConfigVar<T> toVar(T value) {
         T resolved = value == null ? defaultValue : value;
         return new ConfigVar<>(resolved, defaultValue);
     }

@@ -7,6 +7,7 @@ import java.util.Objects;
  * UML-aligned configuration manager.
  */
 public final class ConfigManager {
+    private static volatile ConfigManager instance;
     private final IConfigStore configStore;
     private final IConfigLoader configLoader;
     private final IConfigDispatcher configDispatcher;
@@ -21,6 +22,22 @@ public final class ConfigManager {
         this.configLoader = Objects.requireNonNull(configLoader, "configLoader");
         this.configDispatcher = Objects.requireNonNull(configDispatcher, "configDispatcher");
         this.lastLoadedPath = lastLoadedPath == null ? "" : lastLoadedPath;
+        if (instance == null) {
+            instance = this;
+        }
+    }
+
+    public static ConfigManager getInstance() {
+        ConfigManager local = instance;
+        if (local != null) {
+            return local;
+        }
+        synchronized (ConfigManager.class) {
+            if (instance == null) {
+                instance = new ConfigManager(new ConfigRegistry(), new ConfigLoader(), new ConfigDispatcher());
+            }
+            return instance;
+        }
     }
 
     public void load(String filePath) {
@@ -64,6 +81,51 @@ public final class ConfigManager {
         }
     }
 
+    public ConfigVar<?> get(String key) {
+        if (key == null || key.isBlank()) {
+            return null;
+        }
+        return configStore.find(key);
+    }
+
+    public void set(String key, ConfigVar<?> value) {
+        if (key == null || key.isBlank()) {
+            throw new IllegalArgumentException("Config key cannot be null or blank");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("Config value cannot be null");
+        }
+        if (!ConfigKeys.isValid(key, value)) {
+            throw new IllegalArgumentException("Invalid config value for key '" + key + "'");
+        }
+
+        ConfigVar<?> oldValue = configStore.find(key);
+        boolean updated = configStore.update(key, value);
+        if (updated && hasValueChanged(oldValue, value)) {
+            notifyObservers(key, oldValue, value);
+        }
+    }
+
+    public int getInt(String key, int fallback) {
+        ConfigVar<?> value = get(key);
+        return value == null ? fallback : value.asInt();
+    }
+
+    public float getFloat(String key, float fallback) {
+        ConfigVar<?> value = get(key);
+        return value == null ? fallback : value.asFloat();
+    }
+
+    public boolean getBool(String key, boolean fallback) {
+        ConfigVar<?> value = get(key);
+        return value == null ? fallback : value.asBool();
+    }
+
+    public String getString(String key, String fallback) {
+        ConfigVar<?> value = get(key);
+        return value == null ? fallback : value.asString();
+    }
+
     public boolean has(ConfigKey<?> key) {
         if (key == null) {
             return false;
@@ -79,7 +141,7 @@ public final class ConfigManager {
         configDispatcher.removeObserver(observer);
     }
 
-    public void notifyObservers(String key, ConfigVar<?> oldValue, ConfigVar<?> newValue) {
+    private void notifyObservers(String key, ConfigVar<?> oldValue, ConfigVar<?> newValue) {
         configDispatcher.notify(key, newValue);
     }
 
