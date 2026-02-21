@@ -2,6 +2,9 @@ package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 
 import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
+/**
+ * ECS component marking an entity as input-driven via an action map id.
+ */
 public class InputComponent implements ComponentAdapter {
     private String actionMapId;
     private boolean enabled;

@@ -3,6 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 import com.badlogic.gdx.graphics.Color;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
+/**
+ * ECS component describing visual rendering properties for an entity.
+ */
 public class RenderableComponent implements ComponentAdapter {
     private String spriteId;
     private int zIndex;

@@ -2,6 +2,9 @@ package sg.edu.sit.inf1009.p2team2.engine.collision;
 
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Circular collision shape represented by a center point and radius.
+ */
 public class Circle extends Shape {
     private Vector2 center;
     private float radius;
