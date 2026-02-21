@@ -95,7 +95,7 @@ public class Main extends ApplicationAdapter {
         
         // Update display size
         if (engine != null) {
-            engine.getOutputManager().getDisplay().resize(width, height);
+            engine.getOutputManager().getDisplay().syncFromSystemResize(width, height);
             engine.getOutputManager().getRenderer().resizeViewport(width, height);
         }
     }
