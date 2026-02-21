@@ -128,7 +128,7 @@ oop-p2team2
 ```
 
 ## UML
-<img width="8708" height="5769" alt="Abstract Engine UML Class Diagram (1)" src="https://github.com/user-attachments/assets/61f424c5-291f-4663-ad29-7fd62a83b54b" />
+<img width="8829" height="6116" alt="Abstract Engine UML Class Diagram (5)" src="https://github.com/user-attachments/assets/bb1c1d19-ddba-42ed-a65e-3c4731d2452f" />
 
 ## Build Commands
 ```bash
