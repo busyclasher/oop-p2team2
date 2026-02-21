@@ -264,11 +264,6 @@ public class SettingsScene extends Scene {
         config.set(SimulationConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
         config.save(null);
 
-        Display display = context.getOutputManager().getDisplay();
-        boolean targetFullscreen = fullscreen;
-        if (display != null && targetFullscreen != display.isFullscreen()) {
-            display.toggleFullscreen();
-        }
     }
 
     private void updateControlPositions(float sliderX, float topY, float rowSpacing) {

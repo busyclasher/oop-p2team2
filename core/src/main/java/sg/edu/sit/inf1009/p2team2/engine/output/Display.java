@@ -15,6 +15,7 @@ public class Display {
     private int height;
     private String title;
     private boolean isFullscreen;
+    private boolean applyingWindowedMode;
     
     /**
      * Constructor
@@ -28,6 +29,7 @@ public class Display {
         this.height = height;
         this.title = title;
         this.isFullscreen = false;
+        this.applyingWindowedMode = false;
     }
     
     /**
@@ -58,25 +60,59 @@ public class Display {
      * @param height New height
      */
     public void resize(int width, int height) {
+        if (width <= 0 || height <= 0) {
+            return;
+        }
+
         this.width = width;
         this.height = height;
-        
-        if (!isFullscreen) {
-            Gdx.graphics.setWindowedMode(width, height);
+
+        // Avoid recursive resize loops when this is called from the framework's resize callback.
+        if (isFullscreen() || applyingWindowedMode) {
+            return;
         }
+
+        if (Gdx.graphics.getWidth() == width && Gdx.graphics.getHeight() == height) {
+            return;
+        }
+
+        applyingWindowedMode = true;
+        try {
+            Gdx.graphics.setWindowedMode(width, height);
+        } finally {
+            applyingWindowedMode = false;
+        }
+    }
+
+    /**
+     * Sync stored windowed size from OS/libGDX resize callbacks.
+     * This does not request another window mode change.
+     *
+     * @param width current framebuffer width
+     * @param height current framebuffer height
+     */
+    public void syncFromSystemResize(int width, int height) {
+        if (width <= 0 || height <= 0 || isFullscreen()) {
+            return;
+        }
+        this.width = width;
+        this.height = height;
     }
     
     /**
      * Toggle fullscreen mode
      */
     public void toggleFullscreen() {
-        isFullscreen = !isFullscreen;
-        
-        if (isFullscreen) {
+        boolean currentlyFullscreen = isFullscreen();
+        if (!currentlyFullscreen) {
+            isFullscreen = true;
             Graphics.DisplayMode displayMode = Gdx.graphics.getDisplayMode();
             Gdx.graphics.setFullscreenMode(displayMode);
         } else {
-            Gdx.graphics.setWindowedMode(width, height);
+            isFullscreen = false;
+            int targetWidth = width > 0 ? width : 800;
+            int targetHeight = height > 0 ? height : 600;
+            Gdx.graphics.setWindowedMode(targetWidth, targetHeight);
         }
     }
     
