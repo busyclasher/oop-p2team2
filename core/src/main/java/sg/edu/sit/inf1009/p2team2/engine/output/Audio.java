@@ -97,6 +97,9 @@ public class Audio {
 
     public void setMasterVolume(float volume) {
         this.masterVolume = clamp01(volume);
+        if (currentMusic != null) {
+            currentMusic.setVolume(clamp01(this.masterVolume * this.musicVolume)); 
+        }
     }
 
     public void setSfxVolume(float volume) {
