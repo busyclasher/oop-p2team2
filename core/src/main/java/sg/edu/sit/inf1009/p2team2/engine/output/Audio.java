@@ -59,27 +59,38 @@ public class Audio {
     }
 
     public void playMusic(String name, boolean loop) {
-        MusicTrack music = musicLibrary.get(name);
-        if (music == null) {
-            return;
-        }
-        currentMusic = music;
-        float effectiveVolume = clamp01(masterVolume * musicVolume);
-        if (loop && effectiveVolume < 0f) {
-            return;
-        }
+    // Stop whatever is currently playing
+    if (currentMusic != null) {
+        currentMusic.stop();
+    }
+
+    MusicTrack music = musicLibrary.get(name);
+    if (music == null) {
+        return;
+    }
+
+    currentMusic = music;
+    float effectiveVolume = clamp01(masterVolume * musicVolume);
+    currentMusic.play(loop, effectiveVolume);
     }
 
     public void stopMusic() {
-        currentMusic = null;
+        if (currentMusic != null) {
+            currentMusic.stop();
+            currentMusic = null;
+        }
     }
 
     public void pauseMusic() {
-        // Runtime pause hook reserved for concrete backend integration.
+        if (currentMusic != null) {
+            currentMusic.pause();
+        }
     }
 
     public void resumeMusic() {
-        // Runtime resume hook reserved for concrete backend integration.
+        if (currentMusic != null) {
+            currentMusic.resume();
+        }
     }
 
     public void setMasterVolume(float volume) {

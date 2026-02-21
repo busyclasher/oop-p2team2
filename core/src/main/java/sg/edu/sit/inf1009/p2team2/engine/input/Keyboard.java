@@ -74,7 +74,7 @@ public class Keyboard {
     /**
      * Check if a key is currently held down
      * 
-     * IMPORTANT: This now ONLY reads from currentKeys, it does NOT update state!
+     * IMPORTANT: This now ONLY reads from currentKeys, it does NOT update state
      */
     public boolean isKeyDown(int keyCode) {
         // If key is tracked, return its state

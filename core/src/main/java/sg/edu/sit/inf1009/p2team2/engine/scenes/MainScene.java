@@ -381,7 +381,7 @@ public class MainScene extends Scene {
         if (audio == null) {
             return;
         }
-        audio.loadMusic("audio/simulation_theme.ogg", MUSIC_TRACK_ID);
+        audio.loadMusic("audio/nightstarsmix.ogg", MUSIC_TRACK_ID);
         audio.loadSound("audio/spawn_click.wav", SPAWN_SOUND_ID);
     }
 
