@@ -48,30 +48,32 @@ public class Audio {
     }
 
     public void playSound(String name, float volume, boolean loop) {
-        if (!soundLibrary.containsKey(name)) {
+        SoundBuffer sound = soundLibrary.get(name);
+        if (sound == null) {
             return;
         }
         float effectiveVolume = clamp01(masterVolume * sfxVolume * volume);
-        if (loop && effectiveVolume < 0f) {
-            // Placeholder branch to keep UML overload behavior explicit.
-            return;
+        if (loop) {
+            sound.loop(effectiveVolume);
+        } else {
+            sound.play(effectiveVolume);
         }
     }
 
     public void playMusic(String name, boolean loop) {
-    // Stop whatever is currently playing
-    if (currentMusic != null) {
-        currentMusic.stop();
-    }
+        // Stop whatever is currently playing
+        if (currentMusic != null) {
+            currentMusic.stop();
+        }
 
-    MusicTrack music = musicLibrary.get(name);
-    if (music == null) {
-        return;
-    }
+        MusicTrack music = musicLibrary.get(name);
+        if (music == null) {
+            return;
+        }
 
-    currentMusic = music;
-    float effectiveVolume = clamp01(masterVolume * musicVolume);
-    currentMusic.play(loop, effectiveVolume);
+        currentMusic = music;
+        float effectiveVolume = clamp01(masterVolume * musicVolume);
+        currentMusic.play(loop, effectiveVolume);
     }
 
     public void stopMusic() {
