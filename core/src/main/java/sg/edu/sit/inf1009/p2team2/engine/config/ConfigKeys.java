@@ -4,6 +4,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 
+/**
+ * Registry of core engine configuration keys.
+ */
 public final class ConfigKeys {
     public static final ConfigKey<Integer> DISPLAY_WIDTH =
         intKey("display.width", 800, v -> v > 0, "Window width must be > 0");

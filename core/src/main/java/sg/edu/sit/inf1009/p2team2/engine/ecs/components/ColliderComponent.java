@@ -6,6 +6,9 @@ import sg.edu.sit.inf1009.p2team2.engine.collision.Rectangle;
 import sg.edu.sit.inf1009.p2team2.engine.collision.Shape;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
+/**
+ * Collider ECS component storing shape and collision filtering data.
+ */
 public class ColliderComponent implements ComponentAdapter {
     private Shape shape;
     private boolean isTrigger;

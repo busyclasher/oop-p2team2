@@ -14,6 +14,9 @@ import sg.edu.sit.inf1009.p2team2.engine.output.Display;
 import sg.edu.sit.inf1009.p2team2.engine.ui.Slider;
 import sg.edu.sit.inf1009.p2team2.engine.ui.Toggle;
 
+/**
+ * Interactive settings scene for display, audio, and simulation tuning values.
+ */
 public class SettingsScene extends Scene {
     private static final int[] ENTITY_PRESETS = {20, 100, 400};
 

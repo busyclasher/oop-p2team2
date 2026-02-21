@@ -3,6 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
+/**
+ * ECS component storing position, rotation, and scale.
+ */
 public class TransformComponent implements ComponentAdapter {
     private Vector2 position;
     private float rotation;

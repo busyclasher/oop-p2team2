@@ -4,6 +4,9 @@ import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.components.TransformComponent;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.components.VelocityComponent;
 
+/**
+ * Stateless movement integration helpers used by {@code MovementManager}.
+ */
 public class MovementSystem {
     private final Vector2 tmp = new Vector2();
 

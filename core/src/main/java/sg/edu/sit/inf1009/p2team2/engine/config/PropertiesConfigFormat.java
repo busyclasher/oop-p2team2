@@ -9,6 +9,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
+/**
+ * Java properties-backed config serializer implementation.
+ */
 public class PropertiesConfigFormat implements IConfigFormat {
 
     @Override
