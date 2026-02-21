@@ -3,6 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.config;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+/**
+ * Typed descriptor for a single config entry and its validation rules.
+ */
 public final class ConfigKey<T> {
     private final String name;
     private final Class<T> type;

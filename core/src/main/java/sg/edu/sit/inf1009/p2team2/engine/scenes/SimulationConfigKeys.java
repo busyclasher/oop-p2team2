@@ -3,6 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.scenes;
 import java.util.function.Predicate;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 
+/**
+ * Typed configuration keys used by simulation scenes.
+ */
 public final class SimulationConfigKeys {
     public static final ConfigKey<Float> SIMULATION_FRICTION =
         floatKey("simulation.friction", 0.10f, between01(), "Simulation friction [0, 1]");

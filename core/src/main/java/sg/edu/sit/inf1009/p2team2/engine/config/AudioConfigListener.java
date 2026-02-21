@@ -3,6 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.config;
 import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
 import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
 
+/**
+ * Applies audio-related config updates to the runtime audio system.
+ */
 public class AudioConfigListener implements ConfigListener {
     private final ConfigManager configManager;
     private final OutputManager outputManager;

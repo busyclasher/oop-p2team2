@@ -3,6 +3,9 @@ package sg.edu.sit.inf1009.p2team2.engine.ecs.components;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.ecs.ComponentAdapter;
 
+/**
+ * ECS component storing velocity and acceleration vectors.
+ */
 public class VelocityComponent implements ComponentAdapter {
     private Vector2 velocity;
     private Vector2 acceleration;

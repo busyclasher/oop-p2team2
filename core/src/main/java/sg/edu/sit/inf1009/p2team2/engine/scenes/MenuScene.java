@@ -13,10 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * MENU SCENE - ULTIMATE FIX
- * 
- * Solution: Disable mouse hover for 10 frames after keyboard use
- * This prevents mouse from overriding keyboard navigation
+ * Menu scene with keyboard and mouse navigation.
+ * A short mouse-hover cooldown is used after keyboard input to avoid
+ * hover immediately overriding the selected menu item.
  */
 public class MenuScene extends Scene {
     
@@ -24,7 +23,6 @@ public class MenuScene extends Scene {
     private int selectedIndex;
     private static final String BACKGROUND_SPRITE = "background_menu.png";
     
-    // Disable mouse hover temporarily after keyboard use
     private int keyboardCooldown = 0;
     private static final int COOLDOWN_FRAMES = 10;
     
@@ -87,10 +85,10 @@ public class MenuScene extends Scene {
 
         updateMenuLayout();
         
-        // KEYBOARD NAVIGATION (always works)
+        // Keyboard navigation.
         if (keyboard.isKeyPressed(Input.Keys.UP)) {
             selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
-            keyboardCooldown = COOLDOWN_FRAMES;  // Disable mouse for 10 frames
+            keyboardCooldown = COOLDOWN_FRAMES;
             System.out.println("[MenuScene] UP → " + menuItems.get(selectedIndex).text);
         }
         else if (keyboard.isKeyPressed(Input.Keys.W)) {
@@ -109,12 +107,12 @@ public class MenuScene extends Scene {
             System.out.println("[MenuScene] S → " + menuItems.get(selectedIndex).text);
         }
         
-        // SELECTION
+        // Selection.
         if (keyboard.isKeyPressed(Input.Keys.ENTER) || keyboard.isKeyPressed(Input.Keys.SPACE)) {
             activateMenuItem(selectedIndex);
         }
-        
-        // MOUSE HOVER - Only if keyboard cooldown expired
+
+        // Mouse hover only after the keyboard cooldown expires.
         if (keyboardCooldown == 0) {
             Vector2 mousePos = mouse.getPosition();
             for (int i = 0; i < menuItems.size(); i++) {
@@ -129,7 +127,7 @@ public class MenuScene extends Scene {
             }
         }
         
-        // MOUSE CLICK - Always works immediately
+        // Mouse click activation.
         if (mouse.isButtonPressed(0)) {
             Vector2 mousePos = mouse.getPosition();
             for (int i = 0; i < menuItems.size(); i++) {

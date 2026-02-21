@@ -18,15 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * RENDERER - Abstract Engine
- * Provides drawing primitives for the game.
- * 
- * Abstracts libGDX rendering APIs to provide a simple, generic interface.
- * 
- * ENHANCEMENTS:
- * - Added drawTexture() method for direct Texture drawing (backward compatibility)
- * - Added drawBackground() convenience method
- * - Added isDrawing() check method
+ * Renderer abstraction over libGDX drawing APIs.
+ * Provides sprite, text, and primitive drawing helpers used by scenes.
  */
 public class Renderer {
     private static final float WORLD_WIDTH = 1280f;

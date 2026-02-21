@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
 
+/**
+ * Pluggable serializer contract for config file formats.
+ */
 public interface IConfigFormat {
     boolean supports(Path path);
 

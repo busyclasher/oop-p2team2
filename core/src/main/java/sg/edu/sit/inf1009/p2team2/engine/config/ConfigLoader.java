@@ -11,8 +11,6 @@ import java.util.Map;
 
 /**
  * File loader/saver for configuration data.
- *
- * Skeleton behavior: return defaults and keep save as no-op for now.
  */
 public class ConfigLoader implements IConfigLoader {
     private final List<IConfigFormat> formats;

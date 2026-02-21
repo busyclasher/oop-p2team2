@@ -2,6 +2,9 @@ package sg.edu.sit.inf1009.p2team2.engine.collision;
 
 import com.badlogic.gdx.math.Vector2;
 
+/**
+ * Axis-aligned rectangle collision shape with position and dimensions.
+ */
 public class Rectangle extends Shape {
     private Vector2 position;
     private float width;

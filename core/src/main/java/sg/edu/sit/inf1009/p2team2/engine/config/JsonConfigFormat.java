@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * JSON-backed config serializer implementation.
+ */
 public class JsonConfigFormat implements IConfigFormat {
     private static final Pattern PAIR_PATTERN = Pattern.compile(
         "\"([^\"]+)\"\\s*:\\s*(\"(?:\\\\.|[^\"])*\"|true|false|-?\\d+(?:\\.\\d+)?)"
