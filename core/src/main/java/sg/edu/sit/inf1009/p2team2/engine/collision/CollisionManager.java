@@ -3,8 +3,8 @@ package sg.edu.sit.inf1009.p2team2.engine.collision;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
-import sg.edu.sit.inf1009.p2team2.engine.managers.EntityManager;
+import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
 
 /**
  * Coordinates detection and resolution of collisions each frame.

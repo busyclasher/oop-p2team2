@@ -5,12 +5,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
-import sg.edu.sit.inf1009.p2team2.engine.input.Keyboard;
-import sg.edu.sit.inf1009.p2team2.engine.input.Mouse;
-import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
-import sg.edu.sit.inf1009.p2team2.engine.output.Display;
-import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Display;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 
 /**
  * COMPLETE I/O TEST SCENE - Week 7 Comprehensive Demo
@@ -165,7 +165,7 @@ public class CompleteIOTest extends Scene {
         System.out.println("Press 1-5 to switch test modes\n");
         
         // Test Display immediately
-        Display display = context.getOutputManager().getDisplay();
+        Display display = getContext().getOutputManager().getDisplay();
         System.out.println("✓ Display.getWidth() = " + display.getWidth());
         System.out.println("✓ Display.getHeight() = " + display.getHeight());
         displayTested = true;
@@ -193,7 +193,7 @@ public class CompleteIOTest extends Scene {
     
     @Override
     public void load() {
-        Audio audio = context.getOutputManager().getAudio();
+        Audio audio = getContext().getOutputManager().getAudio();
         System.out.println("✓ Audio system initialized");
         audioTested = true;
     }
@@ -225,11 +225,11 @@ public class CompleteIOTest extends Scene {
     
     @Override
     public void handleInput() {
-        Keyboard keyboard = context.getInputManager().getKeyboard();
-        Mouse mouse = context.getInputManager().getMouse();
-        Display display = context.getOutputManager().getDisplay();
-        Audio audio = context.getOutputManager().getAudio();
-        float dt = context.getDeltaTime();
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
+        Mouse mouse = getContext().getInputManager().getMouse();
+        Display display = getContext().getOutputManager().getDisplay();
+        Audio audio = getContext().getOutputManager().getAudio();
+        float dt = getContext().getDeltaTime();
         
         // ─────────────────────────────────────────────────────────
         // INPUT TESTS - Keyboard Movement
@@ -372,7 +372,7 @@ public class CompleteIOTest extends Scene {
         
         if (keyboard.isKeyPressed(Input.Keys.ESCAPE)) {
             System.out.println("✓ ESC pressed - Exiting test");
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
         }
     }
     
@@ -382,9 +382,9 @@ public class CompleteIOTest extends Scene {
     
     @Override
     public void render() {
-        Renderer renderer = context.getOutputManager().getRenderer();
-        Display display = context.getOutputManager().getDisplay();
-        Mouse mouse = context.getInputManager().getMouse();
+        Renderer renderer = getContext().getOutputManager().getRenderer();
+        Display display = getContext().getOutputManager().getDisplay();
+        Mouse mouse = getContext().getInputManager().getMouse();
         
         // TEST: clear() and setClearColor()
         renderer.setClearColor(currentColor);

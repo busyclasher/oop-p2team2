@@ -9,6 +9,9 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import sg.edu.sit.inf1009.p2team2.engine.io.input.InputMap;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
+
 class InputMapTest {
 
     @Test

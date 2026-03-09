@@ -8,6 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import com.badlogic.gdx.math.Vector2;
 
+import sg.edu.sit.inf1009.p2team2.engine.io.ui.Button;
+import sg.edu.sit.inf1009.p2team2.engine.io.ui.Score;
+import sg.edu.sit.inf1009.p2team2.engine.io.ui.Slider;
+import sg.edu.sit.inf1009.p2team2.engine.io.ui.Toggle;
+
 class UiModelsTest {
 
     @Test

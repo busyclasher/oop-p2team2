@@ -3,8 +3,8 @@ package sg.edu.sit.inf1009.p2team2.engine.collision;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.ColliderComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
 
 /**
  * Detects collisions for entity pairs.

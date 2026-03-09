@@ -26,28 +26,18 @@ oop-p2team2
 |  |  |_ engine/
 |  |     |_ core/
 |  |     |  |_ EngineContext.java     # Owns and coordinates managers
-|  |     |_ managers/
-|  |     |  |_ SceneManager.java
-|  |     |  |_ EntityManager.java
-|  |     |  |_ MovementManager.java
-|  |     |  |_ InputManager.java
-|  |     |  |_ OutputManager.java
-|  |     |_ scenes/
-|  |     |  |_ Scene.java
-|  |     |  |_ MenuScene.java
-|  |     |  |_ MainScene.java
-|  |     |  |_ SettingsScene.java
-|  |     |  |_ SimulationConfigKeys.java
-|  |     |_ ecs/
+|  |     |_ entity/
 |  |     |  |_ ComponentAdapter.java
 |  |     |  |_ Entity.java
+|  |     |  |_ EntityManager.java
 |  |     |  |_ components/
 |  |     |     |_ TransformComponent.java
 |  |     |     |_ VelocityComponent.java
 |  |     |     |_ RenderableComponent.java
 |  |     |     |_ InputComponent.java
 |  |     |     |_ ColliderComponent.java
-|  |     |_ systems/
+|  |     |_ movement/
+|  |     |  |_ MovementManager.java
 |  |     |  |_ MovementSystem.java
 |  |     |_ collision/
 |  |     |  |_ Shape.java
@@ -58,39 +48,49 @@ oop-p2team2
 |  |     |  |_ CollisionDetector.java
 |  |     |  |_ CollisionResolver.java
 |  |     |  |_ CollisionManager.java
+|  |     |_ io/
+|  |     |  |_ InputManager.java
+|  |     |  |_ OutputManager.java
+|  |     |  |_ input/
+|  |     |  |  |_ Keyboard.java
+|  |     |  |  |_ Mouse.java
+|  |     |  |  |_ InputMap.java
+|  |     |  |_ output/
+|  |     |  |  |_ Display.java
+|  |     |  |  |_ Renderer.java
+|  |     |  |  |_ Audio.java
+|  |     |  |  |_ SoundBuffer.java
+|  |     |  |  |_ MusicTrack.java
+|  |     |  |_ ui/
+|  |     |     |_ Button.java
+|  |     |     |_ Slider.java
+|  |     |     |_ Toggle.java
+|  |     |     |_ Score.java
+|  |     |_ scene/
+|  |     |  |_ Scene.java
+|  |     |  |_ SceneManager.java
+|  |     |  |_ MenuScene.java
+|  |     |  |_ MainScene.java
+|  |     |  |_ SettingsScene.java
 |  |     |_ config/
-|  |     |  |_ ConfigManager.java
-|  |     |  |_ ConfigRegistry.java
-|  |     |  |_ ConfigLoader.java
-|  |     |  |_ ConfigDispatcher.java
-|  |     |  |_ ConfigListener.java
-|  |     |  |_ ConfigVar.java
-|  |     |  |_ ConfigKey.java
-|  |     |  |_ ConfigKeys.java
-|  |     |  |_ ConfigValueParser.java
-|  |     |  |_ AudioConfigListener.java
-|  |     |  |_ DisplayConfigListener.java
-|  |     |  |_ IConfigStore.java
-|  |     |  |_ IConfigLoader.java
-|  |     |  |_ IConfigDispatcher.java
-|  |     |  |_ IConfigFormat.java
-|  |     |  |_ JsonConfigFormat.java
-|  |     |  |_ PropertiesConfigFormat.java
-|  |     |_ input/
-|  |     |  |_ Keyboard.java
-|  |     |  |_ Mouse.java
-|  |     |  |_ InputMap.java
-|  |     |_ output/
-|  |     |  |_ Display.java
-|  |     |  |_ Renderer.java
-|  |     |  |_ Audio.java
-|  |     |  |_ SoundBuffer.java
-|  |     |  |_ MusicTrack.java
-|  |     |_ ui/
-|  |        |_ Button.java
-|  |        |_ Slider.java
-|  |        |_ Toggle.java
-|  |        |_ Score.java
+|  |        |_ ConfigManager.java
+|  |        |_ ConfigRegistry.java
+|  |        |_ ConfigLoader.java
+|  |        |_ ConfigDispatcher.java
+|  |        |_ ConfigListener.java
+|  |        |_ ConfigVar.java
+|  |        |_ ConfigKey.java
+|  |        |_ ConfigKeys.java
+|  |        |_ SimulationConfigKeys.java
+|  |        |_ ConfigValueParser.java
+|  |        |_ AudioConfigListener.java
+|  |        |_ DisplayConfigListener.java
+|  |        |_ IConfigStore.java
+|  |        |_ IConfigLoader.java
+|  |        |_ IConfigDispatcher.java
+|  |        |_ IConfigFormat.java
+|  |        |_ JsonConfigFormat.java
+|  |        |_ PropertiesConfigFormat.java
 |  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
 |     |_ ecs/
 |     |  |_ EntityTest.java

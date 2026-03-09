@@ -1,9 +1,11 @@
 package sg.edu.sit.inf1009.p2team2.engine.ecs;
 
 import org.junit.jupiter.api.Test;
+
+import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 import static org.junit.jupiter.api.Assertions.*;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.TransformComponent;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.VelocityComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.VelocityComponent;
 
 
 class EntityTest {

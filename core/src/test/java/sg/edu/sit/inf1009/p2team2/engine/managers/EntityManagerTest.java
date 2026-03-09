@@ -2,10 +2,11 @@ package sg.edu.sit.inf1009.p2team2.engine.managers;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.ColliderComponent;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.TransformComponent;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.VelocityComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.VelocityComponent;
 
 import java.util.List;
 

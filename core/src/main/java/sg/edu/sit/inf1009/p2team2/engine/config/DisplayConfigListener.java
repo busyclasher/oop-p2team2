@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
-import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
-import sg.edu.sit.inf1009.p2team2.engine.output.Display;
+import sg.edu.sit.inf1009.p2team2.engine.io.OutputManager;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Display;
 
 /**
  * Applies display-related config updates to the runtime display instance.

@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.config;
 
-import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
-import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
+import sg.edu.sit.inf1009.p2team2.engine.io.OutputManager;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
 
 /**
  * Applies audio-related config updates to the runtime audio system.

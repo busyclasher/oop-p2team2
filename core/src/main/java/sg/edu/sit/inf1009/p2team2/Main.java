@@ -4,9 +4,9 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.MainScene;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
+import sg.edu.sit.inf1009.p2team2.engine.scene.MainScene;
+import sg.edu.sit.inf1009.p2team2.engine.scene.MenuScene;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 
 
 /**

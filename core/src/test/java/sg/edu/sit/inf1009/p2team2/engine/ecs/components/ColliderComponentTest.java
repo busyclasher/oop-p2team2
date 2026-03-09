@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 import org.junit.jupiter.api.Test;
 import sg.edu.sit.inf1009.p2team2.engine.collision.Circle;
 import sg.edu.sit.inf1009.p2team2.engine.collision.Rectangle;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
 
 class ColliderComponentTest {
 

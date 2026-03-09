@@ -7,7 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+import sg.edu.sit.inf1009.p2team2.engine.scene.SceneManager;
 
 class SceneManagerTest {
 
