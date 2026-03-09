@@ -1,4 +1,4 @@
-package sg.edu.sit.inf1009.p2team2.game;
+package sg.edu.sit.inf1009.p2team2.engine.scene;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -7,13 +7,13 @@ import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
+import sg.edu.sit.inf1009.p2team2.engine.config.SimulationConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Display;
 import sg.edu.sit.inf1009.p2team2.engine.io.ui.Slider;
 import sg.edu.sit.inf1009.p2team2.engine.io.ui.Toggle;
-import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 
 /**
  * Interactive settings scene for display, audio, and simulation tuning values.

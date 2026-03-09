@@ -1,4 +1,4 @@
-package sg.edu.sit.inf1009.p2team2.game;
+package sg.edu.sit.inf1009.p2team2.engine.scene;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -13,6 +13,7 @@ import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.collision.Shape;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
+import sg.edu.sit.inf1009.p2team2.engine.config.SimulationConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
@@ -26,7 +27,6 @@ import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
 import sg.edu.sit.inf1009.p2team2.engine.movement.MovementManager;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
-import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 
 /**
  * Main simulation scene that demonstrates all engine managers in one runtime:

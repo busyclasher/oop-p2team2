@@ -1,7 +1,6 @@
-package sg.edu.sit.inf1009.p2team2.game;
+package sg.edu.sit.inf1009.p2team2.engine.config;
 
 import java.util.function.Predicate;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 
 /**
  * Typed configuration keys used by simulation scenes.
