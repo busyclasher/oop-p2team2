@@ -160,11 +160,11 @@ public class MainScene extends Scene {
 
     @Override
     public void render() {
-        if (context == null || context.getOutputManager() == null) {
+        if (getContext() == null || getContext().getOutputManager() == null) {
             return;
         }
 
-        Renderer renderer = context.getOutputManager().getRenderer();
+        Renderer renderer = getContext().getOutputManager().getRenderer();
         renderer.setClearColor(BACKGROUND_COLORS[backgroundIndex]);
         renderer.clear();
         renderer.begin();
@@ -181,18 +181,18 @@ public class MainScene extends Scene {
 
     @Override
     public void handleInput() {
-        if (context == null || context.getInputManager() == null) {
+        if (getContext() == null || getContext().getInputManager() == null) {
             return;
         }
 
-        Keyboard keyboard = context.getInputManager().getKeyboard();
-        Mouse mouse = context.getInputManager().getMouse();
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
+        Mouse mouse = getContext().getInputManager().getMouse();
         if (keyboard == null || mouse == null) {
             return;
         }
 
         if (keyboard.isKeyPressed(Input.Keys.ESCAPE)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
 
@@ -370,10 +370,10 @@ public class MainScene extends Scene {
     }
 
     private void toggleFullscreen() {
-        if (context == null || context.getOutputManager() == null || context.getOutputManager().getDisplay() == null) {
+        if (getContext() == null || getContext().getOutputManager() == null || getContext().getOutputManager().getDisplay() == null) {
             return;
         }
-        context.getOutputManager().getDisplay().toggleFullscreen();
+        getContext().getOutputManager().getDisplay().toggleFullscreen();
     }
 
     private void prepareAudioResources() {
@@ -429,10 +429,10 @@ public class MainScene extends Scene {
     }
 
     private Audio getAudio() {
-        if (context == null || context.getOutputManager() == null) {
+        if (getContext() == null || getContext().getOutputManager() == null) {
             return null;
         }
-        return context.getOutputManager().getAudio();
+        return getContext().getOutputManager().getAudio();
     }
 
     private void updatePlayerInput(Keyboard keyboard) {
@@ -540,7 +540,7 @@ public class MainScene extends Scene {
     }
 
     private void renderModeOverlay(Renderer renderer) {
-        Mouse mouse = context.getInputManager() == null ? null : context.getInputManager().getMouse();
+        Mouse mouse = getContext().getInputManager() == null ? null : getContext().getInputManager().getMouse();
         Vector2 mousePos = mouse == null ? new Vector2(worldWidth * 0.5f, worldHeight * 0.5f) : mouse.getPosition();
         Vector2 playerCenter = getPlayerCenter();
 
@@ -609,7 +609,7 @@ public class MainScene extends Scene {
     private void renderHud(Renderer renderer) {
         float top = worldHeight - 20f;
         float bottomBase = 20f;
-        Mouse mouse = context.getInputManager() == null ? null : context.getInputManager().getMouse();
+        Mouse mouse = getContext().getInputManager() == null ? null : getContext().getInputManager().getMouse();
         Vector2 mousePos = mouse == null ? new Vector2() : mouse.getPosition();
         Vector2 playerCenter = getPlayerCenter();
         Audio audio = getAudio();
@@ -670,16 +670,16 @@ public class MainScene extends Scene {
     }
 
     private void refreshWorldBounds() {
-        if (context == null || context.getOutputManager() == null || context.getOutputManager().getRenderer() == null) {
+        if (getContext() == null || getContext().getOutputManager() == null || getContext().getOutputManager().getRenderer() == null) {
             return;
         }
-        Renderer renderer = context.getOutputManager().getRenderer();
+        Renderer renderer = getContext().getOutputManager().getRenderer();
         worldWidth = renderer.getWorldWidth();
         worldHeight = renderer.getWorldHeight();
     }
 
     private void loadSimulationConfig() {
-        ConfigManager config = context.getConfigManager();
+        ConfigManager config = getContext().getConfigManager();
         ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_PRESET_INDEX);
         ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_GRAVITY_Y);
         ensureDefaultConfig(config, SimulationConfigKeys.SIMULATION_FRICTION);
@@ -709,11 +709,11 @@ public class MainScene extends Scene {
     }
 
     private void persistSimulationConfig() {
-        if (context == null || context.getConfigManager() == null || movementManager == null) {
+        if (getContext() == null || getContext().getConfigManager() == null || movementManager == null) {
             return;
         }
 
-        ConfigManager config = context.getConfigManager();
+        ConfigManager config = getContext().getConfigManager();
         config.set(SimulationConfigKeys.SIMULATION_PRESET_INDEX, Integer.valueOf(presetIndex));
         config.set(SimulationConfigKeys.SIMULATION_GRAVITY_Y, Float.valueOf(movementManager.getGravity().y));
         config.set(SimulationConfigKeys.SIMULATION_FRICTION, Float.valueOf(movementManager.getFriction()));

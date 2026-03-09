@@ -108,7 +108,7 @@ public class SettingsScene extends Scene {
         fullscreenToggle.update();
         collisionsToggle.update();
 
-        Audio audio = context.getOutputManager().getAudio();
+        Audio audio = getContext().getOutputManager().getAudio();
         if (audio != null) {
             audio.setMasterVolume(volumeSlider.getValue() / 100.0f);
         }
@@ -116,7 +116,7 @@ public class SettingsScene extends Scene {
 
     @Override
     public void render() {
-        var renderer = context.getOutputManager().getRenderer();
+        var renderer = getContext().getOutputManager().getRenderer();
 
         float centerX = renderer.getWorldWidth() / 2f;
         float centerY = renderer.getWorldHeight() / 2f;
@@ -211,13 +211,13 @@ public class SettingsScene extends Scene {
 
     @Override
     public void handleInput() {
-        Keyboard keyboard = context.getInputManager().getKeyboard();
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
         if (keyboard == null) {
             return;
         }
 
         if (keyboard.isKeyPressed(Input.Keys.ESCAPE)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
 
@@ -248,7 +248,7 @@ public class SettingsScene extends Scene {
             return;
         }
 
-        ConfigManager config = context.getConfigManager();
+        ConfigManager config = getContext().getConfigManager();
         boolean fullscreen = fullscreenToggle.isEnabled();
         float volume = volumeSlider.getValue() / 100f;
         float friction = frictionSlider.getValue();
@@ -293,7 +293,7 @@ public class SettingsScene extends Scene {
             return;
         }
 
-        ConfigManager config = context.getConfigManager();
+        ConfigManager config = getContext().getConfigManager();
         ensureConfig(config, ConfigKeys.AUDIO_VOLUME);
         ensureConfig(config, ConfigKeys.DISPLAY_FULLSCREEN);
         ensureConfig(config, SimulationConfigKeys.SIMULATION_FRICTION);
@@ -303,7 +303,7 @@ public class SettingsScene extends Scene {
         ensureConfig(config, SimulationConfigKeys.SIMULATION_PRESET_INDEX);
 
         float currentVolume = config.get(ConfigKeys.AUDIO_VOLUME);
-        Display display = context.getOutputManager() == null ? null : context.getOutputManager().getDisplay();
+        Display display = getContext().getOutputManager() == null ? null : getContext().getOutputManager().getDisplay();
         boolean isFullscreen = display != null ? display.isFullscreen() : config.get(ConfigKeys.DISPLAY_FULLSCREEN);
         float friction = config.get(SimulationConfigKeys.SIMULATION_FRICTION);
         float gravityY = config.get(SimulationConfigKeys.SIMULATION_GRAVITY_Y);

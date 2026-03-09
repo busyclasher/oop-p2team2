@@ -80,8 +80,8 @@ public class MenuScene extends Scene {
     
     @Override
     public void handleInput() {
-        Keyboard keyboard = context.getInputManager().getKeyboard();
-        Mouse mouse = context.getInputManager().getMouse();
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
+        Mouse mouse = getContext().getInputManager().getMouse();
 
         updateMenuLayout();
         
@@ -143,7 +143,7 @@ public class MenuScene extends Scene {
     
     @Override
     public void render() {
-        Renderer renderer = context.getOutputManager().getRenderer();
+        Renderer renderer = getContext().getOutputManager().getRenderer();
         
         renderer.clear();
         renderer.begin();
@@ -196,17 +196,17 @@ public class MenuScene extends Scene {
         switch (action) {
             case "Start Game":
                 System.out.println("[MenuScene] Starting game...");
-                context.getSceneManager().push(new MainScene(context));
+                getContext().getSceneManager().push(new MainScene(getContext()));
                 break;
                 
             case "Settings":
                 System.out.println("[MenuScene] Opening settings...");
-                context.getSceneManager().push(new SettingsScene(context));
+                getContext().getSceneManager().push(new SettingsScene(getContext()));
                 break;
                 
             case "Exit":
                 System.out.println("[MenuScene] Exiting...");
-                context.stop();
+                getContext().stop();
                 Gdx.app.exit();
                 break;
         }
@@ -217,7 +217,7 @@ public class MenuScene extends Scene {
             return;
         }
 
-        Renderer renderer = context.getOutputManager().getRenderer();
+        Renderer renderer = getContext().getOutputManager().getRenderer();
         float centerX = renderer.getWorldWidth() / 2f;
         float centerY = renderer.getWorldHeight() / 2f;
 
@@ -231,10 +231,10 @@ public class MenuScene extends Scene {
     }
     
     private static class MenuItem {
-        String text;
-        Vector2 position;
-        float width;
-        float height;
+        private String text;
+        private Vector2 position;
+        private float width;
+        private float height;
         
         MenuItem(String text, Vector2 position) {
             this.text = text;

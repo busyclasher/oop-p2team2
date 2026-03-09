@@ -85,7 +85,7 @@ public class InputOutputTestScene extends Scene {
         log("Loading test scene resources...");
         
         // Try to load test audio (optional - won't crash if files don't exist)
-        Audio audio = context.getOutputManager().getAudio();
+        Audio audio = getContext().getOutputManager().getAudio();
         try {
             // Uncomment these if you have test audio files
             // audio.loadSound("assets/test_sound.wav", "test_beep");
@@ -115,12 +115,12 @@ public class InputOutputTestScene extends Scene {
     
     @Override
     public void handleInput() {
-        Keyboard keyboard = context.getInputManager().getKeyboard();
-        Mouse mouse = context.getInputManager().getMouse();
-        Display display = context.getOutputManager().getDisplay();
-        Audio audio = context.getOutputManager().getAudio();
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
+        Mouse mouse = getContext().getInputManager().getMouse();
+        Display display = getContext().getOutputManager().getDisplay();
+        Audio audio = getContext().getOutputManager().getAudio();
         
-        float dt = context.getDeltaTime();
+        float dt = getContext().getDeltaTime();
         
         // === KEYBOARD TESTS ===
         
@@ -151,7 +151,7 @@ public class InputOutputTestScene extends Scene {
         // Test: ESC to return to menu
         if (keyboard.isKeyPressed(Input.Keys.ESCAPE)) {
             log("✓ ESC pressed - Returning to menu");
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
         
@@ -232,9 +232,9 @@ public class InputOutputTestScene extends Scene {
     
     @Override
     public void render() {
-        Renderer renderer = context.getOutputManager().getRenderer();
-        Display display = context.getOutputManager().getDisplay();
-        Mouse mouse = context.getInputManager().getMouse();
+        Renderer renderer = getContext().getOutputManager().getRenderer();
+        Display display = getContext().getOutputManager().getDisplay();
+        Mouse mouse = getContext().getInputManager().getMouse();
         
         // Test: Clear screen with custom color
         renderer.setClearColor(backgroundColor);
