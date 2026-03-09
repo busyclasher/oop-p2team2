@@ -49,7 +49,11 @@ public class EngineContext {
         
         // 1. Config first (other managers might read config)
         this.configManager = configManager;
-        this.configManager.load("engine.properties");
+        try {
+            this.configManager.load("engine.properties");
+        } catch (Exception e) {
+            System.err.println("[EngineContext] Config load failed, using defaults: " + e.getMessage());
+        }
         
         // 2. Input manager (no dependencies)
         this.inputManager = new InputManager();
@@ -86,9 +90,13 @@ public class EngineContext {
      */
     public void initialize() {
         System.out.println("[EngineContext] Starting initialization...");
-        
-        outputManager.initialize();
-        
+
+        try {
+            outputManager.initialize();
+        } catch (Exception e) {
+            System.err.println("[EngineContext] OutputManager initialization failed: " + e.getMessage());
+        }
+
         running = true;
         System.out.println("[EngineContext] Initialization complete!");
     }
@@ -117,11 +125,24 @@ public class EngineContext {
      */
     public void update(float dt) {
         this.deltaTime = dt;
-        
-        // Update managers in order
-        inputManager.update(dt);
-        sceneManager.update(dt);
-        outputManager.update(dt);
+
+        try {
+            inputManager.update(dt);
+        } catch (Exception e) {
+            System.err.println("[EngineContext] InputManager update failed: " + e.getMessage());
+        }
+
+        try {
+            sceneManager.update(dt);
+        } catch (Exception e) {
+            System.err.println("[EngineContext] SceneManager update failed: " + e.getMessage());
+        }
+
+        try {
+            outputManager.update(dt);
+        } catch (Exception e) {
+            System.err.println("[EngineContext] OutputManager update failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -129,7 +150,11 @@ public class EngineContext {
      * Call this every frame after update
      */
     public void render() {
-        sceneManager.render();
+        try {
+            sceneManager.render();
+        } catch (Exception e) {
+            System.err.println("[EngineContext] SceneManager render failed: " + e.getMessage());
+        }
     }
     
     /**
@@ -191,15 +216,34 @@ public class EngineContext {
      */
     public void dispose() {
         System.out.println("[EngineContext] Disposing engine...");
-        configManager.removeObserver(displayConfigListener);
-        configManager.removeObserver(audioConfigListener);
-        
-        sceneManager.dispose();
-        outputManager.dispose();
-        inputManager.dispose();
-        
+
+        try {
+            configManager.removeObserver(displayConfigListener);
+            configManager.removeObserver(audioConfigListener);
+        } catch (Exception e) {
+            System.err.println("[EngineContext] Config cleanup failed: " + e.getMessage());
+        }
+
+        try {
+            sceneManager.dispose();
+        } catch (Exception e) {
+            System.err.println("[EngineContext] SceneManager dispose failed: " + e.getMessage());
+        }
+
+        try {
+            outputManager.dispose();
+        } catch (Exception e) {
+            System.err.println("[EngineContext] OutputManager dispose failed: " + e.getMessage());
+        }
+
+        try {
+            inputManager.dispose();
+        } catch (Exception e) {
+            System.err.println("[EngineContext] InputManager dispose failed: " + e.getMessage());
+        }
+
         running = false;
-        
+
         System.out.println("[EngineContext] Engine disposed");
     }
 }
