@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import com.badlogic.gdx.math.Vector2;
 
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.TransformComponent;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.components.VelocityComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.VelocityComponent;
+import sg.edu.sit.inf1009.p2team2.engine.movement.MovementSystem;
 
 class MovementSystemTest {
 

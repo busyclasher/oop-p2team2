@@ -5,12 +5,12 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
-import sg.edu.sit.inf1009.p2team2.engine.input.Keyboard;
-import sg.edu.sit.inf1009.p2team2.engine.input.Mouse;
-import sg.edu.sit.inf1009.p2team2.engine.output.Audio;
-import sg.edu.sit.inf1009.p2team2.engine.output.Display;
-import sg.edu.sit.inf1009.p2team2.engine.output.Renderer;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.Scene;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Display;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 
 /**
  * COMPLETE I/O TEST SCENE - Week 7 Comprehensive Demo

@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.collision;
 
 import com.badlogic.gdx.math.Vector2;
-import sg.edu.sit.inf1009.p2team2.engine.ecs.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 
 /**
  * Collision data container between two entities.

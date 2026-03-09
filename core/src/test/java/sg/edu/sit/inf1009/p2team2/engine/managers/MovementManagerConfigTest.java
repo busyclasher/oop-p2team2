@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import com.badlogic.gdx.math.Vector2;
 
+import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
+import sg.edu.sit.inf1009.p2team2.engine.movement.MovementManager;
+
 class MovementManagerConfigTest {
 
     @Test

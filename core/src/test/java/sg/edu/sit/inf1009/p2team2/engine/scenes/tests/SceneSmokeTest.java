@@ -13,9 +13,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import sg.edu.sit.inf1009.p2team2.engine.scenes.MainScene;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.MenuScene;
-import sg.edu.sit.inf1009.p2team2.engine.scenes.SettingsScene;
+import sg.edu.sit.inf1009.p2team2.game.MainScene;
+import sg.edu.sit.inf1009.p2team2.game.MenuScene;
+import sg.edu.sit.inf1009.p2team2.game.SettingsScene;
 
 class SceneSmokeTest {
 

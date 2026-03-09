@@ -4,9 +4,9 @@ import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.config.DisplayConfigListener;
 import sg.edu.sit.inf1009.p2team2.engine.config.AudioConfigListener;
-import sg.edu.sit.inf1009.p2team2.engine.managers.InputManager;
-import sg.edu.sit.inf1009.p2team2.engine.managers.OutputManager;
-import sg.edu.sit.inf1009.p2team2.engine.managers.SceneManager;
+import sg.edu.sit.inf1009.p2team2.engine.io.InputManager;
+import sg.edu.sit.inf1009.p2team2.engine.io.OutputManager;
+import sg.edu.sit.inf1009.p2team2.engine.scene.SceneManager;
 
 /**
  * ENGINE CONTEXT - Abstract Engine (Control)
