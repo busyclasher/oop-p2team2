@@ -3,10 +3,18 @@ package sg.edu.sit.inf1009.p2team2.engine.scene;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 
 /**
- * Base class for all scenes (screens/states) in the engine.
+ * SCENE - Abstract
+ * Thin coordinator that delegates input, rendering, and resource management
+ * to its three component handlers (InputHandler, SceneRenderer, ResourceLoader).
+ *
+ * # context: EngineContext
  */
 public abstract class Scene {
-    private final EngineContext context;
+    protected final EngineContext context;
+
+    protected InputHandler inputHandler;
+    protected SceneRenderer sceneRenderer;
+    protected ResourceLoader resourceLoader;
 
     protected Scene(EngineContext context) {
         this.context = context;
@@ -20,16 +28,30 @@ public abstract class Scene {
         // Optional hook.
     }
 
-    public abstract void load();
+    public void load() {
+        if (resourceLoader != null) {
+            resourceLoader.load();
+        }
+    }
 
-    public abstract void unload();
+    public void unload() {
+        if (resourceLoader != null) {
+            resourceLoader.unload();
+        }
+    }
 
     public abstract void update(float dt);
 
-    public abstract void render();
+    public void render() {
+        if (sceneRenderer != null) {
+            sceneRenderer.render();
+        }
+    }
 
     public void handleInput() {
-        // Optional hook.
+        if (inputHandler != null) {
+            inputHandler.handleInput();
+        }
     }
 
     public EngineContext getContext() {
