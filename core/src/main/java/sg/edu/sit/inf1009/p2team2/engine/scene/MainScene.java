@@ -99,6 +99,24 @@ public class MainScene extends Scene {
         this.currentMode = DemoMode.INTERACTIVE;
         this.worldWidth = 800f;
         this.worldHeight = 600f;
+
+        setInputHandler(new MainInputHandler(this));
+        setSceneRenderer(new MainRenderer(this));
+        setResourceLoader(new ResourceLoader() {
+            @Override
+            public void load() {
+                loadMainResources();
+                putAsset("background", BACKGROUND_SPRITE);
+                setLoaded(true);
+            }
+
+            @Override
+            public void unload() {
+                unloadMainResources();
+                clearAssets();
+                setLoaded(false);
+            }
+        });
     }
 
     @Override
@@ -111,29 +129,14 @@ public class MainScene extends Scene {
         stopSimulationMusic();
         persistSimulationConfig();
     }
-
     @Override
     public void load() {
-        this.entityManager = new EntityManager();
-        this.movementManager = new MovementManager(entityManager);
-        this.collisionManager = new CollisionManager(entityManager);
-        this.random = new Random(1009L);
-        this.animationTime = 0f;
-        this.currentMode = DemoMode.INTERACTIVE;
-
-        refreshWorldBounds();
-        prepareAudioResources();
-        loadSimulationConfig();
-        setupDemoEntities();
+        super.load();
     }
 
     @Override
     public void unload() {
-        if (entityManager != null) {
-            entityManager.clear();
-        }
-        stopSimulationMusic();
-        playerEntityId = -1;
+        super.unload();
     }
 
     @Override
@@ -161,6 +164,37 @@ public class MainScene extends Scene {
 
     @Override
     public void render() {
+        super.render();
+    }
+
+    @Override
+    public void handleInput() {
+        super.handleInput();
+    }
+
+    void loadMainResources() {
+        this.entityManager = new EntityManager();
+        this.movementManager = new MovementManager(entityManager);
+        this.collisionManager = new CollisionManager(entityManager);
+        this.random = new Random(1009L);
+        this.animationTime = 0f;
+        this.currentMode = DemoMode.INTERACTIVE;
+
+        refreshWorldBounds();
+        prepareAudioResources();
+        loadSimulationConfig();
+        setupDemoEntities();
+    }
+
+    void unloadMainResources() {
+        if (entityManager != null) {
+            entityManager.clear();
+        }
+        stopSimulationMusic();
+        playerEntityId = -1;
+    }
+
+    void renderMainScene() {
         if (getContext() == null || getContext().getOutputManager() == null) {
             return;
         }
@@ -180,8 +214,7 @@ public class MainScene extends Scene {
         renderer.end();
     }
 
-    @Override
-    public void handleInput() {
+    void processMainInput() {
         if (getContext() == null || getContext().getInputManager() == null) {
             return;
         }
@@ -253,7 +286,6 @@ public class MainScene extends Scene {
             updatePlayerInput(keyboard);
         }
     }
-
     private void buildSimulationWorld() {
         if (entityManager == null) {
             return;

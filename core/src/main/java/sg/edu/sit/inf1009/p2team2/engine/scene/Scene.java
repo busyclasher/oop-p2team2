@@ -3,10 +3,17 @@ package sg.edu.sit.inf1009.p2team2.engine.scene;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 
 /**
- * Base class for all scenes (screens/states) in the engine.
+ * SCENE - Abstract
+ * Thin coordinator that delegates input, rendering, and resource management
+ * to its three component handlers (InputHandler, SceneRenderer, ResourceLoader).
+ *
+ * # context: EngineContext
  */
 public abstract class Scene {
-    private final EngineContext context;
+    protected final EngineContext context;
+    private InputHandler inputHandler;
+    private SceneRenderer sceneRenderer;
+    private ResourceLoader resourceLoader;
 
     protected Scene(EngineContext context) {
         this.context = context;
@@ -20,19 +27,57 @@ public abstract class Scene {
         // Optional hook.
     }
 
-    public abstract void load();
+    public void load() {
+        if (resourceLoader != null) {
+            resourceLoader.load();
+        }
+    }
 
-    public abstract void unload();
+    public void unload() {
+        if (resourceLoader != null) {
+            resourceLoader.unload();
+        }
+    }
 
     public abstract void update(float dt);
 
-    public abstract void render();
+    public void render() {
+        if (sceneRenderer != null) {
+            sceneRenderer.render();
+        }
+    }
 
     public void handleInput() {
-        // Optional hook.
+        if (inputHandler != null) {
+            inputHandler.handleInput();
+        }
     }
 
     public EngineContext getContext() {
         return context;
+    }
+
+    protected final void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
+    }
+
+    protected final InputHandler getInputHandler() {
+        return inputHandler;
+    }
+
+    protected final void setSceneRenderer(SceneRenderer sceneRenderer) {
+        this.sceneRenderer = sceneRenderer;
+    }
+
+    protected final SceneRenderer getSceneRenderer() {
+        return sceneRenderer;
+    }
+
+    protected final void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    protected final ResourceLoader getResourceLoader() {
+        return resourceLoader;
     }
 }
