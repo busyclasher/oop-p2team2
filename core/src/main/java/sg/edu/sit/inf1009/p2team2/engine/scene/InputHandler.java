@@ -1,8 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.scene;
 
-import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import java.util.HashMap;
 import java.util.Map;
+import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 
 /**
  * INPUTHANDLER - Abstract
@@ -27,7 +28,12 @@ public abstract class InputHandler {
 
     /** Check whether the given key is currently pressed. */
     public boolean isKeyPressed(int key) {
-        return com.badlogic.gdx.Gdx.input.isKeyPressed(key);
+        if (context == null || context.getInputManager() == null) {
+            return false;
+        }
+
+        Keyboard keyboard = context.getInputManager().getKeyboard();
+        return keyboard != null && keyboard.isKeyPressed(key);
     }
 
     /** Bind an action to a key. */

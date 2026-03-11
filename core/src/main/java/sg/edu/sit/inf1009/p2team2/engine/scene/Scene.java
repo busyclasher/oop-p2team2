@@ -11,10 +11,9 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
  */
 public abstract class Scene {
     protected final EngineContext context;
-
-    protected InputHandler inputHandler;
-    protected SceneRenderer sceneRenderer;
-    protected ResourceLoader resourceLoader;
+    private InputHandler inputHandler;
+    private SceneRenderer sceneRenderer;
+    private ResourceLoader resourceLoader;
 
     protected Scene(EngineContext context) {
         this.context = context;
@@ -56,5 +55,29 @@ public abstract class Scene {
 
     public EngineContext getContext() {
         return context;
+    }
+
+    protected final void setInputHandler(InputHandler inputHandler) {
+        this.inputHandler = inputHandler;
+    }
+
+    protected final InputHandler getInputHandler() {
+        return inputHandler;
+    }
+
+    protected final void setSceneRenderer(SceneRenderer sceneRenderer) {
+        this.sceneRenderer = sceneRenderer;
+    }
+
+    protected final SceneRenderer getSceneRenderer() {
+        return sceneRenderer;
+    }
+
+    protected final void setResourceLoader(ResourceLoader resourceLoader) {
+        this.resourceLoader = resourceLoader;
+    }
+
+    protected final ResourceLoader getResourceLoader() {
+        return resourceLoader;
     }
 }

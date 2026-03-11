@@ -1,9 +1,9 @@
 package sg.edu.sit.inf1009.p2team2.engine.scene;
 
-import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 
 /**
  * SCENERENDERER - Abstract
@@ -16,14 +16,20 @@ public abstract class SceneRenderer {
 
     protected final EngineContext context;
     protected final List<RenderLayer> renderLayers;
+    private boolean visible;
 
     public SceneRenderer(EngineContext context) {
         this.context = context;
         this.renderLayers = new ArrayList<>();
+        this.visible = true;
     }
 
     /** Render all visible layers in z-order. */
     public void render() {
+        if (!visible) {
+            return;
+        }
+
         renderLayers.stream()
             .sorted(Comparator.comparingInt(RenderLayer::getZOrder))
             .filter(RenderLayer::isVisible)
@@ -42,6 +48,11 @@ public abstract class SceneRenderer {
 
     /** Set visibility on all layers at once. */
     public void setVisible(boolean visible) {
-        // Convenience — subclasses can manage individual layer visibility
+        this.visible = visible;
+    }
+
+    /** Whether this renderer should draw at all. */
+    public boolean isVisible() {
+        return visible;
     }
 }
