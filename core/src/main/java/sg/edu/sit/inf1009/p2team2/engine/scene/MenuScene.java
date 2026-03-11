@@ -30,6 +30,24 @@ public class MenuScene extends Scene {
         super(context);
         this.menuItems = new ArrayList<>();
         this.selectedIndex = 0;
+
+        setInputHandler(new MenuInputHandler(this));
+        setSceneRenderer(new MenuRenderer(this));
+        setResourceLoader(new ResourceLoader() {
+            @Override
+            public void load() {
+                loadMenuResources();
+                putAsset("background", BACKGROUND_SPRITE);
+                setLoaded(true);
+            }
+
+            @Override
+            public void unload() {
+                unloadMenuResources();
+                clearAssets();
+                setLoaded(false);
+            }
+        });
     }
     
     @Override
@@ -43,70 +61,83 @@ public class MenuScene extends Scene {
     public void onExit() {
         System.out.println("[MenuScene] Exiting menu scene");
     }
-    
     @Override
     public void load() {
-        System.out.println("[MenuScene] Loading menu resources...");
-        
-        menuItems.clear();
-        
-        float centerX = 400;
-        float startY = 400;
-        float spacing = 70;
-        
-        menuItems.add(new MenuItem("Start Game", new Vector2(centerX, startY)));
-        menuItems.add(new MenuItem("Settings", new Vector2(centerX, startY - spacing)));
-        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 2)));
-        
-        System.out.println("[MenuScene] Loaded " + menuItems.size() + " menu items");
+        super.load();
     }
-    
+
     @Override
     public void unload() {
-        System.out.println("[MenuScene] Unloading menu resources");
-        menuItems.clear();
+        super.unload();
     }
-    
+
     @Override
     public void update(float dt) {
 
         updateMenuLayout();
-        
+
         // Decrease cooldown
         if (keyboardCooldown > 0) {
             keyboardCooldown--;
         }
     }
-    
+
     @Override
     public void handleInput() {
+        super.handleInput();
+    }
+
+    @Override
+    public void render() {
+        super.render();
+    }
+
+    void loadMenuResources() {
+        System.out.println("[MenuScene] Loading menu resources...");
+
+        menuItems.clear();
+
+        float centerX = 400;
+        float startY = 400;
+        float spacing = 70;
+
+        menuItems.add(new MenuItem("Start Game", new Vector2(centerX, startY)));
+        menuItems.add(new MenuItem("Settings", new Vector2(centerX, startY - spacing)));
+        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 2)));
+
+        System.out.println("[MenuScene] Loaded " + menuItems.size() + " menu items");
+    }
+
+    void unloadMenuResources() {
+        System.out.println("[MenuScene] Unloading menu resources");
+        menuItems.clear();
+    }
+
+    void processMenuInput() {
         Keyboard keyboard = getContext().getInputManager().getKeyboard();
         Mouse mouse = getContext().getInputManager().getMouse();
 
         updateMenuLayout();
-        
+
         // Keyboard navigation.
         if (keyboard.isKeyPressed(Input.Keys.UP)) {
             selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] UP → " + menuItems.get(selectedIndex).text);
-        }
-        else if (keyboard.isKeyPressed(Input.Keys.W)) {
+            System.out.println("[MenuScene] UP -> " + menuItems.get(selectedIndex).text);
+        } else if (keyboard.isKeyPressed(Input.Keys.W)) {
             selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] W → " + menuItems.get(selectedIndex).text);
-        }
-        else if (keyboard.isKeyPressed(Input.Keys.DOWN)) {
+            System.out.println("[MenuScene] W -> " + menuItems.get(selectedIndex).text);
+        } else if (keyboard.isKeyPressed(Input.Keys.DOWN)) {
             selectedIndex = (selectedIndex + 1) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] DOWN → " + menuItems.get(selectedIndex).text);
-        }
-        else if (keyboard.isKeyPressed(Input.Keys.S)) {
+            System.out.println("[MenuScene] DOWN -> " + menuItems.get(selectedIndex).text);
+        } else if (keyboard.isKeyPressed(Input.Keys.S)) {
             selectedIndex = (selectedIndex + 1) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] S → " + menuItems.get(selectedIndex).text);
+            System.out.println("[MenuScene] S -> " + menuItems.get(selectedIndex).text);
         }
-        
+
         // Selection.
         if (keyboard.isKeyPressed(Input.Keys.ENTER) || keyboard.isKeyPressed(Input.Keys.SPACE)) {
             activateMenuItem(selectedIndex);
@@ -120,13 +151,13 @@ public class MenuScene extends Scene {
                 if (item.contains(mousePos)) {
                     if (selectedIndex != i) {
                         selectedIndex = i;
-                        System.out.println("[MenuScene] Mouse hover → " + menuItems.get(selectedIndex).text);
+                        System.out.println("[MenuScene] Mouse hover -> " + menuItems.get(selectedIndex).text);
                     }
                     break;
                 }
             }
         }
-        
+
         // Mouse click activation.
         if (mouse.isButtonPressed(0)) {
             Vector2 mousePos = mouse.getPosition();
@@ -140,14 +171,13 @@ public class MenuScene extends Scene {
             }
         }
     }
-    
-    @Override
-    public void render() {
+
+    void renderMenuScene() {
         Renderer renderer = getContext().getOutputManager().getRenderer();
-        
+
         renderer.clear();
         renderer.begin();
-        
+
         // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
 
@@ -159,7 +189,7 @@ public class MenuScene extends Scene {
         float titleY = centerY + spacing * 2f;
         float hintX = centerX - 280f;
         float hintY = centerY - spacing * 3f;
-        
+
         // Draw title
         renderer.drawText(
             "MAIN MENU",
@@ -167,13 +197,13 @@ public class MenuScene extends Scene {
             "default",
             Color.WHITE
         );
-        
+
         // Draw menu items
         for (int i = 0; i < menuItems.size(); i++) {
             boolean isSelected = (i == selectedIndex);
             menuItems.get(i).render(renderer, isSelected);
         }
-        
+
         // Draw controls hint
         renderer.drawText(
             "Arrow Keys / WASD / Mouse to navigate | Enter / Click to select",
@@ -181,10 +211,9 @@ public class MenuScene extends Scene {
             "default",
             new Color(0.7f, 0.7f, 0.7f, 1f)
         );
-        
+
         renderer.end();
     }
-    
     private void activateMenuItem(int index) {
         if (index < 0 || index >= menuItems.size()) {
             return;

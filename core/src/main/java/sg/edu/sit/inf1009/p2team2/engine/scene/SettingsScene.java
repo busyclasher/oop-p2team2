@@ -45,6 +45,24 @@ public class SettingsScene extends Scene {
         super(context);
         this.presetIndex = 0;
         this.selectedRow = 0;
+
+        setInputHandler(new SettingsInputHandler(this));
+        setSceneRenderer(new SettingsRenderer(this));
+        setResourceLoader(new ResourceLoader() {
+            @Override
+            public void load() {
+                loadSettingsResources();
+                putAsset("background", BACKGROUND_SPRITE);
+                setLoaded(true);
+            }
+
+            @Override
+            public void unload() {
+                unloadSettingsResources();
+                clearAssets();
+                setLoaded(false);
+            }
+        });
     }
 
     @Override
@@ -57,38 +75,14 @@ public class SettingsScene extends Scene {
     public void onExit() {
         saveSettings();
     }
-
     @Override
     public void load() {
-        volumeSlider = new Slider(new Vector2(440, 560));
-        volumeSlider.setMin(0f);
-        volumeSlider.setMax(100f);
-
-        fullscreenToggle = new Toggle(440, 500);
-
-        frictionSlider = new Slider(new Vector2(440, 440));
-        frictionSlider.setMin(0f);
-        frictionSlider.setMax(1f);
-
-        gravitySlider = new Slider(new Vector2(440, 380));
-        gravitySlider.setMin(-20f);
-        gravitySlider.setMax(20f);
-
-        speedSlider = new Slider(new Vector2(440, 320));
-        speedSlider.setMin(60f);
-        speedSlider.setMax(500f);
-
-        collisionsToggle = new Toggle(440, 260);
+        super.load();
     }
 
     @Override
     public void unload() {
-        volumeSlider = null;
-        frictionSlider = null;
-        gravitySlider = null;
-        speedSlider = null;
-        fullscreenToggle = null;
-        collisionsToggle = null;
+        super.unload();
     }
 
     @Override
@@ -117,6 +111,46 @@ public class SettingsScene extends Scene {
 
     @Override
     public void render() {
+        super.render();
+    }
+
+    @Override
+    public void handleInput() {
+        super.handleInput();
+    }
+
+    void loadSettingsResources() {
+        volumeSlider = new Slider(new Vector2(440, 560));
+        volumeSlider.setMin(0f);
+        volumeSlider.setMax(100f);
+
+        fullscreenToggle = new Toggle(440, 500);
+
+        frictionSlider = new Slider(new Vector2(440, 440));
+        frictionSlider.setMin(0f);
+        frictionSlider.setMax(1f);
+
+        gravitySlider = new Slider(new Vector2(440, 380));
+        gravitySlider.setMin(-20f);
+        gravitySlider.setMax(20f);
+
+        speedSlider = new Slider(new Vector2(440, 320));
+        speedSlider.setMin(60f);
+        speedSlider.setMax(500f);
+
+        collisionsToggle = new Toggle(440, 260);
+    }
+
+    void unloadSettingsResources() {
+        volumeSlider = null;
+        frictionSlider = null;
+        gravitySlider = null;
+        speedSlider = null;
+        fullscreenToggle = null;
+        collisionsToggle = null;
+    }
+
+    void renderSettingsScene() {
         var renderer = getContext().getOutputManager().getRenderer();
 
         float centerX = renderer.getWorldWidth() / 2f;
@@ -133,34 +167,34 @@ public class SettingsScene extends Scene {
 
         renderer.clear();
         renderer.begin();
-        
+
         // Draw background centered and scaled to the window
         renderer.drawBackground(BACKGROUND_SPRITE);
-        
+
         // Draw semi-transparent overlay box around the settings controls
         float overlayPadding = 30f;
         float overlayLeft = labelX - overlayPadding;
         float overlayRight = valueX + overlayPadding;
         float overlayTop = topY + 40f;
         float overlayBottom = topY - (ROW_PRESET * rowSpacing) - overlayPadding;
-        
+
         com.badlogic.gdx.math.Rectangle overlayBox = new com.badlogic.gdx.math.Rectangle(
-            overlayLeft, overlayBottom, 
-            overlayRight - overlayLeft, 
+            overlayLeft, overlayBottom,
+            overlayRight - overlayLeft,
             overlayTop - overlayBottom
         );
         Color overlayColor = new Color(0.3f, 0.3f, 0.3f, 0.6f); // Grey with 60% opacity
         renderer.drawRect(overlayBox, overlayColor, true);
         // Draw white outline
         renderer.drawRect(overlayBox, Color.WHITE, false);
-        
+
         // Left-align settings within the overlay box
         float boxLabelX = overlayLeft + 20f;
         float boxSliderX = boxLabelX + 140f;
         float boxValueX = overlayRight - 80f;
-        
+
         updateControlPositions(boxSliderX, topY, rowSpacing);
-        
+
         float titleX = overlayLeft + 120f;
         float titleY = topY + 70f;
         renderer.drawText("SETTINGS", new Vector2(titleX, titleY), "default", Color.WHITE);
@@ -210,8 +244,7 @@ public class SettingsScene extends Scene {
         renderer.end();
     }
 
-    @Override
-    public void handleInput() {
+    void processSettingsInput() {
         Keyboard keyboard = getContext().getInputManager().getKeyboard();
         if (keyboard == null) {
             return;
@@ -242,7 +275,6 @@ public class SettingsScene extends Scene {
             resetDefaults();
         }
     }
-
     private void saveSettings() {
         if (fullscreenToggle == null || volumeSlider == null || frictionSlider == null
             || gravitySlider == null || speedSlider == null || collisionsToggle == null) {
