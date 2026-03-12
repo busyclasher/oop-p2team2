@@ -268,7 +268,7 @@ public class GamePlayScene extends Scene {
             checkGameOver();
         } else {
             // Good entity
-            score        += gec.getScoreValue();
+            score += gec.getScoreValue();
             goodCollected++;
             context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
             toRemove.add(entity);
@@ -394,7 +394,7 @@ public class GamePlayScene extends Scene {
     float            getTransitionTimer(){ return transitionTimer; }
 
     // =========================================================================
-    // Inner – InputHandler
+    // Inner - InputHandler
     // =========================================================================
 
     private static final class GamePlayInputHandler extends InputHandler {
@@ -447,7 +447,7 @@ public class GamePlayScene extends Scene {
     }
 
     // =========================================================================
-    // Inner – SceneRenderer
+    // Inner - SceneRenderer
     // =========================================================================
 
     private static final class GamePlayRenderer extends SceneRenderer {
@@ -657,7 +657,7 @@ public class GamePlayScene extends Scene {
                 scene.gameState == GameState.FRENZY ? COL_FRENZY_BANNER : Color.CYAN);
 
             // Controls hint
-            r.drawText("← → Move   ESC Quit",
+            r.drawText("A or D to Move   ESC Quit",
                 new Vector2(20f, 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
         }
 
@@ -712,7 +712,7 @@ public class GamePlayScene extends Scene {
                     new Vector2(cx + 32f, oy + 26f), "default", Color.WHITE);
             }
 
-            r.drawText("Press 1 – 4 to answer",
+            r.drawText("Press 1 - 4 to answer",
                 new Vector2(cx + 20f, cy + 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
         }
 
