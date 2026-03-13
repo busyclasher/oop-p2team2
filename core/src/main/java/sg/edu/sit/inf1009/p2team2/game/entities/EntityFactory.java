@@ -39,6 +39,10 @@ public class EntityFactory {
      * @return the newly created player {@link Entity}
      */
     public Entity createPlayer(float startX, float startY) {
+        return createPlayer(startX, startY, PLAYER_LIVES);
+    }
+
+    public Entity createPlayer(float startX, float startY, int lives) {
         Entity player = entityManager.createEntity();
 
         TransformComponent transform = new TransformComponent();
@@ -46,7 +50,7 @@ public class EntityFactory {
         transform.setScale(new Vector2(PLAYER_WIDTH, PLAYER_HEIGHT));
 
         player.add(transform);
-        player.add(new HealthComponent(PLAYER_LIVES));
+        player.add(new HealthComponent(lives));
         player.add(new GameEntityComponent(EntityType.PLAYER));
 
         return player;

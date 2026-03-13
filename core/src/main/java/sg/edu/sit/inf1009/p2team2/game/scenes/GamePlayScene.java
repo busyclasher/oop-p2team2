@@ -25,6 +25,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.components.FallingComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.GameEntityComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.HealthComponent;
+import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.entities.EntityFactory;
 import sg.edu.sit.inf1009.p2team2.game.entities.EntityType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
@@ -59,7 +60,7 @@ public class GamePlayScene extends Scene {
     private static final String SFX_COLLECT       = "spawn-marker";
 
     private static final float WORLD_FLOOR        = 110f;   // y where entities "land"
-    private static final float PLAYER_SPEED       = 420f;
+
     private static final float SPAWN_Y            = 750f;
     private static final float SPAWN_MARGIN       = 60f;
     private static final int FRENZY_COUNT         = 10;
@@ -91,6 +92,7 @@ public class GamePlayScene extends Scene {
 
     // ── Fields ───────────────────────────────────────────────────────────────
     private final LeaderboardManager leaderboard;
+    private final CharacterType      characterType;
     private final EntityManager      entityManager;
     private final EntityFactory      entityFactory;
     private final QuizManager        quizManager;
@@ -110,8 +112,13 @@ public class GamePlayScene extends Scene {
     // ── Constructor ──────────────────────────────────────────────────────────
 
     public GamePlayScene(EngineContext context, LeaderboardManager leaderboard) {
+        this(context, leaderboard, CharacterType.SPECTER);
+    }
+
+    public GamePlayScene(EngineContext context, LeaderboardManager leaderboard, CharacterType characterType) {
         super(context);
         this.leaderboard   = leaderboard;
+        this.characterType = characterType;
         this.entityManager = new EntityManager();
         this.entityFactory = new EntityFactory(entityManager);
         this.quizManager   = new QuizManager(new QuizBank());
@@ -215,9 +222,10 @@ public class GamePlayScene extends Scene {
         TransformComponent tf = playerEntity.get(TransformComponent.class);
         Renderer r  = context.getOutputManager().getRenderer();
 
+        float speed = characterType.getSpeed();
         float dx = 0;
-        if (kb.isKeyDown(Input.Keys.LEFT)  || kb.isKeyDown(Input.Keys.A)) dx -= PLAYER_SPEED * dt;
-        if (kb.isKeyDown(Input.Keys.RIGHT) || kb.isKeyDown(Input.Keys.D)) dx += PLAYER_SPEED * dt;
+        if (kb.isKeyDown(Input.Keys.LEFT)  || kb.isKeyDown(Input.Keys.A)) dx -= speed * dt;
+        if (kb.isKeyDown(Input.Keys.RIGHT) || kb.isKeyDown(Input.Keys.D)) dx += speed * dt;
 
         float newX = tf.getPosition().x + dx;
         float half = EntityFactory.PLAYER_WIDTH / 2f;
@@ -270,7 +278,7 @@ public class GamePlayScene extends Scene {
             checkGameOver();
         } else {
             // Good entity
-            score += gec.getScoreValue();
+            score += Math.round(gec.getScoreValue() * characterType.getScoreMultiplier());
             goodCollected++;
             context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
             toRemove.add(entity);
@@ -378,7 +386,7 @@ public class GamePlayScene extends Scene {
         transitionTimer = 0;
 
         Renderer r = context.getOutputManager().getRenderer();
-        playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR);
+        playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
     }
 
@@ -533,99 +541,26 @@ public class GamePlayScene extends Scene {
         }
 
         private void drawPlayer(Renderer r, Vector2 pos, float w, float h, Color color) {
-            // when assets are ready, replace this with a sprite draw call instead of primitive shapes
-            //r.drawSprite("player.png", pos, 0f, new Vector2(w, h));
-            // Body
-            r.drawRect(new Rectangle(pos.x - w / 2, pos.y, w, h * 0.65f), color, true);
-            // Head
-            r.drawRect(new Rectangle(pos.x, pos.y + h * 0.55f, w * 0.6f, h * 0.4f), color, true);
-            // Eye
-            r.drawCircle(new Vector2(pos.x + w * 0.42f, pos.y + h * 0.82f),
-                5f, Color.WHITE, true);
-            // Outline
-            r.drawRect(new Rectangle(pos.x - w / 2, pos.y, w, h * 0.65f), Color.WHITE, false);
+            r.drawSprite(scene.characterType.getSprite(),
+                new Vector2(pos.x, pos.y + h / 2f), w, h);
         }
 
         private void drawFallingEntity(Renderer r, Vector2 pos, float w, float h,
                                        EntityType type, Color color) {
-            float x = pos.x - w / 2;
-            float y = pos.y - h / 2;
-            Rectangle box = new Rectangle(x, y, w, h);
-
             switch (type) {
-                case GOOD_BYTE:
-                    // when assets are ready, replace this with a sprite draw call instead of primitive shapes
-                    //r.drawSprite("good_byte.png", pos, 0f, new Vector2(w, h));
-                    // Floppy disk shape: filled square + label strip
-                    r.drawRect(box, color, true);
-                    r.drawRect(new Rectangle(x + w * 0.15f, y + h * 0.6f, w * 0.7f, h * 0.2f),
-                        new Color(0.9f, 0.9f, 0.9f, 0.8f), true);
-                    r.drawRect(box, Color.WHITE, false);
-                    break;
-
-                case SAFE_EMAIL:
-                case GOLD_ENVELOPE:
-                    // when assets are ready, replace this with a sprite draw call instead of primitive shapes
-                    //r.drawSprite(type == EntityType.SAFE_EMAIL ? "safe_email.png" : "gold_envelope.png",
-                    // Envelope outline + V flap
-                    r.drawRect(box, color, true);
-                    r.drawLine(new Vector2(x, y + h), new Vector2(pos.x, pos.y),
-                        Color.WHITE, 1.5f);
-                    r.drawLine(new Vector2(x + w, y + h), new Vector2(pos.x, pos.y),
-                        Color.WHITE, 1.5f);
-                    r.drawRect(box, Color.WHITE, false);
-                    break;
-
-                case PHISHING_HOOK:
-                    // when assets are ready, replace this with a sprite draw call instead of primitive shapes
-                    //r.drawSprite("phishing_hook.png", pos, 0f, new Vector2(w, h));
-                    // Hook: circle + vertical bar
-                    r.drawCircle(new Vector2(pos.x, y + h * 0.3f), w * 0.28f, color, false);
-                    r.drawLine(new Vector2(pos.x, y + h * 0.3f),
-                        new Vector2(pos.x, y + h), color, 2.5f);
-                    break;
-
-                case RANSOMWARE_LOCK:
-                    // Padlock: body rect + arch
-                    r.drawRect(new Rectangle(x + w * 0.15f, y, w * 0.7f, h * 0.55f), color, true);
-                    r.drawCircle(new Vector2(pos.x, y + h * 0.6f), w * 0.28f, color, false);
-                    r.drawRect(new Rectangle(x + w * 0.15f, y, w * 0.7f, h * 0.55f),
-                        Color.BLACK, false);
-                    break;
-
-                case MALWARE_SWARM:
-                    // Bug: circle body + spikes
-                    r.drawCircle(new Vector2(pos.x, pos.y), w * 0.38f, color, true);
-                    for (int i = 0; i < 6; i++) {
-                        float angle = (float)(i * Math.PI / 3);
-                        Vector2 tip = new Vector2(
-                            pos.x + (float)Math.cos(angle) * w * 0.55f,
-                            pos.y + (float)Math.sin(angle) * w * 0.55f);
-                        r.drawLine(new Vector2(pos.x, pos.y), tip, color, 2f);
-                    }
-                    break;
-
-                case ROOTKIT:
-                    // Gear-like: two overlapping rects rotated
-                    r.drawRect(box, color, true);
-                    r.drawRect(new Rectangle(x + w * 0.2f, y - h * 0.1f,
-                        w * 0.6f, h * 1.2f), color, true);
-                    r.drawCircle(new Vector2(pos.x, pos.y), w * 0.22f,
-                        new Color(0.1f, 0.1f, 0.1f, 1f), true);
-                    break;
-
-                case SPYWARE:
-                    // Eye with pupil
-                    r.drawCircle(new Vector2(pos.x, pos.y), w * 0.45f, color, true);
-                    r.drawCircle(new Vector2(pos.x, pos.y), w * 0.22f, Color.BLACK, true);
-                    r.drawCircle(new Vector2(pos.x + w * 0.08f, pos.y + w * 0.08f),
-                        w * 0.08f, Color.WHITE, true);
-                    break;
-
-                default:
-                    r.drawRect(box, color, true);
-                    r.drawRect(box, Color.WHITE, false);
-                    break;
+                case GOOD_BYTE:       r.drawSprite("laptop.png",             pos, w, h); break;
+                case SAFE_EMAIL:      r.drawSprite("shield.png",             pos, w, h); break;
+                case GOLD_ENVELOPE:   r.drawSprite("phone.png",              pos, w, h); break;
+                case PHISHING_HOOK:   r.drawSprite("fraud.png",              pos, w, h); break;
+                case RANSOMWARE_LOCK: r.drawSprite("hoax.png",               pos, w, h); break;
+                case MALWARE_SWARM:   r.drawSprite("virus.png",              pos, w, h); break;
+                case ROOTKIT:         r.drawSprite("old-pc.png",             pos, w, h); break;
+                case SPYWARE:         r.drawSprite("magnifiying-glass.png",  pos, w, h); break;
+                default: {
+                    float x = pos.x - w / 2, y = pos.y - h / 2;
+                    r.drawRect(new Rectangle(x, y, w, h), color, true);
+                    r.drawRect(new Rectangle(x, y, w, h), Color.WHITE, false);
+                }
             }
         }
 

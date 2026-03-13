@@ -87,7 +87,7 @@ public class GameOverScene extends Scene {
         r.clear();
         r.begin();
 
-        r.drawBackground("menu-scene.png");
+        r.drawBackground("win-scene.png");
 
         // Dim overlay
         r.drawRect(new Rectangle(0, 0, ww, wh),

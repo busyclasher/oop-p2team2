@@ -46,7 +46,7 @@ public class LeaderboardScene extends Scene {
         }
         if (kb.isKeyPressed(Input.Keys.R)) {
             context.getSceneManager().pop();
-            context.getSceneManager().push(new GamePlayScene(context, leaderboard));
+            context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
         }
     }
 

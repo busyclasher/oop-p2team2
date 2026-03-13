@@ -154,10 +154,27 @@ public class Renderer {
     }
     
     // ===== SPRITE DRAWING =====
-    
+
+    /**
+     * Draw a sprite at an exact pixel size (no rotation, no tint).
+     * The position is the sprite's centre.
+     *
+     * @param spriteId    Path to sprite image
+     * @param position    Centre position in world space
+     * @param targetWidth  Desired width in world units
+     * @param targetHeight Desired height in world units
+     */
+    public void drawSprite(String spriteId, Vector2 position, float targetWidth, float targetHeight) {
+        Texture texture = getOrLoadTexture(spriteId);
+        if (texture == null) return;
+        float sx = targetWidth  / texture.getWidth();
+        float sy = targetHeight / texture.getHeight();
+        drawSprite(spriteId, position, 0f, new Vector2(sx, sy), Color.WHITE);
+    }
+
     /**
      * Draw a sprite (basic version)
-     * 
+     *
      * @param spriteId Path to sprite image (e.g., "player.png")
      * @param position Position to draw at
      * @param rotation Rotation in degrees

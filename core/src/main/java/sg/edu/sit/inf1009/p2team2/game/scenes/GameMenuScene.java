@@ -138,7 +138,7 @@ public class GameMenuScene extends Scene {
     private void activate(int index) {
         switch (menuItems.get(index).label) {
             case "Start Game":
-                context.getSceneManager().push(new GamePlayScene(context, leaderboard));
+                context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
                 break;
             case "Leaderboard":
                 context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
