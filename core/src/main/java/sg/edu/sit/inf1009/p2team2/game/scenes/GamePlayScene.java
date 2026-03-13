@@ -52,8 +52,9 @@ import sg.edu.sit.inf1009.p2team2.game.quiz.QuizResult;
 public class GamePlayScene extends Scene {
 
     // ── Constants ────────────────────────────────────────────────────────────
-    private static final String BACKGROUND_NORMAL = "mainscene.png";
-    private static final String BACKGROUND_FRENZY = "mainscene.png"; // swap if a frenzy bg exists
+    private static final String BACKGROUND_NORMAL     = "game-scene.png";
+    private static final String BACKGROUND_FRENZY     = "frenzy-scene.png"; // swap if a frenzy bg exists
+    private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
     private static final String MUSIC_ID          = "game-theme";
     private static final String SFX_COLLECT       = "spawn-marker";
 
@@ -61,6 +62,7 @@ public class GamePlayScene extends Scene {
     private static final float PLAYER_SPEED       = 420f;
     private static final float SPAWN_Y            = 750f;
     private static final float SPAWN_MARGIN       = 60f;
+    private static final int FRENZY_COUNT         = 10;
     private static final int   GOAL_COUNT         = 100;
 
     // Entity type pools per mode
@@ -325,14 +327,12 @@ public class GamePlayScene extends Scene {
     // ── Goal/death checks ────────────────────────────────────────────────────
 
     private void checkGoal() {
-        if (goodCollected >= GOAL_COUNT) {
-            if (gameState == GameState.PLAYING) {
-                gameState       = GameState.TRANSITION_TO_FRENZY;
-                transitionTimer = 3f;
-                goodCollected   = 0;
-            } else if (gameState == GameState.FRENZY) {
-                gameState = GameState.WIN;
-            }
+        if (gameState == GameState.PLAYING && goodCollected >= FRENZY_COUNT) {
+            gameState       = GameState.TRANSITION_TO_FRENZY;
+            transitionTimer = 3f;
+            goodCollected   = 0;
+        } else if (gameState == GameState.FRENZY && goodCollected >= GOAL_COUNT) {
+            gameState = GameState.WIN;
         }
     }
 
@@ -413,7 +413,7 @@ public class GamePlayScene extends Scene {
                 case PLAYING:
                 case FRENZY:
                     if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-                        scene.context.getSceneManager().pop();
+                        scene.context.getSceneManager().push(new PauseScene(scene.context));
                     }
                     break;
 
@@ -501,8 +501,10 @@ public class GamePlayScene extends Scene {
         // ── Background ──────────────────────────────────────────────────────
 
         private void drawBackground(Renderer r) {
-            String bg = (scene.gameState == GameState.FRENZY)
-                ? BACKGROUND_FRENZY : BACKGROUND_NORMAL;
+            String bg;
+            if (scene.gameState == GameState.FRENZY) bg = BACKGROUND_FRENZY;
+            else if (scene.gameState == GameState.TRANSITION_TO_FRENZY) bg = BACKGROUND_TRANSITION;
+            else bg = BACKGROUND_NORMAL;
             r.drawBackground(bg);
         }
 
@@ -652,7 +654,7 @@ public class GamePlayScene extends Scene {
 
             // Progress
             String modeLabel = (scene.gameState == GameState.FRENZY) ? "FRENZY" : "NORMAL";
-            r.drawText(modeLabel + "  " + scene.goodCollected + " / " + GOAL_COUNT,
+            r.drawText(modeLabel + "  " + scene.goodCollected + " / " + FRENZY_COUNT,
                 new Vector2(ww - 240f, wh - 14f), "default",
                 scene.gameState == GameState.FRENZY ? COL_FRENZY_BANNER : Color.CYAN);
 

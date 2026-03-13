@@ -87,7 +87,7 @@ public class GameOverScene extends Scene {
         r.clear();
         r.begin();
 
-        r.drawBackground("background_menu.png");
+        r.drawBackground("menu-scene.png");
 
         // Dim overlay
         r.drawRect(new Rectangle(0, 0, ww, wh),
@@ -120,7 +120,7 @@ public class GameOverScene extends Scene {
                 sel ? Color.YELLOW : Color.WHITE);
         }
 
-        r.drawText("↑↓ Navigate   Enter Select",
+        r.drawText("W and S to Navigate   Enter Select",
             new Vector2(ww / 2f - 155f, 30f), "default",
             new Color(0.55f, 0.55f, 0.55f, 1f));
 

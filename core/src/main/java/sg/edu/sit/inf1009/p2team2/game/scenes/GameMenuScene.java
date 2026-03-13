@@ -24,7 +24,7 @@ import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
  */
 public class GameMenuScene extends Scene {
 
-    private static final String BACKGROUND = "background_menu.png";
+    private static final String BACKGROUND = "menu-scene.png";
 
     private final LeaderboardManager leaderboard;
     private final List<MenuItem>     menuItems;
@@ -68,6 +68,7 @@ public class GameMenuScene extends Scene {
         menuItems.clear();
         menuItems.add(new MenuItem("Start Game"));
         menuItems.add(new MenuItem("Leaderboard"));
+        menuItems.add(new MenuItem("Settings"));
         menuItems.add(new MenuItem("Exit"));
     }
 
@@ -118,18 +119,18 @@ public class GameMenuScene extends Scene {
         float cx = r.getWorldWidth()  / 2f;
         float cy = r.getWorldHeight() / 2f;
 
-        // Title
+        // Title — kept well above the menu items (first item top ≈ cy+140)
         r.drawText("SILICON SENTINEL",
-            new Vector2(cx - 140f, cy + 180f), "default", new Color(0.2f, 0.9f, 0.4f, 1f));
-        r.drawText("Protect the Network — Catch Good Data, Neutralize Threats",
-            new Vector2(cx - 290f, cy + 140f), "default", new Color(0.75f, 0.75f, 0.75f, 1f));
+            new Vector2(cx - 140f, cy + 270f), "default", new Color(0.2f, 0.9f, 0.4f, 1f));
+        r.drawText("Protect the Network - Catch Good Data, Neutralize Threats",
+            new Vector2(cx - 290f, cy + 230f), "default", new Color(0.75f, 0.75f, 0.75f, 1f));
 
         for (int i = 0; i < menuItems.size(); i++) {
             menuItems.get(i).render(r, i == selectedIndex);
         }
 
         r.drawText("Arrow Keys / WASD / Mouse  |  Enter / Click to select",
-            new Vector2(cx - 240f, cy - 200f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+            new Vector2(cx - 240f, 28f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
 
         r.end();
     }
@@ -141,6 +142,9 @@ public class GameMenuScene extends Scene {
                 break;
             case "Leaderboard":
                 context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
+                break;
+            case "Settings":
+                context.getSceneManager().push(new SettingsScene(context));
                 break;
             case "Exit":
                 context.stop();

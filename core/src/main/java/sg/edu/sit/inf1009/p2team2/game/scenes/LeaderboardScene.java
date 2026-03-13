@@ -58,7 +58,7 @@ public class LeaderboardScene extends Scene {
         r.clear();
         r.begin();
 
-        r.drawBackground("background_menu.png");
+        r.drawBackground("menu-scene.png");
         r.drawRect(new Rectangle(0, 0, ww, wh),
             new Color(0f, 0f, 0f, 0.60f), true);
 

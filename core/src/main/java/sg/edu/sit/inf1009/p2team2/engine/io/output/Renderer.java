@@ -260,6 +260,7 @@ public class Renderer {
         if (!spriteCache.containsKey(spriteId)) {
             try {
                 Texture texture = new Texture(Gdx.files.internal(spriteId));
+                texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                 spriteCache.put(spriteId, texture);
             } catch (Exception e) {
                 Gdx.app.error("Renderer", "Could not load texture: " + spriteId, e);
@@ -305,10 +306,13 @@ public class Renderer {
             spriteBatch.end();
         }
         
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(filled ? ShapeRenderer.ShapeType.Filled : ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(color);
         shapeRenderer.rect(rect.x, rect.y, rect.width, rect.height);
         shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
         
         // Resume sprite batch if it was active
         if (batchWasActive) {
