@@ -1,5 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.engine.io.output;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -108,6 +110,9 @@ public class Audio {
 
     public void setMusicVolume(float volume) {
         this.musicVolume = clamp01(volume);
+        if (currentMusic != null) {
+            currentMusic.setVolume(clamp01(this.masterVolume * this.musicVolume));
+        }
     }
 
     public float getMasterVolume() {
@@ -120,6 +125,25 @@ public class Audio {
 
     public float getMusicVolume() {
         return musicVolume;
+    }
+
+    // ── Persistence ──────────────────────────────────────────────────────────
+
+    private static final String SETTINGS_PREFS = "silicon-sentinel-settings";
+
+    public void saveSettings() {
+        Preferences prefs = Gdx.app.getPreferences(SETTINGS_PREFS);
+        prefs.putFloat("master", masterVolume);
+        prefs.putFloat("music",  musicVolume);
+        prefs.putFloat("sfx",    sfxVolume);
+        prefs.flush();
+    }
+
+    public void loadSettings() {
+        Preferences prefs = Gdx.app.getPreferences(SETTINGS_PREFS);
+        setMasterVolume(prefs.getFloat("master", 1.0f));
+        setMusicVolume( prefs.getFloat("music",  0.7f));
+        setSfxVolume(   prefs.getFloat("sfx",    1.0f));
     }
 
     public void dispose() {

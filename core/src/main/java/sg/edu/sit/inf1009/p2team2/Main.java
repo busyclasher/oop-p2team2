@@ -7,6 +7,8 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.scene.MainScene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.MenuScene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.scenes.GameMenuScene;
 
 
 /**
@@ -23,8 +25,8 @@ public class Main extends ApplicationAdapter {
     private static final String COMPLETE_IO_SCENE_CLASS =
         "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.CompleteIOTest";
     
-    private EngineContext engine;
-    private float lastDeltaTime;
+    private EngineContext    engine;
+    private LeaderboardManager leaderboardManager;
     
     /**
      * Called once when application starts
@@ -36,9 +38,11 @@ public class Main extends ApplicationAdapter {
         
         // 1. Create the engine context
         engine = new EngineContext();
+        leaderboardManager = new LeaderboardManager();
         
         // 2. Initialize the engine (after libGDX context is ready)
         engine.initialize();
+        engine.getOutputManager().getAudio().loadSettings();
         engine.getOutputManager().getRenderer().resizeViewport(
             Gdx.graphics.getWidth(),
             Gdx.graphics.getHeight()
@@ -66,7 +70,6 @@ public class Main extends ApplicationAdapter {
     public void render() {
         // Calculate delta time
         float dt = Gdx.graphics.getDeltaTime();
-        lastDeltaTime = dt;
         
         // Cap delta time to prevent physics issues
         if (dt > 0.25f) {
@@ -154,12 +157,14 @@ public class Main extends ApplicationAdapter {
             case "main":
             case "main-scene":
                 return new MainScene(engine);
+            case "engine-menu":
+                return new MenuScene(engine);
             case "menu":
             default:
-                if (!DEFAULT_START_SCENE.equals(sceneKey)) {
-                    System.out.println("[Main] Unknown engine.scene='" + sceneKey + "', defaulting to menu");
+                if (!DEFAULT_START_SCENE.equals(sceneKey) && !"menu".equals(sceneKey)) {
+                    System.out.println("[Main] Unknown engine.scene='" + sceneKey + "', defaulting to game menu");
                 }
-                return new MenuScene(engine);
+                return new GameMenuScene(engine, leaderboardManager);
         }
     }
 
@@ -172,8 +177,8 @@ public class Main extends ApplicationAdapter {
             return (Scene) sceneType.getConstructor(EngineContext.class).newInstance(engine);
         } catch (Exception e) {
             System.out.println("[Main] Could not load test scene '" + className + "': " + e.getMessage());
-            System.out.println("[Main] Falling back to MenuScene");
-            return new MenuScene(engine);
+            System.out.println("[Main] Falling back to game menu");
+            return new GameMenuScene(engine, leaderboardManager);
         }
     }
 }
