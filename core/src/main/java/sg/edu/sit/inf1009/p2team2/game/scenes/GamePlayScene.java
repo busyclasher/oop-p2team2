@@ -118,7 +118,8 @@ public class GamePlayScene extends Scene {
 
     private GameState gameState;
     private int       score;
-    private int       goodCollected;   // counter toward GOAL_COUNT
+    private int       goodCollected;      // resets each frenzy cycle (frenzy trigger)
+    private int       totalGoodCollected; // running total for WIN condition
     private float     spawnTimer;
     private float     spawnInterval;
     private float     fallSpeed;
@@ -203,7 +204,11 @@ public class GamePlayScene extends Scene {
             case QUIZ_FEEDBACK:
                 feedbackTimer -= dt;
                 if (feedbackTimer <= 0) {
-                    gameState = postFeedbackState;
+                    if (postFeedbackState == GameState.GAME_OVER) {
+                        goToGameOver();
+                    } else {
+                        gameState = postFeedbackState;
+                    }
                 }
                 break;
             case GAME_OVER:
@@ -338,6 +343,7 @@ public class GamePlayScene extends Scene {
             // Good entity
             score += Math.round(gec.getScoreValue() * characterType.getScoreMultiplier());
             goodCollected++;
+            totalGoodCollected++;
             context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
             toRemove.add(entity);
             checkGoal();
@@ -369,6 +375,7 @@ public class GamePlayScene extends Scene {
             // Wrong answer → no bonus life, but entity still counted as collected
             score        += triggered.get(GameEntityComponent.class).getScoreValue();
             goodCollected++;
+            totalGoodCollected++;
         }
 
         entityManager.removeEntity(triggered.getId());
@@ -392,18 +399,22 @@ public class GamePlayScene extends Scene {
     // ── Goal/death checks ────────────────────────────────────────────────────
 
     private void checkGoal() {
+        // Overall win condition — 100 total good items across both modes
+        if (totalGoodCollected >= GOAL_COUNT) {
+            gameState = GameState.WIN;
+            return;
+        }
+        // Frenzy trigger — 10 items in the current PLAYING cycle
         if (gameState == GameState.PLAYING && goodCollected >= FRENZY_COUNT) {
             gameState       = GameState.TRANSITION_TO_FRENZY;
             transitionTimer = 3f;
             goodCollected   = 0;
-        } else if (gameState == GameState.FRENZY && goodCollected >= GOAL_COUNT) {
-            gameState = GameState.WIN;
         }
     }
 
     private void checkGameOver() {
         if (playerHealth.isDead()) {
-            gameState = GameState.GAME_OVER;
+            goToGameOver();
         }
     }
 
@@ -421,10 +432,10 @@ public class GamePlayScene extends Scene {
     private void endFrenzyMode() {
         frenzyCount++;
         // Each completed frenzy cycle permanently raises the PLAYING base difficulty
-        int bonusTicks = frenzyCount * 3;
-        fallSpeed     = Math.min(200f + bonusTicks * FALL_SPEED_STEP,    FALL_SPEED_MAX);
-        spawnInterval = Math.max(1.4f - bonusTicks * SPAWN_INTERVAL_STEP, SPAWN_INTERVAL_MIN);
-        spawnTimer    = spawnInterval;
+        int bonusTicks = frenzyCount * 5;
+        fallSpeed     = Math.min(200f + bonusTicks * FALL_SPEED_STEP,    450f);
+        spawnInterval = Math.max(1.4f - bonusTicks * SPAWN_INTERVAL_STEP, 0.45f);
+        spawnTimer      = spawnInterval;
         difficultyTimer = 0;
         goodCollected   = 0;
         gameState       = GameState.PLAYING;
@@ -450,8 +461,9 @@ public class GamePlayScene extends Scene {
     private void resetGame() {
         entityManager.clear();
         gameState     = GameState.PLAYING;
-        score         = 0;
-        goodCollected = 0;
+        score              = 0;
+        goodCollected      = 0;
+        totalGoodCollected = 0;
         fallSpeed       = 200f;
         spawnInterval   = 1.4f;
         spawnTimer      = spawnInterval;
@@ -468,9 +480,10 @@ public class GamePlayScene extends Scene {
 
     // ── Accessors for renderer / input handler ───────────────────────────────
 
-    GameState        getGameState()    { return gameState; }
-    int              getScore()        { return score; }
-    int              getGoodCollected(){ return goodCollected; }
+    GameState        getGameState()         { return gameState; }
+    int              getScore()             { return score; }
+    int              getGoodCollected()     { return goodCollected; }
+    int              getTotalGoodCollected(){ return totalGoodCollected; }
     HealthComponent  getPlayerHealth() { return playerHealth; }
     Entity           getPlayerEntity() { return playerEntity; }
     EntityManager    getEntityManager(){ return entityManager; }
@@ -511,7 +524,11 @@ public class GamePlayScene extends Scene {
                 case QUIZ_FEEDBACK:
                     if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
                         scene.feedbackTimer = 0;
-                        scene.gameState = scene.postFeedbackState;
+                        if (scene.postFeedbackState == GameState.GAME_OVER) {
+                            scene.goToGameOver();
+                        } else {
+                            scene.gameState = scene.postFeedbackState;
+                        }
                     }
                     break;
 
@@ -705,13 +722,14 @@ public class GamePlayScene extends Scene {
             Color  progressColor;
             if (scene.gameState == GameState.FRENZY) {
                 int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
-                progressText  = "FRENZY " + secsLeft + "s  " + scene.goodCollected + " / " + GOAL_COUNT;
+                progressText  = "FRENZY " + secsLeft + "s  TOTAL " + scene.totalGoodCollected + "/" + GOAL_COUNT;
                 progressColor = COL_FRENZY_BANNER;
             } else {
-                progressText  = "NORMAL  " + scene.goodCollected + " / " + FRENZY_COUNT;
+                progressText  = "NEXT " + scene.goodCollected + "/" + FRENZY_COUNT
+                              + "  TOTAL " + scene.totalGoodCollected + "/" + GOAL_COUNT;
                 progressColor = Color.CYAN;
             }
-            r.drawText(progressText, new Vector2(ww - 300f, wh - 14f), "default", progressColor);
+            r.drawText(progressText, new Vector2(ww - 360f, wh - 14f), "default", progressColor);
 
             // Controls hint
             r.drawText("A or D to Move   ESC Quit",

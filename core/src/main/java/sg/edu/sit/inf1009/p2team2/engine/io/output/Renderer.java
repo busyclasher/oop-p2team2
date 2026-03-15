@@ -46,6 +46,8 @@ public class Renderer {
         this.spriteBatch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         this.defaultFont = new BitmapFont(); // libGDX default font
+        this.defaultFont.getRegion().getTexture().setFilter(
+            Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.spriteCache = new HashMap<>();
         this.viewportWidth = 0;
         this.viewportHeight = 0;
