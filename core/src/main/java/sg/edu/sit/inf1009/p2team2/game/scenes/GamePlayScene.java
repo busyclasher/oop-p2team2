@@ -66,6 +66,21 @@ public class GamePlayScene extends Scene {
     private static final int FRENZY_COUNT         = 10;
     private static final int   GOAL_COUNT         = 100;
 
+    // Difficulty scaling (PLAYING mode only)
+    private static final float DIFF_TICK          = 15f;   // seconds between each ramp-up
+    private static final float FALL_SPEED_STEP    = 20f;   // px/s added per tick
+    private static final float FALL_SPEED_MAX     = 300f;  // cap before frenzy takes over
+    private static final float SPAWN_INTERVAL_STEP= 0.10f; // seconds removed per tick
+    private static final float SPAWN_INTERVAL_MIN = 0.65f; // floor before frenzy
+
+    // Frenzy mode
+    private static final float FRENZY_DURATION    = 30f;   // seconds before returning to PLAYING
+    private static final float FRENZY_DIFF_TICK   = 6f;    // ramp-up interval inside frenzy
+    private static final float FRENZY_FALL_STEP   = 20f;   // px/s added per frenzy tick
+    private static final float FRENZY_SPAWN_STEP  = 0.05f; // interval removed per frenzy tick
+    private static final float FRENZY_FALL_MAX    = 600f;  // speed cap inside frenzy
+    private static final float FRENZY_SPAWN_MIN   = 0.30f; // interval floor inside frenzy
+
     // Entity type pools per mode
     private static final EntityType[] STANDARD_TYPES = {
         EntityType.GOOD_BYTE, EntityType.GOOD_BYTE, EntityType.GOOD_BYTE,
@@ -88,7 +103,7 @@ public class GamePlayScene extends Scene {
     };
 
     // ── Game state ───────────────────────────────────────────────────────────
-    private enum GameState { PLAYING, FRENZY, QUIZ, TRANSITION_TO_FRENZY, GAME_OVER, WIN }
+    private enum GameState { PLAYING, FRENZY, QUIZ, QUIZ_FEEDBACK, TRANSITION_TO_FRENZY, GAME_OVER, WIN }
 
     // ── Fields ───────────────────────────────────────────────────────────────
     private final LeaderboardManager leaderboard;
@@ -108,6 +123,18 @@ public class GamePlayScene extends Scene {
     private float     spawnInterval;
     private float     fallSpeed;
     private float     transitionTimer; // used for TRANSITION_TO_FRENZY pause
+    private float     difficultyTimer; // accumulates time for difficulty ramp-up
+    float             frenzyTimer;     // counts down while in FRENZY
+    private float     frenzyDiffTimer; // ramp-up timer inside frenzy
+    private int       frenzyCount;     // how many frenzy cycles have ended
+
+    // Quiz feedback
+    private QuizResult lastQuizResult;
+    private boolean    lastQuizWasBad;
+    int                hoveredQuizOption = -1; // -1 = none
+    private float      feedbackTimer;
+    private GameState  postFeedbackState;
+    private GameState  preQuizState;      // state before quiz was triggered
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -173,6 +200,12 @@ public class GamePlayScene extends Scene {
             case QUIZ:
                 // Input handler drives quiz; nothing else updates
                 break;
+            case QUIZ_FEEDBACK:
+                feedbackTimer -= dt;
+                if (feedbackTimer <= 0) {
+                    gameState = postFeedbackState;
+                }
+                break;
             case GAME_OVER:
             case WIN:
                 // handled in input
@@ -181,6 +214,30 @@ public class GamePlayScene extends Scene {
     }
 
     private void updateGameplay(float dt) {
+        if (gameState == GameState.PLAYING) {
+            // Progressive difficulty ramp in PLAYING mode
+            difficultyTimer += dt;
+            if (difficultyTimer >= DIFF_TICK) {
+                difficultyTimer -= DIFF_TICK;
+                fallSpeed     = Math.min(fallSpeed     + FALL_SPEED_STEP,    FALL_SPEED_MAX);
+                spawnInterval = Math.max(spawnInterval - SPAWN_INTERVAL_STEP, SPAWN_INTERVAL_MIN);
+            }
+        } else if (gameState == GameState.FRENZY) {
+            // Ramp up inside frenzy every FRENZY_DIFF_TICK seconds
+            frenzyDiffTimer += dt;
+            if (frenzyDiffTimer >= FRENZY_DIFF_TICK) {
+                frenzyDiffTimer -= FRENZY_DIFF_TICK;
+                fallSpeed     = Math.min(fallSpeed     + FRENZY_FALL_STEP,  FRENZY_FALL_MAX);
+                spawnInterval = Math.max(spawnInterval - FRENZY_SPAWN_STEP, FRENZY_SPAWN_MIN);
+            }
+            // Frenzy countdown — return to PLAYING when timer expires
+            frenzyTimer -= dt;
+            if (frenzyTimer <= 0) {
+                endFrenzyMode();
+                return;
+            }
+        }
+
         // Move player
         movePlayer(dt);
 
@@ -269,6 +326,7 @@ public class GamePlayScene extends Scene {
             // Freeze game and show quiz overlay
             entity.get(FallingComponent.class).deactivate();
             quizManager.triggerQuiz(entity);
+            preQuizState = gameState;
             gameState = GameState.QUIZ;
         } else if (gec.isBad()) {
             // Standard bad entity — instant damage
@@ -297,7 +355,8 @@ public class GamePlayScene extends Scene {
 
         if (isBadQuiz) {
             if (result == QuizResult.CORRECT) {
-                // Neutralised — no damage
+                // Neutralised — no damage, bonus points
+                score += Math.round(100 * characterType.getScoreMultiplier());
             } else {
                 playerHealth.takeDamage();
             }
@@ -305,6 +364,7 @@ public class GamePlayScene extends Scene {
             // Good entity quiz (Gold Envelope)
             if (result == QuizResult.CORRECT) {
                 playerHealth.gainLife();
+                score += Math.round(100 * characterType.getScoreMultiplier());
             }
             // Wrong answer → no bonus life, but entity still counted as collected
             score        += triggered.get(GameEntityComponent.class).getScoreValue();
@@ -313,24 +373,21 @@ public class GamePlayScene extends Scene {
 
         entityManager.removeEntity(triggered.getId());
 
+        // Determine post-feedback destination before entering feedback state
         if (playerHealth.isDead()) {
-            gameState = GameState.GAME_OVER;
+            postFeedbackState = GameState.GAME_OVER;
         } else {
-            GameState returnState = (gameState == GameState.QUIZ)
-                ? (goodCollected >= GOAL_COUNT && isBadQuiz ? checkGoalState() : getActivePlayState())
-                : gameState;
-            gameState = returnState;
-            // Re-check goal in case a good entity quiz pushed us over
-            if (!isBadQuiz) checkGoal();
+            // Restore pre-quiz play state so checkGoal() can evaluate correctly
+            gameState = preQuizState;
+            if (!isBadQuiz) checkGoal(); // may update gameState to WIN or TRANSITION_TO_FRENZY
+            postFeedbackState = gameState;
         }
-    }
 
-    private GameState getActivePlayState() {
-        // Decide which play state to return to after a quiz
-        return (score > GOAL_COUNT * 5 && goodCollected < GOAL_COUNT) ? GameState.PLAYING : GameState.PLAYING;
+        lastQuizResult = result;
+        lastQuizWasBad = isBadQuiz;
+        feedbackTimer  = 1.5f;
+        gameState      = GameState.QUIZ_FEEDBACK;
     }
-
-    private GameState checkGoalState() { return GameState.PLAYING; }
 
     // ── Goal/death checks ────────────────────────────────────────────────────
 
@@ -351,12 +408,27 @@ public class GamePlayScene extends Scene {
     }
 
     private void startFrenzyMode() {
-        gameState     = GameState.FRENZY;
-        fallSpeed     = 320f;
-        spawnInterval = 0.7f;
+        gameState       = GameState.FRENZY;
+        fallSpeed       = 320f;
+        spawnInterval   = 0.7f;
+        spawnTimer      = spawnInterval;
+        frenzyTimer     = FRENZY_DURATION;
+        frenzyDiffTimer = 0;
+        entityManager.clear();
+        entityManager.addEntity(playerEntity);
+    }
+
+    private void endFrenzyMode() {
+        frenzyCount++;
+        // Each completed frenzy cycle permanently raises the PLAYING base difficulty
+        int bonusTicks = frenzyCount * 3;
+        fallSpeed     = Math.min(200f + bonusTicks * FALL_SPEED_STEP,    FALL_SPEED_MAX);
+        spawnInterval = Math.max(1.4f - bonusTicks * SPAWN_INTERVAL_STEP, SPAWN_INTERVAL_MIN);
         spawnTimer    = spawnInterval;
-        entityManager.clear(); // clear old entities
-        // re-add player (clear removed it)
+        difficultyTimer = 0;
+        goodCollected   = 0;
+        gameState       = GameState.PLAYING;
+        entityManager.clear();
         entityManager.addEntity(playerEntity);
     }
 
@@ -380,10 +452,14 @@ public class GamePlayScene extends Scene {
         gameState     = GameState.PLAYING;
         score         = 0;
         goodCollected = 0;
-        fallSpeed     = 200f;
-        spawnInterval = 1.4f;
-        spawnTimer    = spawnInterval;
+        fallSpeed       = 200f;
+        spawnInterval   = 1.4f;
+        spawnTimer      = spawnInterval;
         transitionTimer = 0;
+        difficultyTimer = 0;
+        frenzyTimer     = 0;
+        frenzyDiffTimer = 0;
+        frenzyCount     = 0;
 
         Renderer r = context.getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
@@ -400,6 +476,9 @@ public class GamePlayScene extends Scene {
     EntityManager    getEntityManager(){ return entityManager; }
     QuizManager      getQuizManager()  { return quizManager; }
     float            getTransitionTimer(){ return transitionTimer; }
+    QuizResult       getLastQuizResult(){ return lastQuizResult; }
+    boolean          isLastQuizBad()   { return lastQuizWasBad; }
+    float            getFeedbackTimer() { return feedbackTimer; }
 
     // =========================================================================
     // Inner - InputHandler
@@ -429,6 +508,13 @@ public class GamePlayScene extends Scene {
                     handleQuizInput(kb);
                     break;
 
+                case QUIZ_FEEDBACK:
+                    if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                        scene.feedbackTimer = 0;
+                        scene.gameState = scene.postFeedbackState;
+                    }
+                    break;
+
                 case GAME_OVER:
                     if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
                         scene.goToGameOver();
@@ -447,10 +533,31 @@ public class GamePlayScene extends Scene {
         }
 
         private void handleQuizInput(Keyboard kb) {
-            if (kb.isKeyPressed(Input.Keys.NUM_1)) scene.submitQuizAnswer(0);
-            else if (kb.isKeyPressed(Input.Keys.NUM_2)) scene.submitQuizAnswer(1);
-            else if (kb.isKeyPressed(Input.Keys.NUM_3)) scene.submitQuizAnswer(2);
-            else if (kb.isKeyPressed(Input.Keys.NUM_4)) scene.submitQuizAnswer(3);
+            // Keyboard
+            if (kb.isKeyPressed(Input.Keys.NUM_1)) { scene.submitQuizAnswer(0); return; }
+            if (kb.isKeyPressed(Input.Keys.NUM_2)) { scene.submitQuizAnswer(1); return; }
+            if (kb.isKeyPressed(Input.Keys.NUM_3)) { scene.submitQuizAnswer(2); return; }
+            if (kb.isKeyPressed(Input.Keys.NUM_4)) { scene.submitQuizAnswer(3); return; }
+
+            // Mouse
+            Mouse  mouse = scene.context.getInputManager().getMouse();
+            Renderer r   = scene.context.getOutputManager().getRenderer();
+            float ww = r.getWorldWidth(), wh = r.getWorldHeight();
+            float cw = 680f, ch = 360f;
+            float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f;
+            com.badlogic.gdx.math.Vector2 mp = mouse.getPosition();
+
+            scene.hoveredQuizOption = -1;
+            for (int i = 0; i < 4; i++) {
+                float oy = cy + ch - 160f - i * 46f;
+                com.badlogic.gdx.math.Rectangle box =
+                    new com.badlogic.gdx.math.Rectangle(cx + 20f, oy, cw - 40f, 38f);
+                if (box.contains(mp.x, mp.y)) {
+                    scene.hoveredQuizOption = i;
+                    if (mouse.isButtonPressed(0)) scene.submitQuizAnswer(i);
+                    break;
+                }
+            }
         }
     }
 
@@ -490,6 +597,9 @@ public class GamePlayScene extends Scene {
                 case QUIZ:
                     drawQuizOverlay(r);
                     break;
+                case QUIZ_FEEDBACK:
+                    drawQuizFeedback(r);
+                    break;
                 case TRANSITION_TO_FRENZY:
                     drawFrenzyTransition(r);
                     break;
@@ -509,9 +619,12 @@ public class GamePlayScene extends Scene {
         // ── Background ──────────────────────────────────────────────────────
 
         private void drawBackground(Renderer r) {
+            // In feedback state use the background of the state we're returning to
+            GameState bg_state = (scene.gameState == GameState.QUIZ_FEEDBACK)
+                ? scene.postFeedbackState : scene.gameState;
             String bg;
-            if (scene.gameState == GameState.FRENZY) bg = BACKGROUND_FRENZY;
-            else if (scene.gameState == GameState.TRANSITION_TO_FRENZY) bg = BACKGROUND_TRANSITION;
+            if (bg_state == GameState.FRENZY) bg = BACKGROUND_FRENZY;
+            else if (bg_state == GameState.TRANSITION_TO_FRENZY) bg = BACKGROUND_TRANSITION;
             else bg = BACKGROUND_NORMAL;
             r.drawBackground(bg);
         }
@@ -587,11 +700,18 @@ public class GamePlayScene extends Scene {
             r.drawText("SCORE: " + scene.score,
                 new Vector2(ww / 2f - 70f, wh - 14f), "default", Color.WHITE);
 
-            // Progress
-            String modeLabel = (scene.gameState == GameState.FRENZY) ? "FRENZY" : "NORMAL";
-            r.drawText(modeLabel + "  " + scene.goodCollected + " / " + FRENZY_COUNT,
-                new Vector2(ww - 240f, wh - 14f), "default",
-                scene.gameState == GameState.FRENZY ? COL_FRENZY_BANNER : Color.CYAN);
+            // Progress / frenzy countdown
+            String progressText;
+            Color  progressColor;
+            if (scene.gameState == GameState.FRENZY) {
+                int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
+                progressText  = "FRENZY " + secsLeft + "s  " + scene.goodCollected + " / " + GOAL_COUNT;
+                progressColor = COL_FRENZY_BANNER;
+            } else {
+                progressText  = "NORMAL  " + scene.goodCollected + " / " + FRENZY_COUNT;
+                progressColor = Color.CYAN;
+            }
+            r.drawText(progressText, new Vector2(ww - 300f, wh - 14f), "default", progressColor);
 
             // Controls hint
             r.drawText("A or D to Move   ESC Quit",
@@ -628,8 +748,8 @@ public class GamePlayScene extends Scene {
 
             // Header
             String header = qm.isBadEntityQuiz()
-                ? "THREAT IDENTIFIED! Answer correctly to neutralise:"
-                : "RARE FIND! Answer correctly for +1 Life:";
+                ? "THREAT IDENTIFIED! Answer correctly to neutralise (+100 pts):"
+                : "RARE FIND! Answer correctly for +1 Life & +100 pts:";
             Color headerCol = qm.isBadEntityQuiz()
                 ? new Color(1f, 0.4f, 0.4f, 1f) : new Color(1f, 0.85f, 0.2f, 1f);
             r.drawText(header, new Vector2(cx + 20f, cy + ch - 28f), "default", headerCol);
@@ -641,15 +761,17 @@ public class GamePlayScene extends Scene {
             String[] labels = {"1", "2", "3", "4"};
             for (int i = 0; i < 4; i++) {
                 float oy = cy + ch - 160f - i * 46f;
-                r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f),
-                    new Color(0.1f, 0.15f, 0.3f, 0.85f), true);
-                r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f),
-                    new Color(0.4f, 0.6f, 0.9f, 0.7f), false);
+                boolean hov = (i == scene.hoveredQuizOption);
+                Color bg     = hov ? new Color(0.15f, 0.30f, 0.60f, 0.95f)
+                                   : new Color(0.1f,  0.15f, 0.30f, 0.85f);
+                Color border = hov ? Color.YELLOW : new Color(0.4f, 0.6f, 0.9f, 0.7f);
+                r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), bg, true);
+                r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), border, false);
                 r.drawText("[" + labels[i] + "]  " + opts[i],
-                    new Vector2(cx + 32f, oy + 26f), "default", Color.WHITE);
+                    new Vector2(cx + 32f, oy + 26f), "default", hov ? Color.YELLOW : Color.WHITE);
             }
 
-            r.drawText("Press 1 - 4 to answer",
+            r.drawText("Press 1 - 4  or  Click to answer",
                 new Vector2(cx + 20f, cy + 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
         }
 
@@ -670,6 +792,61 @@ public class GamePlayScene extends Scene {
             if (line.length() > 0) {
                 r.drawText(line.toString(), new Vector2(x, y), "default", color);
             }
+        }
+
+        // ── Quiz feedback banner ──────────────────────────────────────────────
+
+        private void drawQuizFeedback(Renderer r) {
+            float ww = r.getWorldWidth();
+            float wh = r.getWorldHeight();
+
+            boolean correct = (scene.getLastQuizResult() == QuizResult.CORRECT);
+            boolean wasBad  = scene.isLastQuizBad();
+
+            // Dim overlay
+            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.55f), true);
+
+            // Banner card
+            float cw = 580f, ch = 160f;
+            float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f + 30f;
+            Color bgColor = correct
+                ? new Color(0.05f, 0.25f, 0.08f, 0.95f)
+                : new Color(0.25f, 0.05f, 0.05f, 0.95f);
+            Color borderColor = correct ? new Color(0.2f, 0.9f, 0.3f, 1f) : new Color(0.9f, 0.2f, 0.2f, 1f);
+            r.drawRect(new Rectangle(cx, cy, cw, ch), bgColor, true);
+            r.drawRect(new Rectangle(cx, cy, cw, ch), borderColor, false);
+
+            // Result heading
+            String heading = correct ? "CORRECT!" : "WRONG!";
+            r.drawText(heading,
+                new Vector2(ww / 2f - 55f, cy + ch - 34f),
+                "default", borderColor);
+
+            // Detail line
+            String detail;
+            if (correct) {
+                int bonus = Math.round(100 * scene.characterType.getScoreMultiplier());
+                detail = wasBad
+                    ? "Threat neutralised! +" + bonus + " pts"
+                    : "+" + bonus + " pts & +1 Life!";
+            } else {
+                detail = wasBad ? "-1 Life - stay alert!" : "No bonus this time.";
+            }
+            r.drawText(detail,
+                new Vector2(ww / 2f - 140f, cy + ch - 76f),
+                "default", Color.WHITE);
+
+            // Progress bar (shrinks as timer counts down)
+            float barW = cw - 40f;
+            float progress = Math.min(1f, scene.getFeedbackTimer() / 1.5f);
+            r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW, 10f),
+                new Color(0.2f, 0.2f, 0.2f, 1f), true);
+            r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW * progress, 10f),
+                borderColor, true);
+
+            r.drawText("SPACE / ENTER to continue",
+                new Vector2(ww / 2f - 140f, cy + 42f),
+                "default", new Color(0.6f, 0.6f, 0.6f, 1f));
         }
 
         // ── Frenzy transition banner ─────────────────────────────────────────

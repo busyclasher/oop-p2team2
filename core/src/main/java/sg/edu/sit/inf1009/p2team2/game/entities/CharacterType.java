@@ -23,6 +23,16 @@ public enum CharacterType {
         300f,   // speed (px/s)
         5,      // lives
         1.0f    // score multiplier
+    ),
+
+    CIPHER(
+        "char-3.png",
+        "Cipher",
+        "Data Rush",
+        "Ultra-fast but risky.\nMassive score multiplier per catch.",
+        500f,   // speed (px/s)
+        2,      // lives
+        1.5f    // score multiplier
     );
 
     private final String sprite;

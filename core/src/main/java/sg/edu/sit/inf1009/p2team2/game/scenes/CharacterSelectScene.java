@@ -113,8 +113,10 @@ public class CharacterSelectScene extends Scene {
     }
 
     private void startGame() {
-        context.getSceneManager().push(
-            new GamePlayScene(context, leaderboard, CHARS[selectedIndex]));
+        CharacterType chosen = CHARS[selectedIndex];
+        leaderboard.setLastCharacter(chosen);
+        context.getSceneManager().pop();                                       // remove CharacterSelectScene
+        context.getSceneManager().push(new GamePlayScene(context, leaderboard, chosen));
     }
 
     // ── Render ───────────────────────────────────────────────────────────────
@@ -184,7 +186,7 @@ public class CharacterSelectScene extends Scene {
         }
 
         // Footer
-        r.drawText("ESC — Back   Enter / Double-click — Confirm",
+        r.drawText("ESC - Back   Enter / Double-click - Confirm",
             new Vector2(cx - 220f, 28f), "default",
             new Color(0.55f, 0.55f, 0.55f, 1f));
 

@@ -42,6 +42,7 @@ public class Main extends ApplicationAdapter {
         
         // 2. Initialize the engine (after libGDX context is ready)
         engine.initialize();
+        engine.getOutputManager().getAudio().loadSettings();
         engine.getOutputManager().getRenderer().resizeViewport(
             Gdx.graphics.getWidth(),
             Gdx.graphics.getHeight()

@@ -68,6 +68,7 @@ public class GameMenuScene extends Scene {
         menuItems.clear();
         menuItems.add(new MenuItem("Start Game"));
         menuItems.add(new MenuItem("Leaderboard"));
+        menuItems.add(new MenuItem("How to Play"));
         menuItems.add(new MenuItem("Settings"));
         menuItems.add(new MenuItem("Exit"));
     }
@@ -138,10 +139,18 @@ public class GameMenuScene extends Scene {
     private void activate(int index) {
         switch (menuItems.get(index).label) {
             case "Start Game":
-                context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
+                if (leaderboard.getLastCharacter() != null) {
+                    context.getSceneManager().push(
+                        new StartGamePromptScene(context, leaderboard, leaderboard.getLastCharacter()));
+                } else {
+                    context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
+                }
                 break;
             case "Leaderboard":
                 context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
+                break;
+            case "How to Play":
+                context.getSceneManager().push(new HowToPlayScene(context));
                 break;
             case "Settings":
                 context.getSceneManager().push(new SettingsScene(context));

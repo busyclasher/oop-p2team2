@@ -86,6 +86,7 @@ public class SettingsScene extends Scene {
         Renderer r     = context.getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            context.getOutputManager().getAudio().saveSettings();
             context.getSceneManager().pop();
             return;
         }
@@ -149,6 +150,10 @@ public class SettingsScene extends Scene {
 
             Color labelColor = sel ? Color.YELLOW : Color.WHITE;
 
+            // Volume icon — mute when at 0, speaker otherwise
+            String icon = (vols[i] <= 0f) ? "volume-mute.png" : "volume-on.png";
+            r.drawSprite(icon, new Vector2(sx - 26f, sy + 16f), 32f, 32f);
+
             // Label + percentage
             int pct = Math.round(vols[i] * 100f);
             r.drawText(LABELS[i] + "   " + pct + "%",
@@ -174,7 +179,7 @@ public class SettingsScene extends Scene {
         }
 
         // Footer
-        r.drawText("Up/Down — select   Left/Right — adjust   ESC — back",
+        r.drawText("Up/Down - select   Left/Right - adjust   ESC - back",
             new Vector2(ww / 2f - 265f, 30f), "default",
             new Color(0.55f, 0.55f, 0.55f, 1f));
 
