@@ -52,12 +52,12 @@ public class SettingsScene extends Scene {
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private float[] getVolumes() {
-        Audio a = context.getOutputManager().getAudio();
+        Audio a = getContext().getOutputManager().getAudio();
         return new float[]{ a.getMasterVolume(), a.getMusicVolume(), a.getSfxVolume() };
     }
 
     private void setVolume(int row, float value) {
-        Audio a = context.getOutputManager().getAudio();
+        Audio a = getContext().getOutputManager().getAudio();
         value = Math.max(0f, Math.min(1f, value));
         switch (row) {
             case 0: a.setMasterVolume(value); break;
@@ -80,14 +80,14 @@ public class SettingsScene extends Scene {
     // ── Input ────────────────────────────────────────────────────────────────
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
         float[]  vols  = getVolumes();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-            context.getOutputManager().getAudio().saveSettings();
-            context.getSceneManager().pop();
+            getContext().getOutputManager().getAudio().saveSettings();
+            getContext().getSceneManager().pop();
             return;
         }
 
@@ -126,7 +126,7 @@ public class SettingsScene extends Scene {
     // ── Render ───────────────────────────────────────────────────────────────
 
     void renderScene() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float    ww = r.getWorldWidth();
         float    wh = r.getWorldHeight();
         float[]  vols = getVolumes();
@@ -190,13 +190,13 @@ public class SettingsScene extends Scene {
 
     private static final class SettingsInputHandler extends InputHandler {
         private final SettingsScene scene;
-        SettingsInputHandler(SettingsScene s) { super(s.context); this.scene = s; }
+        SettingsInputHandler(SettingsScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class SettingsRenderer extends SceneRenderer {
         private final SettingsScene scene;
-        SettingsRenderer(SettingsScene s) { super(s.context); this.scene = s; }
+        SettingsRenderer(SettingsScene s) { super(s.getContext()); this.scene = s; }
         @Override public void render() { scene.renderScene(); }
     }
 }

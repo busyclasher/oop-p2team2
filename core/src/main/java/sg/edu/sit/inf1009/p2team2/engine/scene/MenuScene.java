@@ -21,7 +21,7 @@ public class MenuScene extends Scene {
     
     private List<MenuItem> menuItems;
     private int selectedIndex;
-    private static final String BACKGROUND_SPRITE = "background_menu.png";
+    private static final String BACKGROUND_SPRITE = "menu.png";
     
     private int keyboardCooldown = 0;
     private static final int COOLDOWN_FRAMES = 10;

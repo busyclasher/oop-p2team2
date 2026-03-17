@@ -41,27 +41,27 @@ public class HowToPlayScene extends Scene {
     }
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
+        Renderer r     = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)
                 || kb.isKeyPressed(Input.Keys.ENTER)
                 || kb.isKeyPressed(Input.Keys.SPACE)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
 
         Vector2 mp = mouse.getPosition();
         backHovered = backRect(ww).contains(mp.x, mp.y);
         if (backHovered && mouse.isButtonPressed(0)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
         }
     }
 
     void renderScene() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
         float wh = r.getWorldHeight();
 
@@ -155,13 +155,13 @@ public class HowToPlayScene extends Scene {
 
     private static final class HTPInputHandler extends InputHandler {
         private final HowToPlayScene scene;
-        HTPInputHandler(HowToPlayScene s) { super(s.context); this.scene = s; }
+        HTPInputHandler(HowToPlayScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class HTPRenderer extends SceneRenderer {
         private final HowToPlayScene scene;
-        HTPRenderer(HowToPlayScene s) { super(s.context); this.scene = s; }
+        HTPRenderer(HowToPlayScene s) { super(s.getContext()); this.scene = s; }
         @Override public void render() { scene.renderScene(); }
     }
 }

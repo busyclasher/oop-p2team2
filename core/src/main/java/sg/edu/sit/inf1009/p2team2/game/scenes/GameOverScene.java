@@ -62,9 +62,9 @@ public class GameOverScene extends Scene {
     }
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
+        Renderer r     = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth(), wh = r.getWorldHeight();
 
         // Keyboard navigation
@@ -99,16 +99,16 @@ public class GameOverScene extends Scene {
     private void activate(int index) {
         switch (OPTIONS[index]) {
             case "Back to Menu":
-                context.getSceneManager().pop();
+                getContext().getSceneManager().pop();
                 break;
             case "Leaderboard":
-                context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
+                getContext().getSceneManager().push(new LeaderboardScene(getContext(), leaderboard));
                 break;
         }
     }
 
     void renderScene() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
         float wh = r.getWorldHeight();
 
@@ -152,13 +152,13 @@ public class GameOverScene extends Scene {
 
     private static final class GameOverInputHandler extends InputHandler {
         private final GameOverScene scene;
-        GameOverInputHandler(GameOverScene s) { super(s.context); this.scene = s; }
+        GameOverInputHandler(GameOverScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class GameOverRenderer extends SceneRenderer {
         private final GameOverScene scene;
-        GameOverRenderer(GameOverScene s) { super(s.context); this.scene = s; }
+        GameOverRenderer(GameOverScene s) { super(s.getContext()); this.scene = s; }
         @Override public void render() { scene.renderScene(); }
     }
 }

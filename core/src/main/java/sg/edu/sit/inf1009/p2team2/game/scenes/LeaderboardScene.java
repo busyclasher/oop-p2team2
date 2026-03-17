@@ -55,21 +55,21 @@ public class LeaderboardScene extends Scene {
     }
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
+        Renderer r     = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
 
         // Keyboard
         if (kb.isKeyPressed(Input.Keys.ESCAPE)
                 || kb.isKeyPressed(Input.Keys.ENTER)
                 || kb.isKeyPressed(Input.Keys.SPACE)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
         if (kb.isKeyPressed(Input.Keys.R)) {
-            context.getSceneManager().pop();
-            context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
+            getContext().getSceneManager().pop();
+            getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
             return;
         }
 
@@ -82,16 +82,16 @@ public class LeaderboardScene extends Scene {
         // Mouse click
         if (mouse.isButtonPressed(0)) {
             if (hoveredBtn == 0) {
-                context.getSceneManager().pop();
+                getContext().getSceneManager().pop();
             } else if (hoveredBtn == 1) {
-                context.getSceneManager().pop();
-                context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
+                getContext().getSceneManager().pop();
+                getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
             }
         }
     }
 
     void renderScene() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
         float wh = r.getWorldHeight();
 
@@ -164,13 +164,13 @@ public class LeaderboardScene extends Scene {
 
     private static final class LeaderboardInputHandler extends InputHandler {
         private final LeaderboardScene scene;
-        LeaderboardInputHandler(LeaderboardScene s) { super(s.context); this.scene = s; }
+        LeaderboardInputHandler(LeaderboardScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class LeaderboardRenderer extends SceneRenderer {
         private final LeaderboardScene scene;
-        LeaderboardRenderer(LeaderboardScene s) { super(s.context); this.scene = s; }
+        LeaderboardRenderer(LeaderboardScene s) { super(s.getContext()); this.scene = s; }
         @Override public void render() { scene.renderScene(); }
     }
 }

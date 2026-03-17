@@ -125,14 +125,14 @@ public class GamePlayScene extends Scene {
     private float     fallSpeed;
     private float     transitionTimer; // used for TRANSITION_TO_FRENZY pause
     private float     difficultyTimer; // accumulates time for difficulty ramp-up
-    float             frenzyTimer;     // counts down while in FRENZY
+    private float     frenzyTimer;     // counts down while in FRENZY
     private float     frenzyDiffTimer; // ramp-up timer inside frenzy
     private int       frenzyCount;     // how many frenzy cycles have ended
 
     // Quiz feedback
     private QuizResult lastQuizResult;
     private boolean    lastQuizWasBad;
-    int                hoveredQuizOption = -1; // -1 = none
+    private int       hoveredQuizOption = -1; // -1 = none
     private float      feedbackTimer;
     private GameState  postFeedbackState;
     private GameState  preQuizState;      // state before quiz was triggered
@@ -165,16 +165,16 @@ public class GamePlayScene extends Scene {
     @Override
     public void onEnter() {
         resetGame();
-        context.getOutputManager().getAudio().playMusic(MUSIC_ID, true);
+        getContext().getOutputManager().getAudio().playMusic(MUSIC_ID, true);
     }
 
     @Override
     public void onExit() {
-        context.getOutputManager().getAudio().stopMusic();
+        getContext().getOutputManager().getAudio().stopMusic();
     }
 
     private void loadResources() {
-        Audio audio = context.getOutputManager().getAudio();
+        Audio audio = getContext().getOutputManager().getAudio();
         audio.loadMusic("audio/nightstarsmix.ogg", MUSIC_ID);
         audio.loadSound("audio/spawn_click.wav", SFX_COLLECT);
     }
@@ -280,9 +280,9 @@ public class GamePlayScene extends Scene {
     }
 
     private void movePlayer(float dt) {
-        Keyboard kb = context.getInputManager().getKeyboard();
+        Keyboard kb = getContext().getInputManager().getKeyboard();
         TransformComponent tf = playerEntity.get(TransformComponent.class);
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
 
         float speed = characterType.getSpeed();
         float dx = 0;
@@ -299,7 +299,7 @@ public class GamePlayScene extends Scene {
         EntityType[] pool = (gameState == GameState.FRENZY) ? FRENZY_TYPES : STANDARD_TYPES;
         EntityType type   = pool[random.nextInt(pool.length)];
 
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float spawnX = SPAWN_MARGIN + random.nextFloat() * (r.getWorldWidth() - SPAWN_MARGIN * 2);
 
         entityFactory.createFallingEntity(type, spawnX, SPAWN_Y, fallSpeed);
@@ -336,7 +336,7 @@ public class GamePlayScene extends Scene {
         } else if (gec.isBad()) {
             // Standard bad entity — instant damage
             playerHealth.takeDamage();
-            context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
+            getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
             toRemove.add(entity);
             checkGameOver();
         } else {
@@ -344,7 +344,7 @@ public class GamePlayScene extends Scene {
             score += Math.round(gec.getScoreValue() * characterType.getScoreMultiplier());
             goodCollected++;
             totalGoodCollected++;
-            context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
+            getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
             toRemove.add(entity);
             checkGoal();
         }
@@ -446,14 +446,14 @@ public class GamePlayScene extends Scene {
     // ── Transition to next scene ─────────────────────────────────────────────
 
     void goToGameOver() {
-        context.getSceneManager().pop();
-        context.getSceneManager().push(new GameOverScene(context, score, leaderboard));
+        getContext().getSceneManager().pop();
+        getContext().getSceneManager().push(new GameOverScene(getContext(), score, leaderboard));
     }
 
     void goToLeaderboard() {
         leaderboard.addEntry("PLAYER", score);
-        context.getSceneManager().pop();
-        context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
+        getContext().getSceneManager().pop();
+        getContext().getSceneManager().push(new LeaderboardScene(getContext(), leaderboard));
     }
 
     // ── Reset ────────────────────────────────────────────────────────────────
@@ -473,7 +473,7 @@ public class GamePlayScene extends Scene {
         frenzyDiffTimer = 0;
         frenzyCount     = 0;
 
-        Renderer r = context.getOutputManager().getRenderer();
+        Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
     }
@@ -501,19 +501,19 @@ public class GamePlayScene extends Scene {
         private final GamePlayScene scene;
 
         GamePlayInputHandler(GamePlayScene scene) {
-            super(scene.context);
+            super(scene.getContext());
             this.scene = scene;
         }
 
         @Override
         public void handleInput() {
-            Keyboard kb = context.getInputManager().getKeyboard();
+            Keyboard kb = getContext().getInputManager().getKeyboard();
 
             switch (scene.gameState) {
                 case PLAYING:
                 case FRENZY:
                     if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-                        scene.context.getSceneManager().push(new PauseScene(scene.context));
+                        scene.getContext().getSceneManager().push(new PauseScene(scene.getContext()));
                     }
                     break;
 
@@ -557,8 +557,8 @@ public class GamePlayScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.NUM_4)) { scene.submitQuizAnswer(3); return; }
 
             // Mouse
-            Mouse  mouse = scene.context.getInputManager().getMouse();
-            Renderer r   = scene.context.getOutputManager().getRenderer();
+            Mouse  mouse = scene.getContext().getInputManager().getMouse();
+            Renderer r   = scene.getContext().getOutputManager().getRenderer();
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
             float cw = 680f, ch = 360f;
             float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f;
@@ -596,13 +596,13 @@ public class GamePlayScene extends Scene {
         private static final Color COL_LOSE      = new Color(0.95f, 0.25f, 0.25f, 1f);
 
         GamePlayRenderer(GamePlayScene scene) {
-            super(scene.context);
+            super(scene.getContext());
             this.scene = scene;
         }
 
         @Override
         public void render() {
-            Renderer r = context.getOutputManager().getRenderer();
+            Renderer r = getContext().getOutputManager().getRenderer();
             r.clear();
             r.begin();
 
