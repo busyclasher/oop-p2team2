@@ -19,9 +19,9 @@ public class EntityFactory {
     /** Default pixel size of falling items (square). */
     public static final float ENTITY_SIZE   = 54f;
     /** Pixel width of the player rectangle. */
-    public static final float PLAYER_WIDTH  = 80f;
+    public static final float PLAYER_WIDTH  = 120f;
     /** Pixel height of the player rectangle. */
-    public static final float PLAYER_HEIGHT = 100f;
+    public static final float PLAYER_HEIGHT = 150f;
     /** Starting number of player lives. */
     public static final int   PLAYER_LIVES  = 3;
 
