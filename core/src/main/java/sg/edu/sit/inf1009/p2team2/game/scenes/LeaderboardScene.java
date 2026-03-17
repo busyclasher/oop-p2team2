@@ -105,7 +105,7 @@ public class LeaderboardScene extends Scene {
         r.drawText("LEADERBOARD",
             new Vector2(ww / 2f - 100f, wh - 80f), "default",
             new Color(0.15f, 0.95f, 0.40f, 1f));
-        r.drawText("Top Scores - Silicon Sentinel",
+        r.drawText("Top Scores - CyberScouts",
             new Vector2(ww / 2f - 165f, wh - 116f), "default",
             new Color(0.75f, 0.75f, 0.75f, 1f));
 

@@ -104,8 +104,15 @@ public class StartGamePromptScene extends Scene {
         context.getSceneManager().pop(); // remove this prompt
         if (index == 0) {
             // Continue with same character — straight into game
-            context.getSceneManager().push(
-                new GamePlayScene(context, leaderboard, lastCharacter));
+            if (!leaderboard.hasSeenTutorial()) {
+                leaderboard.setSeenTutorial();
+                context.getSceneManager().push(
+                    new GamePlayScene(context, leaderboard, lastCharacter));
+                context.getSceneManager().push(new HowToPlayScene(context));
+            } else {
+                context.getSceneManager().push(
+                    new GamePlayScene(context, leaderboard, lastCharacter));
+            }
         } else {
             // New Game — pick a different character
             context.getSceneManager().push(
@@ -139,7 +146,7 @@ public class StartGamePromptScene extends Scene {
                 new Color(0f, 0f, 0f, 0.70f), true);
 
             // Card
-            float cw = 440f, ch = 280f;
+            float cw = 480f, ch = 310f;
             float cardX = cx - cw / 2f, cardY = cy - ch / 2f;
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
                 new Color(0.06f, 0.10f, 0.06f, 0.95f), true);
@@ -148,10 +155,10 @@ public class StartGamePromptScene extends Scene {
 
             // Title
             r.drawText("WELCOME BACK!",
-                new Vector2(cx - 115f, cardY + ch - 36f), "default",
+                new Vector2(cx - 115f, cardY + ch - 40f), "default",
                 new Color(0.2f, 0.9f, 0.4f, 1f));
             r.drawText("Last played: " + scene.lastCharacter.getName(),
-                new Vector2(cx - 110f, cardY + ch - 72f), "default",
+                new Vector2(cardX + 40f, cardY + ch - 80f), "default",
                 new Color(0.75f, 0.75f, 0.75f, 1f));
 
             // Buttons

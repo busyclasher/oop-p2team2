@@ -16,9 +16,13 @@ public class LeaderboardManager {
     private static final int    DEFAULT_MAX_ENTRIES = 10;
     private static final String PREFS_NAME          = "silicon-sentinel-leaderboard";
 
+    private static final int    MAX_NAME_LENGTH = 12;
+
     private final List<LeaderboardEntry> entries;
     private final int                    maxEntries;
-    private CharacterType                lastCharacter; // character used in the most recent game
+    private CharacterType                lastCharacter;
+    private String                       playerName;
+    private boolean                      seenTutorial;
 
     public LeaderboardManager() {
         this(DEFAULT_MAX_ENTRIES);
@@ -28,6 +32,8 @@ public class LeaderboardManager {
         this.maxEntries = maxEntries;
         this.entries    = new ArrayList<>();
         load();
+        loadPlayerName();
+        loadTutorialFlag();
     }
 
     /**
@@ -57,6 +63,43 @@ public class LeaderboardManager {
 
     public CharacterType getLastCharacter()               { return lastCharacter; }
     public void          setLastCharacter(CharacterType c){ this.lastCharacter = c; }
+
+    /** Returns the persisted player name, or null if none has been set. */
+    public String getPlayerName() { return playerName; }
+
+    /** Returns true if a player name has been set. */
+    public boolean hasPlayerName() { return playerName != null && !playerName.isEmpty(); }
+
+    /** Saves the player name (capped at MAX_NAME_LENGTH) to preferences. */
+    public void setPlayerName(String name) {
+        if (name == null || name.trim().isEmpty()) return;
+        this.playerName = name.trim().substring(0, Math.min(name.trim().length(), MAX_NAME_LENGTH));
+        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
+        prefs.putString("player_name", this.playerName);
+        prefs.flush();
+    }
+
+    private void loadPlayerName() {
+        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
+        String saved = prefs.getString("player_name", "");
+        this.playerName = saved.isEmpty() ? null : saved;
+    }
+
+    /** Returns true if the player has already seen the How-To-Play tutorial. */
+    public boolean hasSeenTutorial() { return seenTutorial; }
+
+    /** Marks the tutorial as seen and persists the flag. */
+    public void setSeenTutorial() {
+        this.seenTutorial = true;
+        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
+        prefs.putBoolean("seen_tutorial", true);
+        prefs.flush();
+    }
+
+    private void loadTutorialFlag() {
+        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
+        this.seenTutorial = prefs.getBoolean("seen_tutorial", false);
+    }
 
     // ── Persistence ──────────────────────────────────────────────────────────
 

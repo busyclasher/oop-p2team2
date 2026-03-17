@@ -35,7 +35,8 @@ public class GameOverScene extends Scene {
         this.leaderboard  = leaderboard;
         this.selectedIndex = 0;
 
-        leaderboard.addEntry("PLAYER", finalScore);
+        String name = leaderboard.hasPlayerName() ? leaderboard.getPlayerName() : "PLAYER";
+        leaderboard.addEntry(name, finalScore);
 
         setInputHandler(new GameOverInputHandler(this));
         setSceneRenderer(new GameOverRenderer(this));

@@ -4,7 +4,7 @@ import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 import sg.edu.sit.inf1009.p2team2.game.components.GameEntityComponent;
 
 /**
- * Manages the quiz state for Silicon Sentinel.
+ * Manages the quiz state for CyberScouts.
  *
  * When a quiz-trigger entity is caught/hit, the scene calls
  * {@link #triggerQuiz(Entity)} to start the overlay.  The player then

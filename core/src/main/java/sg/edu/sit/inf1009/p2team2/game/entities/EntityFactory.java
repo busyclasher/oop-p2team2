@@ -16,12 +16,12 @@ import sg.edu.sit.inf1009.p2team2.game.components.HealthComponent;
  */
 public class EntityFactory {
 
-    /** Pixel size of every falling item (square). */
-    public static final float ENTITY_SIZE   = 44f;
+    /** Default pixel size of falling items (square). */
+    public static final float ENTITY_SIZE   = 54f;
     /** Pixel width of the player rectangle. */
-    public static final float PLAYER_WIDTH  = 64f;
+    public static final float PLAYER_WIDTH  = 80f;
     /** Pixel height of the player rectangle. */
-    public static final float PLAYER_HEIGHT = 80f;
+    public static final float PLAYER_HEIGHT = 100f;
     /** Starting number of player lives. */
     public static final int   PLAYER_LIVES  = 3;
 
@@ -72,9 +72,11 @@ public class EntityFactory {
 
         Entity entity = entityManager.createEntity();
 
+        float size = type.getDisplaySize() > 0 ? type.getDisplaySize() : ENTITY_SIZE;
+
         TransformComponent transform = new TransformComponent();
         transform.setPosition(new Vector2(x, y));
-        transform.setScale(new Vector2(ENTITY_SIZE, ENTITY_SIZE));
+        transform.setScale(new Vector2(size, size));
 
         entity.add(transform);
         entity.add(new FallingComponent(speed));

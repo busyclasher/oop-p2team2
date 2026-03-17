@@ -22,8 +22,8 @@ import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 public class CharacterSelectScene extends Scene {
 
     private static final CharacterType[] CHARS = CharacterType.values();
-    private static final float CARD_W  = 240f;
-    private static final float CARD_H  = 360f;
+    private static final float CARD_W  = 300f;
+    private static final float CARD_H  = 380f;
     private static final float CHAR_W  = 140f;
     private static final float CHAR_H  = 160f;
     private static final int   COOLDOWN = 12;
@@ -105,8 +105,9 @@ public class CharacterSelectScene extends Scene {
     }
 
     private Rectangle cardRect(float cx, float cy, int index) {
-        float spacing = CARD_W + 60f;
-        float totalW  = CHARS.length * CARD_W + (CHARS.length - 1) * 60f;
+        float gap     = 40f;
+        float spacing = CARD_W + gap;
+        float totalW  = CHARS.length * CARD_W + (CHARS.length - 1) * gap;
         float startX  = cx - totalW / 2f;
         float cardX   = startX + index * spacing;
         return new Rectangle(cardX, cy - CARD_H / 2f - 20f, CARD_W, CARD_H);
@@ -116,7 +117,13 @@ public class CharacterSelectScene extends Scene {
         CharacterType chosen = CHARS[selectedIndex];
         leaderboard.setLastCharacter(chosen);
         context.getSceneManager().pop();                                       // remove CharacterSelectScene
-        context.getSceneManager().push(new GamePlayScene(context, leaderboard, chosen));
+        if (!leaderboard.hasSeenTutorial()) {
+            leaderboard.setSeenTutorial();
+            context.getSceneManager().push(new GamePlayScene(context, leaderboard, chosen));
+            context.getSceneManager().push(new HowToPlayScene(context));
+        } else {
+            context.getSceneManager().push(new GamePlayScene(context, leaderboard, chosen));
+        }
     }
 
     // ── Render ───────────────────────────────────────────────────────────────

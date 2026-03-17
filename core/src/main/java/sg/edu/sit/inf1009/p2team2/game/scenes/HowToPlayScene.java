@@ -86,9 +86,9 @@ public class HowToPlayScene extends Scene {
         y -= gap;
         r.drawText("Catch good data, avoid cyber threats.", new Vector2(col1, y), "default", Color.WHITE);
         y -= gap;
-        r.drawText("Collect " + 10 + " good items to enter Frenzy Mode,", new Vector2(col1, y), "default", Color.WHITE);
+        r.drawText("Survive until the timer hits 0 to win!", new Vector2(col1, y), "default", Color.WHITE);
         y -= gap;
-        r.drawText("then collect 100 more to win!", new Vector2(col1, y), "default", Color.WHITE);
+        r.drawText("Catch a Frenzy Orb to freeze the timer!", new Vector2(col1, y), "default", Color.WHITE);
         y -= gap * 1.5f;
 
         // ── Controls ─────────────────────────────────────────────────────────
@@ -96,6 +96,7 @@ public class HowToPlayScene extends Scene {
         y -= gap;
         r.drawText("A / Left Arrow    Move left",  new Vector2(col1, y), "default", Color.WHITE); y -= gap;
         r.drawText("D / Right Arrow   Move right", new Vector2(col1, y), "default", Color.WHITE); y -= gap;
+        r.drawText("SPACE / W / Up    Jump",        new Vector2(col1, y), "default", Color.WHITE); y -= gap;
         r.drawText("ESC               Pause menu", new Vector2(col1, y), "default", Color.WHITE); y -= gap;
         r.drawText("1 / 2 / 3 / 4     Answer quiz", new Vector2(col1, y), "default", Color.WHITE);
         y -= gap * 1.5f;
@@ -121,8 +122,9 @@ public class HowToPlayScene extends Scene {
         // ── Frenzy Mode ───────────────────────────────────────────────────────
         r.drawText("FRENZY MODE", new Vector2(col2, y2), "default", new Color(1f, 0.5f, 0f, 1f));
         y2 -= gap;
-        r.drawText("Faster entities + more threats.", new Vector2(col2, y2), "default", Color.WHITE); y2 -= gap;
-        r.drawText("Extra enemies: Rootkit, Spyware.", new Vector2(col2, y2), "default", Color.WHITE);
+        r.drawText("Catch a glowing Frenzy Orb to trigger!", new Vector2(col2, y2), "default", Color.WHITE); y2 -= gap;
+        r.drawText("Lasts 8 seconds - timer is frozen.", new Vector2(col2, y2), "default", Color.WHITE); y2 -= gap;
+        r.drawText("Faster entities + Rootkit & Spyware.", new Vector2(col2, y2), "default", Color.WHITE);
         y2 -= gap * 1.5f;
 
         // ── Characters ───────────────────────────────────────────────────────
