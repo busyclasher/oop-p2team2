@@ -11,41 +11,49 @@ public enum BuffType {
     EXTRA_LIFE(
         "Extra Life",
         "+1 life restored.",
-        new Color(0.20f, 0.85f, 0.35f, 1f)
+        new Color(0.20f, 0.85f, 0.35f, 1f),
+        "healthy-card.png"
     ),
     SHIELD(
         "Firewall Shield",
         "Absorb the next\nbad-entity hit for free.",
-        new Color(0.20f, 0.55f, 1.00f, 1f)
+        new Color(0.20f, 0.55f, 1.00f, 1f),
+        "death-defier-card.png"
     ),
     SPEED_SURGE(
         "Speed Surge",
         "Move 25% faster\nfor the rest of the game.",
-        new Color(1.00f, 0.85f, 0.10f, 1f)
+        new Color(1.00f, 0.85f, 0.10f, 1f),
+        "haste-i-card.png"
     ),
     SCORE_BOOST(
         "Score Boost",
         "Next 20 good items\ngive +75% bonus score.",
-        new Color(1.00f, 0.50f, 0.10f, 1f)
+        new Color(1.00f, 0.50f, 0.10f, 1f),
+        "haste-i-card.png"
     ),
     SLOW_FIELD(
         "Slow Field",
         "Entities fall 15%\nslower permanently.",
-        new Color(0.30f, 0.90f, 0.90f, 1f)
+        new Color(0.30f, 0.90f, 0.90f, 1f),
+        "death-defier-card.png"
     ),
     SCORE_BURST(
         "Score Burst",
         "Instantly gain\n+300 bonus points.",
-        new Color(1.00f, 0.90f, 0.20f, 1f)
+        new Color(1.00f, 0.90f, 0.20f, 1f),
+        "healthy-card.png"
     );
 
     public final String name;
     public final String desc;
     public final Color  color;
+    public final String cardSprite;
 
-    BuffType(String name, String desc, Color color) {
-        this.name  = name;
-        this.desc  = desc;
-        this.color = color;
+    BuffType(String name, String desc, Color color, String cardSprite) {
+        this.name       = name;
+        this.desc       = desc;
+        this.color      = color;
+        this.cardSprite = cardSprite;
     }
 }

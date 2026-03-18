@@ -91,7 +91,7 @@ public class GameOverScene extends Scene {
     // ── Input processing ──────────────────────────────────────────────────────
 
     void processInput() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth(), wh = r.getWorldHeight();
 
         if (isEnteringName) {
@@ -135,8 +135,8 @@ public class GameOverScene extends Scene {
     }
 
     private void handleMenuInput(float ww, float wh) {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
 
         if (keyboardCooldown == 0) {
             if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {

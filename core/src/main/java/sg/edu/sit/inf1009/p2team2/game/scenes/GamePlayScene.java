@@ -688,8 +688,8 @@ public class GamePlayScene extends Scene {
                 return;
             }
             // Mouse hover + click
-            Mouse    mouse = scene.context.getInputManager().getMouse();
-            Renderer r     = scene.context.getOutputManager().getRenderer();
+            Mouse    mouse = scene.getContext().getInputManager().getMouse();
+            Renderer r     = scene.getContext().getOutputManager().getRenderer();
             Vector2  mp    = mouse.getPosition();
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
             for (int i = 0; i < 3; i++) {
