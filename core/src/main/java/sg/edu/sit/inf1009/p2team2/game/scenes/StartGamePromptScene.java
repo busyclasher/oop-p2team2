@@ -21,7 +21,7 @@ import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
  */
 public class StartGamePromptScene extends Scene {
 
-    private static final float BTN_W = 300f, BTN_H = 58f, BTN_GAP = 24f;
+    private static final float BTN_W = 300f, BTN_H = 58f, BTN_GAP = 20f;
     private static final int   COOLDOWN_FRAMES = 10;
 
     private final LeaderboardManager leaderboard;
@@ -76,7 +76,7 @@ public class StartGamePromptScene extends Scene {
 
         if (keyboardCooldown == 0) {
             if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
-                selectedIndex    = (selectedIndex + 1) % 2;
+                selectedIndex    = (selectedIndex - 1 + 2) % 2;
                 keyboardCooldown = COOLDOWN_FRAMES;
             } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
                 selectedIndex    = (selectedIndex + 1) % 2;
@@ -139,7 +139,7 @@ public class StartGamePromptScene extends Scene {
                 new Color(0f, 0f, 0f, 0.70f), true);
 
             // Card
-            float cw = 440f, ch = 280f;
+            float cw = 440f, ch = 320f;
             float cardX = cx - cw / 2f, cardY = cy - ch / 2f;
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
                 new Color(0.06f, 0.10f, 0.06f, 0.95f), true);

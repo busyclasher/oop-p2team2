@@ -23,7 +23,7 @@ public class CharacterSelectScene extends Scene {
 
     private static final CharacterType[] CHARS = CharacterType.values();
     private static final float CARD_W  = 240f;
-    private static final float CARD_H  = 360f;
+    private static final float CARD_H  = 400f;
     private static final float CHAR_W  = 140f;
     private static final float CHAR_H  = 160f;
     private static final int   COOLDOWN = 12;

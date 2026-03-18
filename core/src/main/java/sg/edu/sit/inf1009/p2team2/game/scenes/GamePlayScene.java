@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -25,6 +24,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.components.FallingComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.GameEntityComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.HealthComponent;
+import sg.edu.sit.inf1009.p2team2.game.entities.BuffType;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.entities.EntityFactory;
 import sg.edu.sit.inf1009.p2team2.game.entities.EntityType;
@@ -103,7 +103,7 @@ public class GamePlayScene extends Scene {
     };
 
     // ── Game state ───────────────────────────────────────────────────────────
-    private enum GameState { PLAYING, FRENZY, QUIZ, QUIZ_FEEDBACK, TRANSITION_TO_FRENZY, GAME_OVER, WIN }
+    private enum GameState { PLAYING, FRENZY, QUIZ, QUIZ_FEEDBACK, BUFF_SELECT, TRANSITION_TO_FRENZY, GAME_OVER, WIN }
 
     // ── Fields ───────────────────────────────────────────────────────────────
     private final LeaderboardManager leaderboard;
@@ -136,6 +136,20 @@ public class GamePlayScene extends Scene {
     private float      feedbackTimer;
     private GameState  postFeedbackState;
     private GameState  preQuizState;      // state before quiz was triggered
+
+    // Buff system — card offered every BUFF_INTERVAL points
+    private static final int BUFF_INTERVAL = 200;
+    private int        nextBuffScore    = BUFF_INTERVAL;
+    BuffType[]         buffChoices      = new BuffType[3]; // package-private for renderer
+    int                buffHoveredIdx   = 0;               // package-private for renderer
+    private GameState  preBuffState;
+
+    // Active buff state
+    boolean  hasShield        = false; // package-private for HUD indicator
+    private float    playerSpeedBonus = 0f;
+    private float    buffScoreMulti   = 1f;
+    private int      buffScoreItems   = 0;
+    boolean  hasScoreBoost    = false; // package-private for HUD indicator
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -199,7 +213,8 @@ public class GamePlayScene extends Scene {
                 }
                 break;
             case QUIZ:
-                // Input handler drives quiz; nothing else updates
+            case BUFF_SELECT:
+                // Input handler drives selection; nothing else updates
                 break;
             case QUIZ_FEEDBACK:
                 feedbackTimer -= dt;
@@ -284,7 +299,7 @@ public class GamePlayScene extends Scene {
         TransformComponent tf = playerEntity.get(TransformComponent.class);
         Renderer r  = context.getOutputManager().getRenderer();
 
-        float speed = characterType.getSpeed();
+        float speed = characterType.getSpeed() + playerSpeedBonus;
         float dx = 0;
         if (kb.isKeyDown(Input.Keys.LEFT)  || kb.isKeyDown(Input.Keys.A)) dx -= speed * dt;
         if (kb.isKeyDown(Input.Keys.RIGHT) || kb.isKeyDown(Input.Keys.D)) dx += speed * dt;
@@ -334,14 +349,27 @@ public class GamePlayScene extends Scene {
             preQuizState = gameState;
             gameState = GameState.QUIZ;
         } else if (gec.isBad()) {
-            // Standard bad entity — instant damage
-            playerHealth.takeDamage();
-            context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
+            if (hasShield) {
+                // Shield absorbs the hit
+                hasShield = false;
+                context.getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
+            } else {
+                playerHealth.takeDamage();
+                context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
+                checkGameOver();
+            }
             toRemove.add(entity);
-            checkGameOver();
         } else {
-            // Good entity
-            score += Math.round(gec.getScoreValue() * characterType.getScoreMultiplier());
+            // Good entity — apply score-boost buff if active
+            float effective = characterType.getScoreMultiplier();
+            if (buffScoreItems > 0) {
+                effective *= buffScoreMulti;
+                if (--buffScoreItems == 0) {
+                    buffScoreMulti  = 1f;
+                    hasScoreBoost   = false;
+                }
+            }
+            score += Math.round(gec.getScoreValue() * effective);
             goodCollected++;
             totalGoodCollected++;
             context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
@@ -404,12 +432,58 @@ public class GamePlayScene extends Scene {
             gameState = GameState.WIN;
             return;
         }
+        // Buff card threshold — offer every BUFF_INTERVAL points
+        if (score >= nextBuffScore && gameState != GameState.BUFF_SELECT) {
+            triggerBuffSelect();
+            return; // frenzy check deferred; applyBuff() calls checkGoal() again
+        }
         // Frenzy trigger — 10 items in the current PLAYING cycle
         if (gameState == GameState.PLAYING && goodCollected >= FRENZY_COUNT) {
             gameState       = GameState.TRANSITION_TO_FRENZY;
             transitionTimer = 3f;
             goodCollected   = 0;
         }
+    }
+
+    private void triggerBuffSelect() {
+        nextBuffScore += BUFF_INTERVAL;
+        // Fisher-Yates shuffle of all buff types, take first 3
+        BuffType[] all = BuffType.values().clone();
+        for (int i = all.length - 1; i > 0; i--) {
+            int j = random.nextInt(i + 1);
+            BuffType tmp = all[i]; all[i] = all[j]; all[j] = tmp;
+        }
+        buffChoices    = new BuffType[]{all[0], all[1], all[2]};
+        buffHoveredIdx = 0;
+        preBuffState   = gameState;
+        gameState      = GameState.BUFF_SELECT;
+    }
+
+    void applyBuff(BuffType buff) {
+        switch (buff) {
+            case EXTRA_LIFE:
+                playerHealth.gainLife();
+                break;
+            case SHIELD:
+                hasShield = true;
+                break;
+            case SPEED_SURGE:
+                playerSpeedBonus += characterType.getSpeed() * 0.25f;
+                break;
+            case SCORE_BOOST:
+                buffScoreMulti = 1.75f;
+                buffScoreItems = 20;
+                hasScoreBoost  = true;
+                break;
+            case SLOW_FIELD:
+                fallSpeed = Math.max(fallSpeed * 0.85f, 60f);
+                break;
+            case SCORE_BURST:
+                score += 300;
+                break;
+        }
+        gameState = preBuffState;
+        checkGoal(); // handle any deferred frenzy/win trigger
     }
 
     private void checkGameOver() {
@@ -451,9 +525,8 @@ public class GamePlayScene extends Scene {
     }
 
     void goToLeaderboard() {
-        leaderboard.addEntry("PLAYER", score);
         context.getSceneManager().pop();
-        context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
+        context.getSceneManager().push(new GameOverScene(context, score, leaderboard, true));
     }
 
     // ── Reset ────────────────────────────────────────────────────────────────
@@ -472,6 +545,13 @@ public class GamePlayScene extends Scene {
         frenzyTimer     = 0;
         frenzyDiffTimer = 0;
         frenzyCount     = 0;
+        // Buff state
+        nextBuffScore    = BUFF_INTERVAL;
+        hasShield        = false;
+        playerSpeedBonus = 0f;
+        buffScoreMulti   = 1f;
+        buffScoreItems   = 0;
+        hasScoreBoost    = false;
 
         Renderer r = context.getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
@@ -479,6 +559,16 @@ public class GamePlayScene extends Scene {
     }
 
     // ── Accessors for renderer / input handler ───────────────────────────────
+
+    /** Shared card rectangle used by both input handler and renderer. */
+    Rectangle buffCardRect(int idx, float ww, float wh) {
+        float cardW   = 200f, cardH = 280f, gap = 30f;
+        float totalW  = 3 * cardW + 2 * gap;
+        float startX  = ww / 2f - totalW / 2f;
+        float x       = startX + idx * (cardW + gap);
+        float y       = wh / 2f - cardH / 2f;
+        return new Rectangle(x, y, cardW, cardH);
+    }
 
     GameState        getGameState()         { return gameState; }
     int              getScore()             { return score; }
@@ -532,6 +622,10 @@ public class GamePlayScene extends Scene {
                     }
                     break;
 
+                case BUFF_SELECT:
+                    handleBuffInput(kb);
+                    break;
+
                 case GAME_OVER:
                     if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
                         scene.goToGameOver();
@@ -576,6 +670,38 @@ public class GamePlayScene extends Scene {
                 }
             }
         }
+
+        private void handleBuffInput(Keyboard kb) {
+            // Keyboard left/right to navigate cards
+            if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+                scene.buffHoveredIdx = (scene.buffHoveredIdx - 1 + 3) % 3;
+            } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
+                scene.buffHoveredIdx = (scene.buffHoveredIdx + 1) % 3;
+            }
+            // 1/2/3 hotkeys
+            if (kb.isKeyPressed(Input.Keys.NUM_1)) { scene.applyBuff(scene.buffChoices[0]); return; }
+            if (kb.isKeyPressed(Input.Keys.NUM_2)) { scene.applyBuff(scene.buffChoices[1]); return; }
+            if (kb.isKeyPressed(Input.Keys.NUM_3)) { scene.applyBuff(scene.buffChoices[2]); return; }
+            // Enter/Space confirms hovered card
+            if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                scene.applyBuff(scene.buffChoices[scene.buffHoveredIdx]);
+                return;
+            }
+            // Mouse hover + click
+            Mouse    mouse = scene.context.getInputManager().getMouse();
+            Renderer r     = scene.context.getOutputManager().getRenderer();
+            Vector2  mp    = mouse.getPosition();
+            float ww = r.getWorldWidth(), wh = r.getWorldHeight();
+            for (int i = 0; i < 3; i++) {
+                if (scene.buffCardRect(i, ww, wh).contains(mp.x, mp.y)) {
+                    scene.buffHoveredIdx = i;
+                    if (mouse.isButtonPressed(0)) {
+                        scene.applyBuff(scene.buffChoices[i]);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     // =========================================================================
@@ -617,6 +743,9 @@ public class GamePlayScene extends Scene {
                 case QUIZ_FEEDBACK:
                     drawQuizFeedback(r);
                     break;
+                case BUFF_SELECT:
+                    drawBuffSelect(r);
+                    break;
                 case TRANSITION_TO_FRENZY:
                     drawFrenzyTransition(r);
                     break;
@@ -637,8 +766,9 @@ public class GamePlayScene extends Scene {
 
         private void drawBackground(Renderer r) {
             // In feedback state use the background of the state we're returning to
-            GameState bg_state = (scene.gameState == GameState.QUIZ_FEEDBACK)
-                ? scene.postFeedbackState : scene.gameState;
+            GameState bg_state = (scene.gameState == GameState.QUIZ_FEEDBACK) ? scene.postFeedbackState
+                               : (scene.gameState == GameState.BUFF_SELECT)   ? scene.preBuffState
+                               : scene.gameState;
             String bg;
             if (bg_state == GameState.FRENZY) bg = BACKGROUND_FRENZY;
             else if (bg_state == GameState.TRANSITION_TO_FRENZY) bg = BACKGROUND_TRANSITION;
@@ -720,7 +850,9 @@ public class GamePlayScene extends Scene {
             // Progress / frenzy countdown
             String progressText;
             Color  progressColor;
-            if (scene.gameState == GameState.FRENZY) {
+            GameState displayState = (scene.gameState == GameState.BUFF_SELECT)
+                ? scene.preBuffState : scene.gameState;
+            if (displayState == GameState.FRENZY) {
                 int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
                 progressText  = "FRENZY " + secsLeft + "s  TOTAL " + scene.totalGoodCollected + "/" + GOAL_COUNT;
                 progressColor = COL_FRENZY_BANNER;
@@ -730,6 +862,19 @@ public class GamePlayScene extends Scene {
                 progressColor = Color.CYAN;
             }
             r.drawText(progressText, new Vector2(ww - 360f, wh - 14f), "default", progressColor);
+
+            // Active buff indicators (bottom-right)
+            float ix = ww - 20f;
+            if (scene.hasShield) {
+                r.drawText("[SHIELD]", new Vector2(ix - 130f, 12f),
+                    "default", new Color(0.2f, 0.55f, 1f, 1f));
+                ix -= 140f;
+            }
+            if (scene.hasScoreBoost) {
+                r.drawText("[BOOST x" + scene.buffScoreItems + "]",
+                    new Vector2(ix - 160f, 12f), "default", new Color(1f, 0.5f, 0.1f, 1f));
+                ix -= 170f;
+            }
 
             // Controls hint
             r.drawText("A or D to Move   ESC Quit",
@@ -880,6 +1025,63 @@ public class GamePlayScene extends Scene {
             int secs = (int) Math.ceil(scene.transitionTimer);
             r.drawText("Starting in " + secs + "...",
                 new Vector2(ww / 2f - 80f, wh / 2f - 50f), "default", Color.WHITE);
+        }
+
+        // ── Buff card selection overlay ──────────────────────────────────────
+
+        private void drawBuffSelect(Renderer r) {
+            float ww = r.getWorldWidth(), wh = r.getWorldHeight();
+
+            // Dim the game world behind the cards
+            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.70f), true);
+
+            // Title
+            r.drawText("SYSTEM UPGRADE!",
+                new Vector2(ww / 2f - 130f, wh / 2f + 175f), "default",
+                new Color(0.3f, 1f, 0.6f, 1f));
+            r.drawText("Choose a buff:",
+                new Vector2(ww / 2f - 78f, wh / 2f + 140f), "default",
+                new Color(0.8f, 0.8f, 0.8f, 1f));
+
+            // Three cards
+            for (int i = 0; i < 3; i++) {
+                BuffType buff = scene.buffChoices[i];
+                Rectangle card = scene.buffCardRect(i, ww, wh);
+                boolean   sel  = (i == scene.buffHoveredIdx);
+
+                // Card background + border (tinted with buff colour)
+                Color dimBg = new Color(buff.color.r * 0.15f, buff.color.g * 0.15f,
+                                        buff.color.b * 0.15f, 0.92f);
+                r.drawRect(card, sel ? dimBg : new Color(0.08f, 0.08f, 0.08f, 0.88f), true);
+                r.drawRect(card, sel ? buff.color : new Color(0.4f, 0.4f, 0.4f, 1f), false);
+
+                // Number hint
+                r.drawText("[" + (i + 1) + "]",
+                    new Vector2(card.x + 8f, card.y + card.height - 22f),
+                    "default", new Color(0.55f, 0.55f, 0.55f, 1f));
+
+                // Buff name (coloured)
+                r.drawText(buff.name,
+                    new Vector2(card.x + 10f, card.y + card.height - 58f),
+                    "default", sel ? buff.color : Color.WHITE);
+
+                // Divider line
+                r.drawRect(new Rectangle(card.x + 8f, card.y + card.height - 72f,
+                    card.width - 16f, 1f), new Color(0.35f, 0.35f, 0.35f, 1f), true);
+
+                // Description (two lines if \n present)
+                String[] lines = buff.desc.split("\n");
+                for (int l = 0; l < lines.length; l++) {
+                    r.drawText(lines[l],
+                        new Vector2(card.x + 10f, card.y + card.height - 102f - l * 26f),
+                        "default", new Color(0.80f, 0.80f, 0.80f, 1f));
+                }
+            }
+
+            // Footer hint
+            r.drawText("← → / A D to navigate   1 2 3 or Enter to pick",
+                new Vector2(ww / 2f - 270f, wh / 2f - 175f), "default",
+                new Color(0.50f, 0.50f, 0.50f, 1f));
         }
 
         // ── Game-over overlay ────────────────────────────────────────────────
