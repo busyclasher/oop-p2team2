@@ -60,12 +60,12 @@ public class CharacterSelectScene extends Scene {
     // ── Input ────────────────────────────────────────────────────────────────
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
+        Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
 
@@ -115,14 +115,14 @@ public class CharacterSelectScene extends Scene {
     private void startGame() {
         CharacterType chosen = CHARS[selectedIndex];
         leaderboard.setLastCharacter(chosen);
-        context.getSceneManager().pop();                                       // remove CharacterSelectScene
-        context.getSceneManager().push(new GamePlayScene(context, leaderboard, chosen));
+        getContext().getSceneManager().pop();                                       // remove CharacterSelectScene
+        getContext().getSceneManager().push(new GamePlayScene(getContext(), leaderboard, chosen));
     }
 
     // ── Render ───────────────────────────────────────────────────────────────
 
     void renderScene() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float    ww = r.getWorldWidth();
         float    wh = r.getWorldHeight();
         float    cx = ww / 2f, cy = wh / 2f;
@@ -197,13 +197,13 @@ public class CharacterSelectScene extends Scene {
 
     private static final class CharSelectInputHandler extends InputHandler {
         private final CharacterSelectScene scene;
-        CharSelectInputHandler(CharacterSelectScene s) { super(s.context); this.scene = s; }
+        CharSelectInputHandler(CharacterSelectScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class CharSelectRenderer extends SceneRenderer {
         private final CharacterSelectScene scene;
-        CharSelectRenderer(CharacterSelectScene s) { super(s.context); this.scene = s; }
+        CharSelectRenderer(CharacterSelectScene s) { super(s.getContext()); this.scene = s; }
         @Override public void render() { scene.renderScene(); }
     }
 }

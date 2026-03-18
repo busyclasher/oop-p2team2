@@ -1,8 +1,10 @@
-# INF1009 P2 Team 2 - Abstract Engine (Part 1)
+# INF1009 P2 Team 2 - Abstract Engine + Game Layer
 
 Base package: `sg.edu.sit.inf1009.p2team2`
 
-This repository contains the UML-aligned abstract engine, simulation scenes, and unit/runtime tests for Part 1.
+This repository now contains:
+- a reusable abstract engine (`engine/*`), and
+- the current game implementation for Silicon Sentinel (`game/*`).
 
 ## Tools Used
 - Java 17
@@ -12,116 +14,85 @@ This repository contains the UML-aligned abstract engine, simulation scenes, and
 ## Project Structure
 ```text
 oop-p2team2
-|_ build.gradle
-|_ settings.gradle
-|_ assets/
-|  |_ background_menu.png             # Menu scene background
-|  |_ mainscene.png                   # Main simulation background
-|  |_ setting.png                     # Settings scene background
-|  |_ engine.properties               # Default/persisted engine config
+|_ assets/                                      # Shared runtime assets (images/audio/config)
 |_ core/
-|  |_ build.gradle
 |  |_ src/main/java/sg/edu/sit/inf1009/p2team2/
-|  |  |_ Main.java                    # Application entry; resolves startup scene
+|  |  |_ Main.java                               # App entrypoint; chooses startup scene
 |  |  |_ engine/
-|  |     |_ core/
-|  |     |  |_ EngineContext.java     # Owns and coordinates managers
-|  |     |_ entity/
-|  |     |  |_ ComponentAdapter.java
-|  |     |  |_ Entity.java
-|  |     |  |_ EntityManager.java
-|  |     |  |_ components/
-|  |     |     |_ TransformComponent.java
-|  |     |     |_ VelocityComponent.java
-|  |     |     |_ RenderableComponent.java
-|  |     |     |_ InputComponent.java
-|  |     |     |_ ColliderComponent.java
-|  |     |_ movement/
-|  |     |  |_ MovementManager.java
-|  |     |  |_ MovementSystem.java
-|  |     |_ collision/
-|  |     |  |_ Shape.java
-|  |     |  |_ ShapeType.java
-|  |     |  |_ Rectangle.java
-|  |     |  |_ Circle.java
-|  |     |  |_ Collision.java
-|  |     |  |_ CollisionDetector.java
-|  |     |  |_ CollisionResolver.java
-|  |     |  |_ CollisionManager.java
-|  |     |_ io/
-|  |     |  |_ InputManager.java
-|  |     |  |_ OutputManager.java
-|  |     |  |_ input/
-|  |     |  |  |_ Keyboard.java
-|  |     |  |  |_ Mouse.java
-|  |     |  |  |_ InputMap.java
-|  |     |  |_ output/
-|  |     |  |  |_ Display.java
-|  |     |  |  |_ Renderer.java
-|  |     |  |  |_ Audio.java
-|  |     |  |  |_ SoundBuffer.java
-|  |     |  |  |_ MusicTrack.java
-|  |     |  |_ ui/
-|  |     |     |_ Button.java
-|  |     |     |_ Slider.java
-|  |     |     |_ Toggle.java
-|  |     |     |_ Score.java
-|  |     |_ scene/
-|  |     |  |_ Scene.java
-|  |     |  |_ SceneManager.java
-|  |     |  |_ MenuScene.java
-|  |     |  |_ MainScene.java
-|  |     |  |_ SettingsScene.java
-|  |     |_ config/
-|  |        |_ ConfigManager.java
-|  |        |_ ConfigRegistry.java
-|  |        |_ ConfigLoader.java
-|  |        |_ ConfigDispatcher.java
-|  |        |_ ConfigListener.java
-|  |        |_ ConfigVar.java
-|  |        |_ ConfigKey.java
-|  |        |_ ConfigKeys.java
-|  |        |_ SimulationConfigKeys.java
-|  |        |_ ConfigValueParser.java
-|  |        |_ AudioConfigListener.java
-|  |        |_ DisplayConfigListener.java
-|  |        |_ IConfigStore.java
-|  |        |_ IConfigLoader.java
-|  |        |_ IConfigDispatcher.java
-|  |        |_ IConfigFormat.java
-|  |        |_ JsonConfigFormat.java
-|  |        |_ PropertiesConfigFormat.java
+|  |  |  |_ core/
+|  |  |  |  |_ EngineContext.java                # Owns manager instances + lifecycle orchestration
+|  |  |  |_ entity/
+|  |  |  |  |_ EntityManager.java                # Entity lifecycle/query APIs
+|  |  |  |  |_ Entity.java
+|  |  |  |  |_ ComponentAdapter.java
+|  |  |  |  |_ components/                       # Transform/Velocity/Renderable/Input/Collider components
+|  |  |  |_ movement/
+|  |  |  |  |_ MovementManager.java
+|  |  |  |  |_ MovementSystem.java
+|  |  |  |_ collision/
+|  |  |  |  |_ CollisionManager.java
+|  |  |  |  |_ CollisionDetector.java
+|  |  |  |  |_ CollisionResolver.java
+|  |  |  |  |_ Collision.java
+|  |  |  |  |_ Shape.java / Rectangle.java / Circle.java / ShapeType.java
+|  |  |  |_ io/
+|  |  |  |  |_ InputManager.java
+|  |  |  |  |_ OutputManager.java
+|  |  |  |  |_ input/                            # Keyboard, Mouse, InputMap
+|  |  |  |  |_ output/                           # Display, Renderer, Audio, SoundBuffer, MusicTrack
+|  |  |  |  |_ ui/                               # Button, Slider, Toggle, Score
+|  |  |  |_ scene/
+|  |  |  |  |_ SceneManager.java
+|  |  |  |  |_ Scene.java
+|  |  |  |  |_ InputHandler.java
+|  |  |  |  |_ SceneRenderer.java
+|  |  |  |  |_ RenderLayer.java
+|  |  |  |  |_ ResourceLoader.java
+|  |  |  |  |_ MenuScene.java                    # Engine demo menu scene
+|  |  |  |  |_ MainScene.java                    # Engine simulation demo scene
+|  |  |  |  |_ SettingsScene.java                # Engine demo settings scene
+|  |  |  |_ config/
+|  |  |     |_ ConfigManager.java                # Singleton config facade
+|  |  |     |_ ConfigRegistry.java
+|  |  |     |_ ConfigLoader.java + interfaces/formats/parsers/listeners
+|  |  |     |_ ConfigKeys.java / SimulationConfigKeys.java / ConfigKey.java / ConfigVar.java
+|  |  |_ game/
+|  |     |_ components/                          # Game-specific ECS components
+|  |     |  |_ GameEntityComponent.java
+|  |     |  |_ FallingComponent.java
+|  |     |  |_ HealthComponent.java
+|  |     |_ entities/                            # Game entity factory + enums
+|  |     |  |_ EntityFactory.java
+|  |     |  |_ EntityType.java
+|  |     |  |_ CharacterType.java
+|  |     |_ quiz/                                # Quiz domain model + manager
+|  |     |  |_ QuizManager.java
+|  |     |  |_ QuizBank.java
+|  |     |  |_ QuizQuestion.java
+|  |     |  |_ QuizResult.java
+|  |     |_ leaderboard/
+|  |     |  |_ LeaderboardManager.java
+|  |     |  |_ LeaderboardEntry.java
+|  |     |_ scenes/                              # Playable game flow scenes
+|  |        |_ GameMenuScene.java
+|  |        |_ StartGamePromptScene.java
+|  |        |_ CharacterSelectScene.java
+|  |        |_ GamePlayScene.java
+|  |        |_ PauseScene.java
+|  |        |_ SettingsScene.java                # Game-layer settings scene
+|  |        |_ LeaderboardScene.java
+|  |        |_ GameOverScene.java
+|  |        |_ HowToPlayScene.java
 |  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
-|     |_ ecs/
-|     |  |_ EntityTest.java
-|     |  |_ EntityUmlApiTest.java
-|     |  |_ components/
-|     |     |_ ColliderComponentTest.java
-|     |_ managers/
-|     |  |_ EntityManagerTest.java
-|     |  |_ EntityManagerUmlApiTest.java
-|     |  |_ MovementManagerTest.java
-|     |  |_ MovementManagerConfigTest.java
-|     |  |_ SceneManagerTest.java
-|     |_ systems/
-|     |  |_ MovementSystemTest.java
-|     |_ collision/
-|     |  |_ CollisionDetectorTest.java
-|     |  |_ CollisionResolverTest.java
-|     |_ config/
-|     |  |_ ConfigManagerTest.java
-|     |  |_ ConfigLoaderTest.java
-|     |  |_ ConfigVarTest.java
-|     |_ input/
-|     |  |_ InputMapTest.java
-|     |_ ui/
-|     |  |_ UiModelsTest.java
-|     |_ scenes/tests/
-|        |_ SceneSmokeTest.java        # JUnit scene smoke checks
-|        |_ InputOutputTestScene.java  # Runtime/manual scene
-|        |_ CompleteIOTest.java        # Runtime/manual comprehensive scene
+|     |_ collision/                              # Collision unit tests
+|     |_ config/                                 # Config unit tests
+|     |_ ecs/                                    # Entity unit tests
+|     |_ input/                                  # Input map unit tests
+|     |_ managers/                               # Manager behavior tests
+|     |_ scenes/tests/                           # Scene smoke + runtime/manual scene tests
+|     |_ systems/                                # Movement system tests
+|     |_ ui/                                     # UI model tests
 |_ lwjgl3/
-|  |_ build.gradle
 |  |_ src/main/java/sg/edu/sit/inf1009/p2team2/lwjgl3/
 |     |_ Lwjgl3Launcher.java
 |     |_ StartupHelper.java
@@ -136,14 +107,19 @@ oop-p2team2
 ```
 
 ## Run Commands (Desktop)
-- Default start (menu):
+- Default startup (game menu flow):
 ```bash
 ./gradlew lwjgl3:run
 ```
 
-- Start directly in `MainScene` simulation:
+- Start engine demo main scene directly:
 ```bash
 ./gradlew lwjgl3:run -Pscene=main
+```
+
+- Start engine demo menu scene directly:
+```bash
+./gradlew lwjgl3:run -Pscene=engine-menu
 ```
 
 - Start runtime I/O scene test:
@@ -156,56 +132,33 @@ oop-p2team2
 ./gradlew lwjgl3:run -Pscene=complete-io
 ```
 
-## Simulation Controls (`MainScene`)
-- `WASD` / Arrow keys: move player entity
-- `Left Click`: spawn one NPC at cursor
-- `Right Click`: remove one NPC
-- `Mouse Scroll`: increase/decrease player speed
-- `1`-`5`: switch render demo modes (`INTERACTIVE`, `SHAPES`, `COLORS`, `TEXT`, `STRESS`)
-- `SPACE`: spawn 10 NPCs and cycle background color
-- `BACKSPACE`: remove 10 NPCs
-- `P`: cycle entity preset (`20`, `100`, `400`)
-- `C`: toggle collision manager processing
-- `[` / `]`: decrease/increase friction
-- `F`: toggle fullscreen
-- `M`: toggle music
-- `+` / `-`: increase/decrease master volume
-- `TAB`: pause/resume simulation update
-- `ENTER`: rebuild simulation entities
-- `ESC`: return to menu scene
+## Game Controls (Current Flow)
+- `GameMenuScene`: Arrow/WASD or mouse hover to select, `Enter` or click to open scene.
+- `CharacterSelectScene`: select character, `Enter`/click confirm, `Esc` back.
+- `GamePlayScene`:
+  - `A` / `D` or Arrow Left/Right: move player
+  - `Esc`: open pause menu
+  - During quiz: `1`-`4` or mouse click to submit answer
+- `PauseScene`: Resume, Settings, or Exit to Menu.
+- `SettingsScene` (game layer): up/down select row, left/right adjust, mouse drag sliders, `Esc` save and return.
 
 ## JUnit Test Commands
-- Run all tests:
+- Run all core tests:
 ```bash
 ./gradlew :core:test
 ```
 
-- Run one class:
+- Run one test class:
 ```bash
 ./gradlew :core:test --tests "sg.edu.sit.inf1009.p2team2.engine.scenes.tests.SceneSmokeTest"
 ```
 
-- Open HTML test report:
+- Open HTML report:
 ```bash
 open core/build/reports/tests/test/index.html
 ```
 
-- Output:
-<img width="1382" height="726" alt="image" src="https://github.com/user-attachments/assets/c9492396-d50e-458f-b1f5-1bc8771b26bc" />
-
-## Test Coverage Guide
-- `EntityTest`, `EntityUmlApiTest`: ECS entity storage and UML API methods.
-- `ColliderComponentTest`: shape assignment and collider position updates.
-- `EntityManagerTest`, `EntityManagerUmlApiTest`: entity manager behavior and UML API compatibility.
-- `MovementSystemTest`, `MovementManagerTest`, `MovementManagerConfigTest`: integration math and gravity/friction behavior.
-- `CollisionDetectorTest`, `CollisionResolverTest`: detection and response for rectangle/circle collisions.
-- `SceneManagerTest`: scene stack push/pop/update lifecycle.
-- `SceneSmokeTest`: scene load safety and required background assets.
-- `ConfigManagerTest`, `ConfigLoaderTest`, `ConfigVarTest`: config validation, persistence formats, and value conversion.
-- `InputMapTest`: action-binding behavior.
-- `UiModelsTest`: button/toggle/slider/score model behavior.
-- `InputOutputTestScene`, `CompleteIOTest`: runtime/manual tests for visual/input/audio interaction.
-
 What to look for:
-- JUnit: `BUILD SUCCESSFUL` and all tests green in the HTML report.
-- Runtime scenes: no exceptions in terminal and expected controls reacting in window.
+- terminal shows `BUILD SUCCESSFUL`
+- all tests green in the HTML report
+- runtime scene transitions are responsive with no terminal exceptions

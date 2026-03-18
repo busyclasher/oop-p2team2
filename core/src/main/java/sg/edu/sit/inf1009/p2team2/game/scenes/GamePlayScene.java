@@ -125,14 +125,14 @@ public class GamePlayScene extends Scene {
     private float     fallSpeed;
     private float     transitionTimer; // used for TRANSITION_TO_FRENZY pause
     private float     difficultyTimer; // accumulates time for difficulty ramp-up
-    float             frenzyTimer;     // counts down while in FRENZY
+    private float     frenzyTimer;     // counts down while in FRENZY
     private float     frenzyDiffTimer; // ramp-up timer inside frenzy
     private int       frenzyCount;     // how many frenzy cycles have ended
 
     // Quiz feedback
     private QuizResult lastQuizResult;
     private boolean    lastQuizWasBad;
-    int                hoveredQuizOption = -1; // -1 = none
+    private int       hoveredQuizOption = -1; // -1 = none
     private float      feedbackTimer;
     private GameState  postFeedbackState;
     private GameState  preQuizState;      // state before quiz was triggered
@@ -179,16 +179,16 @@ public class GamePlayScene extends Scene {
     @Override
     public void onEnter() {
         resetGame();
-        context.getOutputManager().getAudio().playMusic(MUSIC_ID, true);
+        getContext().getOutputManager().getAudio().playMusic(MUSIC_ID, true);
     }
 
     @Override
     public void onExit() {
-        context.getOutputManager().getAudio().stopMusic();
+        getContext().getOutputManager().getAudio().stopMusic();
     }
 
     private void loadResources() {
-        Audio audio = context.getOutputManager().getAudio();
+        Audio audio = getContext().getOutputManager().getAudio();
         audio.loadMusic("audio/nightstarsmix.ogg", MUSIC_ID);
         audio.loadSound("audio/spawn_click.wav", SFX_COLLECT);
     }
@@ -295,9 +295,9 @@ public class GamePlayScene extends Scene {
     }
 
     private void movePlayer(float dt) {
-        Keyboard kb = context.getInputManager().getKeyboard();
+        Keyboard kb = getContext().getInputManager().getKeyboard();
         TransformComponent tf = playerEntity.get(TransformComponent.class);
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
 
         float speed = characterType.getSpeed() + playerSpeedBonus;
         float dx = 0;
@@ -314,7 +314,7 @@ public class GamePlayScene extends Scene {
         EntityType[] pool = (gameState == GameState.FRENZY) ? FRENZY_TYPES : STANDARD_TYPES;
         EntityType type   = pool[random.nextInt(pool.length)];
 
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float spawnX = SPAWN_MARGIN + random.nextFloat() * (r.getWorldWidth() - SPAWN_MARGIN * 2);
 
         entityFactory.createFallingEntity(type, spawnX, SPAWN_Y, fallSpeed);
@@ -352,10 +352,10 @@ public class GamePlayScene extends Scene {
             if (hasShield) {
                 // Shield absorbs the hit
                 hasShield = false;
-                context.getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
+                getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
             } else {
                 playerHealth.takeDamage();
-                context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
+                getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
                 checkGameOver();
             }
             toRemove.add(entity);
@@ -372,7 +372,7 @@ public class GamePlayScene extends Scene {
             score += Math.round(gec.getScoreValue() * effective);
             goodCollected++;
             totalGoodCollected++;
-            context.getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
+            getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
             toRemove.add(entity);
             checkGoal();
         }
@@ -520,13 +520,13 @@ public class GamePlayScene extends Scene {
     // ── Transition to next scene ─────────────────────────────────────────────
 
     void goToGameOver() {
-        context.getSceneManager().pop();
-        context.getSceneManager().push(new GameOverScene(context, score, leaderboard));
+        getContext().getSceneManager().pop();
+        getContext().getSceneManager().push(new GameOverScene(getContext(), score, leaderboard));
     }
 
     void goToLeaderboard() {
-        context.getSceneManager().pop();
-        context.getSceneManager().push(new GameOverScene(context, score, leaderboard, true));
+        getContext().getSceneManager().pop();
+        getContext().getSceneManager().push(new GameOverScene(getContext(), score, leaderboard, true));
     }
 
     // ── Reset ────────────────────────────────────────────────────────────────
@@ -553,7 +553,7 @@ public class GamePlayScene extends Scene {
         buffScoreItems   = 0;
         hasScoreBoost    = false;
 
-        Renderer r = context.getOutputManager().getRenderer();
+        Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
     }
@@ -562,7 +562,7 @@ public class GamePlayScene extends Scene {
 
     /** Shared card rectangle used by both input handler and renderer. */
     Rectangle buffCardRect(int idx, float ww, float wh) {
-        float cardW   = 200f, cardH = 280f, gap = 30f;
+        float cardW   = 200f, cardH = 320f, gap = 30f;
         float totalW  = 3 * cardW + 2 * gap;
         float startX  = ww / 2f - totalW / 2f;
         float x       = startX + idx * (cardW + gap);
@@ -591,19 +591,19 @@ public class GamePlayScene extends Scene {
         private final GamePlayScene scene;
 
         GamePlayInputHandler(GamePlayScene scene) {
-            super(scene.context);
+            super(scene.getContext());
             this.scene = scene;
         }
 
         @Override
         public void handleInput() {
-            Keyboard kb = context.getInputManager().getKeyboard();
+            Keyboard kb = getContext().getInputManager().getKeyboard();
 
             switch (scene.gameState) {
                 case PLAYING:
                 case FRENZY:
                     if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-                        scene.context.getSceneManager().push(new PauseScene(scene.context));
+                        scene.getContext().getSceneManager().push(new PauseScene(scene.getContext()));
                     }
                     break;
 
@@ -651,8 +651,8 @@ public class GamePlayScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.NUM_4)) { scene.submitQuizAnswer(3); return; }
 
             // Mouse
-            Mouse  mouse = scene.context.getInputManager().getMouse();
-            Renderer r   = scene.context.getOutputManager().getRenderer();
+            Mouse  mouse = scene.getContext().getInputManager().getMouse();
+            Renderer r   = scene.getContext().getOutputManager().getRenderer();
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
             float cw = 680f, ch = 360f;
             float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f;
@@ -722,13 +722,13 @@ public class GamePlayScene extends Scene {
         private static final Color COL_LOSE      = new Color(0.95f, 0.25f, 0.25f, 1f);
 
         GamePlayRenderer(GamePlayScene scene) {
-            super(scene.context);
+            super(scene.getContext());
             this.scene = scene;
         }
 
         @Override
         public void render() {
-            Renderer r = context.getOutputManager().getRenderer();
+            Renderer r = getContext().getOutputManager().getRenderer();
             r.clear();
             r.begin();
 
@@ -1032,55 +1032,66 @@ public class GamePlayScene extends Scene {
         private void drawBuffSelect(Renderer r) {
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
 
-            // Dim the game world behind the cards
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.70f), true);
+            // Dim the game world behind the overlay
+            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
 
             // Title
             r.drawText("SYSTEM UPGRADE!",
-                new Vector2(ww / 2f - 130f, wh / 2f + 175f), "default",
+                new Vector2(ww / 2f - 130f, wh / 2f + 195f), "default",
                 new Color(0.3f, 1f, 0.6f, 1f));
             r.drawText("Choose a buff:",
-                new Vector2(ww / 2f - 78f, wh / 2f + 140f), "default",
+                new Vector2(ww / 2f - 78f, wh / 2f + 160f), "default",
                 new Color(0.8f, 0.8f, 0.8f, 1f));
 
-            // Three cards
             for (int i = 0; i < 3; i++) {
-                BuffType buff = scene.buffChoices[i];
+                BuffType  buff = scene.buffChoices[i];
                 Rectangle card = scene.buffCardRect(i, ww, wh);
                 boolean   sel  = (i == scene.buffHoveredIdx);
 
-                // Card background + border (tinted with buff colour)
-                Color dimBg = new Color(buff.color.r * 0.15f, buff.color.g * 0.15f,
-                                        buff.color.b * 0.15f, 0.92f);
-                r.drawRect(card, sel ? dimBg : new Color(0.08f, 0.08f, 0.08f, 0.88f), true);
-                r.drawRect(card, sel ? buff.color : new Color(0.4f, 0.4f, 0.4f, 1f), false);
+                // Card sprite — split card area: top 70% image, bottom 30% text band
+                float imgH    = card.height * 0.70f;
+                float textBandH = card.height - imgH;
 
-                // Number hint
+                // Draw the card sprite in the top portion
+                float spriteCx = card.x + card.width / 2f;
+                float spriteCy = card.y + textBandH + imgH / 2f;
+                r.drawSprite(buff.cardSprite, new Vector2(spriteCx, spriteCy), card.width, imgH);
+
+                // Dark text band at the bottom
+                r.drawRect(new Rectangle(card.x, card.y, card.width, textBandH),
+                    new Color(0.04f, 0.04f, 0.04f, 0.92f), true);
+
+                // Selection glow border (coloured when selected, dim otherwise)
+                Color borderCol = sel ? buff.color : new Color(0.35f, 0.35f, 0.35f, 1f);
+                r.drawRect(card, borderCol, false);
+                if (sel) {
+                    // Extra inner glow line
+                    r.drawRect(new Rectangle(card.x + 2f, card.y + 2f,
+                        card.width - 4f, card.height - 4f), buff.color, false);
+                }
+
+                // Number badge
                 r.drawText("[" + (i + 1) + "]",
-                    new Vector2(card.x + 8f, card.y + card.height - 22f),
+                    new Vector2(card.x + 6f, card.y + textBandH - 4f),
                     "default", new Color(0.55f, 0.55f, 0.55f, 1f));
 
-                // Buff name (coloured)
+                // Buff name
                 r.drawText(buff.name,
-                    new Vector2(card.x + 10f, card.y + card.height - 58f),
+                    new Vector2(card.x + 6f, card.y + textBandH - 26f),
                     "default", sel ? buff.color : Color.WHITE);
 
-                // Divider line
-                r.drawRect(new Rectangle(card.x + 8f, card.y + card.height - 72f,
-                    card.width - 16f, 1f), new Color(0.35f, 0.35f, 0.35f, 1f), true);
-
-                // Description (two lines if \n present)
+                // Description lines
                 String[] lines = buff.desc.split("\n");
                 for (int l = 0; l < lines.length; l++) {
                     r.drawText(lines[l],
-                        new Vector2(card.x + 10f, card.y + card.height - 102f - l * 26f),
-                        "default", new Color(0.80f, 0.80f, 0.80f, 1f));
+                        new Vector2(card.x + 6f, card.y + textBandH - 50f - l * 22f),
+                        "default", new Color(0.75f, 0.75f, 0.75f, 1f));
                 }
             }
 
             // Footer hint
             r.drawText("← → / A D to navigate   1 2 3 or Enter to pick",
-                new Vector2(ww / 2f - 270f, wh / 2f - 175f), "default",
+                new Vector2(ww / 2f - 270f, wh / 2f - 195f), "default",
                 new Color(0.50f, 0.50f, 0.50f, 1f));
         }
 

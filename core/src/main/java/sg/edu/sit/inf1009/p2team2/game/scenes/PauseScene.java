@@ -60,12 +60,12 @@ public class PauseScene extends Scene {
     // ── Input ────────────────────────────────────────────────────────────────
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
+        Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-            context.getSceneManager().pop(); // resume
+            getContext().getSceneManager().pop(); // resume
             return;
         }
 
@@ -114,14 +114,14 @@ public class PauseScene extends Scene {
     private void activate(int index) {
         switch (items.get(index)) {
             case "Resume":
-                context.getSceneManager().pop();
+                getContext().getSceneManager().pop();
                 break;
             case "Settings":
-                context.getSceneManager().push(new SettingsScene(context));
+                getContext().getSceneManager().push(new SettingsScene(getContext()));
                 break;
             case "Exit to Menu":
-                context.getSceneManager().pop(); // pop PauseScene
-                context.getSceneManager().pop(); // pop GamePlayScene → back to menu
+                getContext().getSceneManager().pop(); // pop PauseScene
+                getContext().getSceneManager().pop(); // pop GamePlayScene → back to menu
                 break;
         }
     }
@@ -129,7 +129,7 @@ public class PauseScene extends Scene {
     // ── Render ───────────────────────────────────────────────────────────────
 
     void renderScene() {
-        Renderer r  = context.getOutputManager().getRenderer();
+        Renderer r  = getContext().getOutputManager().getRenderer();
         float    ww = r.getWorldWidth();
         float    wh = r.getWorldHeight();
         float    cx = ww / 2f, cy = wh / 2f;
@@ -171,13 +171,13 @@ public class PauseScene extends Scene {
 
     private static final class PauseInputHandler extends InputHandler {
         private final PauseScene scene;
-        PauseInputHandler(PauseScene s) { super(s.context); this.scene = s; }
+        PauseInputHandler(PauseScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class PauseRenderer extends SceneRenderer {
         private final PauseScene scene;
-        PauseRenderer(PauseScene s) { super(s.context); this.scene = s; }
+        PauseRenderer(PauseScene s) { super(s.getContext()); this.scene = s; }
         @Override public void render() { scene.renderScene(); }
     }
 }

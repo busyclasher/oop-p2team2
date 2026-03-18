@@ -15,8 +15,8 @@ import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
  */
 public abstract class InputHandler {
 
-    protected final EngineContext context;
-    protected final Map<Integer, Runnable> keyBindings;
+    private final EngineContext context;
+    private final Map<Integer, Runnable> keyBindings;
 
     public InputHandler(EngineContext context) {
         this.context = context;
@@ -28,12 +28,20 @@ public abstract class InputHandler {
 
     /** Check whether the given key is currently pressed. */
     public boolean isKeyPressed(int key) {
-        if (context == null || context.getInputManager() == null) {
+        if (getContext() == null || getContext().getInputManager() == null) {
             return false;
         }
 
-        Keyboard keyboard = context.getInputManager().getKeyboard();
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
         return keyboard != null && keyboard.isKeyPressed(key);
+    }
+
+    protected final EngineContext getContext() {
+        return context;
+    }
+
+    protected final Map<Integer, Runnable> getKeyBindings() {
+        return keyBindings;
     }
 
     /** Bind an action to a key. */

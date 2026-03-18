@@ -25,7 +25,7 @@ public class MainInputHandler extends InputHandler {
             scene.processMainInput();
         }
 
-        for (var entry : keyBindings.entrySet()) {
+        for (var entry : getKeyBindings().entrySet()) {
             if (isKeyPressed(entry.getKey())) {
                 entry.getValue().run();
             }

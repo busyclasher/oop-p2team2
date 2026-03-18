@@ -64,13 +64,13 @@ public class StartGamePromptScene extends Scene {
     }
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
-        Renderer r     = context.getOutputManager().getRenderer();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
+        Renderer r     = getContext().getOutputManager().getRenderer();
         float cx = r.getWorldWidth() / 2f, cy = r.getWorldHeight() / 2f;
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
-            context.getSceneManager().pop();
+            getContext().getSceneManager().pop();
             return;
         }
 
@@ -101,15 +101,15 @@ public class StartGamePromptScene extends Scene {
     }
 
     private void activate(int index) {
-        context.getSceneManager().pop(); // remove this prompt
+        getContext().getSceneManager().pop(); // remove this prompt
         if (index == 0) {
             // Continue with same character — straight into game
-            context.getSceneManager().push(
-                new GamePlayScene(context, leaderboard, lastCharacter));
+            getContext().getSceneManager().push(
+                new GamePlayScene(getContext(), leaderboard, lastCharacter));
         } else {
             // New Game — pick a different character
-            context.getSceneManager().push(
-                new CharacterSelectScene(context, leaderboard));
+            getContext().getSceneManager().push(
+                new CharacterSelectScene(getContext(), leaderboard));
         }
     }
 
@@ -117,17 +117,17 @@ public class StartGamePromptScene extends Scene {
 
     private static final class PromptInputHandler extends InputHandler {
         private final StartGamePromptScene scene;
-        PromptInputHandler(StartGamePromptScene s) { super(s.context); this.scene = s; }
+        PromptInputHandler(StartGamePromptScene s) { super(s.getContext()); this.scene = s; }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class PromptRenderer extends SceneRenderer {
         private final StartGamePromptScene scene;
-        PromptRenderer(StartGamePromptScene s) { super(s.context); this.scene = s; }
+        PromptRenderer(StartGamePromptScene s) { super(s.getContext()); this.scene = s; }
 
         @Override
         public void render() {
-            Renderer r  = context.getOutputManager().getRenderer();
+            Renderer r  = getContext().getOutputManager().getRenderer();
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
             float cx = ww / 2f, cy = wh / 2f;
 

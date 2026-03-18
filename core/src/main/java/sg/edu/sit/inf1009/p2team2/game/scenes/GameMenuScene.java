@@ -74,8 +74,8 @@ public class GameMenuScene extends Scene {
     }
 
     void processInput() {
-        Keyboard kb    = context.getInputManager().getKeyboard();
-        Mouse    mouse = context.getInputManager().getMouse();
+        Keyboard kb    = getContext().getInputManager().getKeyboard();
+        Mouse    mouse = getContext().getInputManager().getMouse();
 
         if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
             selectedIndex    = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
@@ -111,7 +111,7 @@ public class GameMenuScene extends Scene {
     }
 
     void renderScene() {
-        Renderer r = context.getOutputManager().getRenderer();
+        Renderer r = getContext().getOutputManager().getRenderer();
         r.clear();
         r.begin();
 
@@ -140,30 +140,30 @@ public class GameMenuScene extends Scene {
         switch (menuItems.get(index).label) {
             case "Start Game":
                 if (leaderboard.getLastCharacter() != null) {
-                    context.getSceneManager().push(
-                        new StartGamePromptScene(context, leaderboard, leaderboard.getLastCharacter()));
+                    getContext().getSceneManager().push(
+                        new StartGamePromptScene(getContext(), leaderboard, leaderboard.getLastCharacter()));
                 } else {
-                    context.getSceneManager().push(new CharacterSelectScene(context, leaderboard));
+                    getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
                 }
                 break;
             case "Leaderboard":
-                context.getSceneManager().push(new LeaderboardScene(context, leaderboard));
+                getContext().getSceneManager().push(new LeaderboardScene(getContext(), leaderboard));
                 break;
             case "How to Play":
-                context.getSceneManager().push(new HowToPlayScene(context));
+                getContext().getSceneManager().push(new HowToPlayScene(getContext()));
                 break;
             case "Settings":
-                context.getSceneManager().push(new SettingsScene(context));
+                getContext().getSceneManager().push(new SettingsScene(getContext()));
                 break;
             case "Exit":
-                context.stop();
+                getContext().stop();
                 Gdx.app.exit();
                 break;
         }
     }
 
     private void updateLayout() {
-        Renderer r     = context.getOutputManager().getRenderer();
+        Renderer r     = getContext().getOutputManager().getRenderer();
         float    cx    = r.getWorldWidth()  / 2f;
         float    cy    = r.getWorldHeight() / 2f;
         float    space = 75f;
@@ -205,7 +205,7 @@ public class GameMenuScene extends Scene {
     private static final class GameMenuInputHandler extends InputHandler {
         private final GameMenuScene scene;
         GameMenuInputHandler(GameMenuScene scene) {
-            super(scene.context);
+            super(scene.getContext());
             this.scene = scene;
         }
         @Override public void handleInput() { scene.processInput(); }
@@ -216,7 +216,7 @@ public class GameMenuScene extends Scene {
     private static final class GameMenuRenderer extends SceneRenderer {
         private final GameMenuScene scene;
         GameMenuRenderer(GameMenuScene scene) {
-            super(scene.context);
+            super(scene.getContext());
             this.scene = scene;
         }
         @Override public void render() { scene.renderScene(); }
