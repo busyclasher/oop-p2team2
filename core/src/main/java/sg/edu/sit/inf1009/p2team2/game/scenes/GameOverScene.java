@@ -1,6 +1,5 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
@@ -93,23 +92,24 @@ public class GameOverScene extends Scene {
     void processInput() {
         Renderer r  = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth(), wh = r.getWorldHeight();
+        Keyboard kb = getContext().getInputManager().getKeyboard();
 
         if (isEnteringName) {
-            handleNameInput();
+            handleNameInput(kb);
         } else {
             handleMenuInput(ww, wh);
         }
     }
 
-    private void handleNameInput() {
+    private void handleNameInput(Keyboard kb) {
         // Backspace
-        if (Gdx.input.isKeyJustPressed(Input.Keys.BACKSPACE) && playerName.length() > 0) {
+        if (kb.isKeyPressed(Input.Keys.BACKSPACE) && playerName.length() > 0) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
 
         // Letters A–Z
         for (int k = Input.Keys.A; k <= Input.Keys.Z; k++) {
-            if (Gdx.input.isKeyJustPressed(k) && playerName.length() < MAX_NAME) {
+            if (kb.isKeyPressed(k) && playerName.length() < MAX_NAME) {
                 char c = (char) ('A' + (k - Input.Keys.A));
                 playerName += c;
             }
@@ -117,18 +117,18 @@ public class GameOverScene extends Scene {
 
         // Digits 0–9 (main row: NUM_0..NUM_9)
         for (int k = Input.Keys.NUM_0; k <= Input.Keys.NUM_9; k++) {
-            if (Gdx.input.isKeyJustPressed(k) && playerName.length() < MAX_NAME) {
+            if (kb.isKeyPressed(k) && playerName.length() < MAX_NAME) {
                 char c = (char) ('0' + (k - Input.Keys.NUM_0));
                 playerName += c;
             }
         }
 
         // Confirm
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        if (kb.isKeyPressed(Input.Keys.ENTER)) {
             confirmName();
         }
         // Skip with default
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
             playerName = "";
             confirmName();
         }
