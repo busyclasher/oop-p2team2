@@ -7,7 +7,7 @@ import sg.edu.sit.inf1009.p2team2.engine.entity.ComponentAdapter;
  */
 public class HealthComponent implements ComponentAdapter {
 
-    private final int maxLives;
+    private int maxLives;
     private int currentLives;
 
     public HealthComponent(int maxLives) {
@@ -25,9 +25,9 @@ public class HealthComponent implements ComponentAdapter {
         }
     }
 
-    public void gainLife() {
-        if (currentLives < maxLives) {
-            currentLives++;
-        }
+    /** Permanently raises the max life cap by 1 and restores 1 current life. */
+    public void increaseMaxLives() {
+        maxLives++;
+        currentLives++;
     }
 }

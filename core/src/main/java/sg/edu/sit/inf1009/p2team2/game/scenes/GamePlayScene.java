@@ -147,9 +147,6 @@ public class GamePlayScene extends Scene {
     // Active buff state
     boolean  hasShield        = false; // package-private for HUD indicator
     private float    playerSpeedBonus = 0f;
-    private float    buffScoreMulti   = 1f;
-    private int      buffScoreItems   = 0;
-    boolean  hasScoreBoost    = false; // package-private for HUD indicator
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -360,16 +357,7 @@ public class GamePlayScene extends Scene {
             }
             toRemove.add(entity);
         } else {
-            // Good entity — apply score-boost buff if active
-            float effective = characterType.getScoreMultiplier();
-            if (buffScoreItems > 0) {
-                effective *= buffScoreMulti;
-                if (--buffScoreItems == 0) {
-                    buffScoreMulti  = 1f;
-                    hasScoreBoost   = false;
-                }
-            }
-            score += Math.round(gec.getScoreValue() * effective);
+            score += Math.round(gec.getScoreValue() * characterType.getScoreMultiplier());
             goodCollected++;
             totalGoodCollected++;
             getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.8f);
@@ -447,13 +435,8 @@ public class GamePlayScene extends Scene {
 
     private void triggerBuffSelect() {
         nextBuffScore += BUFF_INTERVAL;
-        // Fisher-Yates shuffle of all buff types, take first 3
-        BuffType[] all = BuffType.values().clone();
-        for (int i = all.length - 1; i > 0; i--) {
-            int j = random.nextInt(i + 1);
-            BuffType tmp = all[i]; all[i] = all[j]; all[j] = tmp;
-        }
-        buffChoices    = new BuffType[]{all[0], all[1], all[2]};
+        // Always present all three cards, one per card image
+        buffChoices    = new BuffType[]{ BuffType.EXTRA_LIFE, BuffType.SPEED_SURGE, BuffType.SHIELD };
         buffHoveredIdx = 0;
         preBuffState   = gameState;
         gameState      = GameState.BUFF_SELECT;
@@ -462,24 +445,13 @@ public class GamePlayScene extends Scene {
     void applyBuff(BuffType buff) {
         switch (buff) {
             case EXTRA_LIFE:
-                playerHealth.gainLife();
+                playerHealth.increaseMaxLives();
+                break;
+            case SPEED_SURGE:
+                playerSpeedBonus += characterType.getSpeed() * 0.10f;
                 break;
             case SHIELD:
                 hasShield = true;
-                break;
-            case SPEED_SURGE:
-                playerSpeedBonus += characterType.getSpeed() * 0.25f;
-                break;
-            case SCORE_BOOST:
-                buffScoreMulti = 1.75f;
-                buffScoreItems = 20;
-                hasScoreBoost  = true;
-                break;
-            case SLOW_FIELD:
-                fallSpeed = Math.max(fallSpeed * 0.85f, 60f);
-                break;
-            case SCORE_BURST:
-                score += 300;
                 break;
         }
         gameState = preBuffState;
@@ -549,10 +521,6 @@ public class GamePlayScene extends Scene {
         nextBuffScore    = BUFF_INTERVAL;
         hasShield        = false;
         playerSpeedBonus = 0f;
-        buffScoreMulti   = 1f;
-        buffScoreItems   = 0;
-        hasScoreBoost    = false;
-
         Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
@@ -562,7 +530,7 @@ public class GamePlayScene extends Scene {
 
     /** Shared card rectangle used by both input handler and renderer. */
     Rectangle buffCardRect(int idx, float ww, float wh) {
-        float cardW   = 200f, cardH = 320f, gap = 30f;
+        float cardW   = 250f, cardH = 389f, gap = 40f;
         float totalW  = 3 * cardW + 2 * gap;
         float startX  = ww / 2f - totalW / 2f;
         float x       = startX + idx * (cardW + gap);
@@ -864,16 +832,9 @@ public class GamePlayScene extends Scene {
             r.drawText(progressText, new Vector2(ww - 360f, wh - 14f), "default", progressColor);
 
             // Active buff indicators (bottom-right)
-            float ix = ww - 20f;
             if (scene.hasShield) {
-                r.drawText("[SHIELD]", new Vector2(ix - 130f, 12f),
+                r.drawText("[SHIELD]", new Vector2(ww - 150f, 12f),
                     "default", new Color(0.2f, 0.55f, 1f, 1f));
-                ix -= 140f;
-            }
-            if (scene.hasScoreBoost) {
-                r.drawText("[BOOST x" + scene.buffScoreItems + "]",
-                    new Vector2(ix - 160f, 12f), "default", new Color(1f, 0.5f, 0.1f, 1f));
-                ix -= 170f;
             }
 
             // Controls hint
@@ -1035,12 +996,12 @@ public class GamePlayScene extends Scene {
             // Dim the game world behind the overlay
             r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
 
-            // Title
+            // Title — cardH=389, so card top at wh/2+194; give 20px gap above
             r.drawText("SYSTEM UPGRADE!",
-                new Vector2(ww / 2f - 130f, wh / 2f + 195f), "default",
+                new Vector2(ww / 2f - 130f, wh / 2f + 228f), "default",
                 new Color(0.3f, 1f, 0.6f, 1f));
             r.drawText("Choose a buff:",
-                new Vector2(ww / 2f - 78f, wh / 2f + 160f), "default",
+                new Vector2(ww / 2f - 78f, wh / 2f + 212f), "default",
                 new Color(0.8f, 0.8f, 0.8f, 1f));
 
             for (int i = 0; i < 3; i++) {
@@ -1048,50 +1009,24 @@ public class GamePlayScene extends Scene {
                 Rectangle card = scene.buffCardRect(i, ww, wh);
                 boolean   sel  = (i == scene.buffHoveredIdx);
 
-                // Card sprite — split card area: top 70% image, bottom 30% text band
-                float imgH    = card.height * 0.70f;
-                float textBandH = card.height - imgH;
+                // Sprite fills the entire card at its natural 832x1295 proportions
+                r.drawSprite(buff.cardSprite,
+                    new Vector2(card.x + card.width / 2f, card.y + card.height / 2f),
+                    card.width, card.height);
 
-                // Draw the card sprite in the top portion
-                float spriteCx = card.x + card.width / 2f;
-                float spriteCy = card.y + textBandH + imgH / 2f;
-                r.drawSprite(buff.cardSprite, new Vector2(spriteCx, spriteCy), card.width, imgH);
-
-                // Dark text band at the bottom
-                r.drawRect(new Rectangle(card.x, card.y, card.width, textBandH),
-                    new Color(0.04f, 0.04f, 0.04f, 0.92f), true);
-
-                // Selection glow border (coloured when selected, dim otherwise)
-                Color borderCol = sel ? buff.color : new Color(0.35f, 0.35f, 0.35f, 1f);
-                r.drawRect(card, borderCol, false);
+                // Border — full colour when selected, half-brightness when not
+                float bri = sel ? 1.0f : 0.45f;
+                r.drawRect(card,
+                    new Color(buff.color.r * bri, buff.color.g * bri, buff.color.b * bri, 1f), false);
                 if (sel) {
-                    // Extra inner glow line
                     r.drawRect(new Rectangle(card.x + 2f, card.y + 2f,
                         card.width - 4f, card.height - 4f), buff.color, false);
                 }
-
-                // Number badge
-                r.drawText("[" + (i + 1) + "]",
-                    new Vector2(card.x + 6f, card.y + textBandH - 4f),
-                    "default", new Color(0.55f, 0.55f, 0.55f, 1f));
-
-                // Buff name
-                r.drawText(buff.name,
-                    new Vector2(card.x + 6f, card.y + textBandH - 26f),
-                    "default", sel ? buff.color : Color.WHITE);
-
-                // Description lines
-                String[] lines = buff.desc.split("\n");
-                for (int l = 0; l < lines.length; l++) {
-                    r.drawText(lines[l],
-                        new Vector2(card.x + 6f, card.y + textBandH - 50f - l * 22f),
-                        "default", new Color(0.75f, 0.75f, 0.75f, 1f));
-                }
             }
 
-            // Footer hint
+            // Footer hint — card bottom at wh/2-194; give 20px gap below
             r.drawText("← → / A D to navigate   1 2 3 or Enter to pick",
-                new Vector2(ww / 2f - 270f, wh / 2f - 195f), "default",
+                new Vector2(ww / 2f - 270f, wh / 2f - 220f), "default",
                 new Color(0.50f, 0.50f, 0.50f, 1f));
         }
 

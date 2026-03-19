@@ -23,7 +23,7 @@ public class Audio {
         this.musicLibrary = new HashMap<>();
         this.masterVolume = 1.0f;
         this.sfxVolume = 1.0f;
-        this.musicVolume = 0.7f;
+        this.musicVolume = 1.0f;
         this.currentMusic = null;
     }
 
@@ -142,7 +142,7 @@ public class Audio {
     public void loadSettings() {
         Preferences prefs = Gdx.app.getPreferences(SETTINGS_PREFS);
         setMasterVolume(prefs.getFloat("master", 1.0f));
-        setMusicVolume( prefs.getFloat("music",  0.7f));
+        setMusicVolume( prefs.getFloat("music",  1.0f));
         setSfxVolume(   prefs.getFloat("sfx",    1.0f));
     }
 
