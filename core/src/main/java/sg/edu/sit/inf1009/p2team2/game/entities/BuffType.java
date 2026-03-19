@@ -45,15 +45,31 @@ public enum BuffType {
         "healthy-card.png"
     );
 
-    public final String name;
-    public final String desc;
-    public final Color  color;
-    public final String cardSprite;
+    private final String displayName;
+    private final String description;
+    private final Color accentColor;
+    private final String cardSprite;
 
-    BuffType(String name, String desc, Color color, String cardSprite) {
-        this.name       = name;
-        this.desc       = desc;
-        this.color      = color;
+    BuffType(String displayName, String description, Color accentColor, String cardSprite) {
+        this.displayName = displayName;
+        this.description = description;
+        this.accentColor = accentColor;
         this.cardSprite = cardSprite;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Color getAccentColor() {
+        return accentColor;
+    }
+
+    public String getCardSprite() {
+        return cardSprite;
     }
 }
