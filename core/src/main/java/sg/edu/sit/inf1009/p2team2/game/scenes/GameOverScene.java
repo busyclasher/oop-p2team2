@@ -171,6 +171,9 @@ public class GameOverScene extends Scene {
                 getContext().getSceneManager().pop();
                 break;
             case "Leaderboard":
+                // Replace this scene instead of stacking on top of it to
+                // keep menu/leaderboard navigation deterministic.
+                getContext().getSceneManager().pop();
                 getContext().getSceneManager().push(new LeaderboardScene(getContext(), leaderboard));
                 break;
         }
