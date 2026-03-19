@@ -140,16 +140,16 @@ public class GamePlayScene extends Scene {
     // Buff system — card offered every BUFF_INTERVAL points
     private static final int BUFF_INTERVAL = 200;
     private int        nextBuffScore    = BUFF_INTERVAL;
-    BuffType[]         buffChoices      = new BuffType[3]; // package-private for renderer
-    int                buffHoveredIdx   = 0;               // package-private for renderer
+    private BuffType[]   buffChoices      = new BuffType[3];
+    private int          buffHoveredIdx   = 0;
     private GameState  preBuffState;
 
     // Active buff state
-    boolean  hasShield        = false; // package-private for HUD indicator
+    private boolean      hasShield        = false;
     private float    playerSpeedBonus = 0f;
     private float    buffScoreMulti   = 1f;
     private int      buffScoreItems   = 0;
-    boolean  hasScoreBoost    = false; // package-private for HUD indicator
+    private boolean      hasScoreBoost    = false;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -561,7 +561,7 @@ public class GamePlayScene extends Scene {
     // ── Accessors for renderer / input handler ───────────────────────────────
 
     /** Shared card rectangle used by both input handler and renderer. */
-    Rectangle buffCardRect(int idx, float ww, float wh) {
+    private Rectangle buffCardRect(int idx, float ww, float wh) {
         float cardW   = 200f, cardH = 320f, gap = 30f;
         float totalW  = 3 * cardW + 2 * gap;
         float startX  = ww / 2f - totalW / 2f;
@@ -569,19 +569,18 @@ public class GamePlayScene extends Scene {
         float y       = wh / 2f - cardH / 2f;
         return new Rectangle(x, y, cardW, cardH);
     }
-
-    GameState        getGameState()         { return gameState; }
-    int              getScore()             { return score; }
-    int              getGoodCollected()     { return goodCollected; }
-    int              getTotalGoodCollected(){ return totalGoodCollected; }
-    HealthComponent  getPlayerHealth() { return playerHealth; }
-    Entity           getPlayerEntity() { return playerEntity; }
-    EntityManager    getEntityManager(){ return entityManager; }
-    QuizManager      getQuizManager()  { return quizManager; }
-    float            getTransitionTimer(){ return transitionTimer; }
-    QuizResult       getLastQuizResult(){ return lastQuizResult; }
-    boolean          isLastQuizBad()   { return lastQuizWasBad; }
-    float            getFeedbackTimer() { return feedbackTimer; }
+    private GameState getGameState()         { return gameState; }
+    private int getScore()             { return score; }
+    private int getGoodCollected()     { return goodCollected; }
+    private int getTotalGoodCollected(){ return totalGoodCollected; }
+    private HealthComponent getPlayerHealth() { return playerHealth; }
+    private Entity getPlayerEntity() { return playerEntity; }
+    private EntityManager getEntityManager(){ return entityManager; }
+    private QuizManager getQuizManager()  { return quizManager; }
+    private float getTransitionTimer(){ return transitionTimer; }
+    private QuizResult getLastQuizResult(){ return lastQuizResult; }
+    private boolean isLastQuizBad()   { return lastQuizWasBad; }
+    private float getFeedbackTimer() { return feedbackTimer; }
 
     // =========================================================================
     // Inner - InputHandler
@@ -1055,19 +1054,19 @@ public class GamePlayScene extends Scene {
                 // Draw the card sprite in the top portion
                 float spriteCx = card.x + card.width / 2f;
                 float spriteCy = card.y + textBandH + imgH / 2f;
-                r.drawSprite(buff.cardSprite, new Vector2(spriteCx, spriteCy), card.width, imgH);
+                r.drawSprite(buff.getCardSprite(), new Vector2(spriteCx, spriteCy), card.width, imgH);
 
                 // Dark text band at the bottom
                 r.drawRect(new Rectangle(card.x, card.y, card.width, textBandH),
                     new Color(0.04f, 0.04f, 0.04f, 0.92f), true);
 
                 // Selection glow border (coloured when selected, dim otherwise)
-                Color borderCol = sel ? buff.color : new Color(0.35f, 0.35f, 0.35f, 1f);
+                Color borderCol = sel ? buff.getAccentColor() : new Color(0.35f, 0.35f, 0.35f, 1f);
                 r.drawRect(card, borderCol, false);
                 if (sel) {
                     // Extra inner glow line
                     r.drawRect(new Rectangle(card.x + 2f, card.y + 2f,
-                        card.width - 4f, card.height - 4f), buff.color, false);
+                        card.width - 4f, card.height - 4f), buff.getAccentColor(), false);
                 }
 
                 // Number badge
@@ -1076,12 +1075,12 @@ public class GamePlayScene extends Scene {
                     "default", new Color(0.55f, 0.55f, 0.55f, 1f));
 
                 // Buff name
-                r.drawText(buff.name,
+                r.drawText(buff.getDisplayName(),
                     new Vector2(card.x + 6f, card.y + textBandH - 26f),
-                    "default", sel ? buff.color : Color.WHITE);
+                    "default", sel ? buff.getAccentColor() : Color.WHITE);
 
                 // Description lines
-                String[] lines = buff.desc.split("\n");
+                String[] lines = buff.getDescription().split("\n");
                 for (int l = 0; l < lines.length; l++) {
                     r.drawText(lines[l],
                         new Vector2(card.x + 6f, card.y + textBandH - 50f - l * 22f),
