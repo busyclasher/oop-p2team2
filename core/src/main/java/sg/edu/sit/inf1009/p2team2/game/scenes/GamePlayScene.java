@@ -399,15 +399,7 @@ public class GamePlayScene extends Scene {
             preQuizState = gameState;
             gameState = GameState.QUIZ;
         } else if (gec.isBad()) {
-            if (hasShield) {
-                // Shield absorbs the hit
-                hasShield = false;
-                getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
-            } else {
-                playerHealth.takeDamage();
-                getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
-                checkGameOver();
-            }
+            applyDamageWithDeathDefier();
             toRemove.add(entity);
         } else {
             score += Math.round(gec.getScoreValue() * characterType.getScoreMultiplier());
@@ -433,7 +425,7 @@ public class GamePlayScene extends Scene {
                 // Neutralised — no damage, bonus points
                 score += Math.round(100 * characterType.getScoreMultiplier());
             } else {
-                playerHealth.takeDamage();
+                applyDamageWithDeathDefier();
             }
         } else {
             // Good entity quiz (Gold Envelope)
@@ -501,6 +493,22 @@ public class GamePlayScene extends Scene {
         if (playerHealth.isDead()) {
             goToGameOver();
         }
+    }
+
+    /**
+     * Applies one damage instance and consumes Death Defier only on lethal hits.
+     */
+    private void applyDamageWithDeathDefier() {
+        playerHealth.takeDamage();
+        if (playerHealth.isDead() && hasShield) {
+            playerHealth.gainLife();
+            hasShield = false;
+            getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
+            return;
+        }
+
+        getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
+        checkGameOver();
     }
 
     private void startFrenzyMode() {
@@ -900,7 +908,7 @@ public class GamePlayScene extends Scene {
 
             // Active buff indicators (bottom-right)
             if (scene.hasShield) {
-                r.drawText("[SHIELD]", new Vector2(ww - 150f, 12f),
+                r.drawText("[REVIVE READY]", new Vector2(ww - 230f, 12f),
                     "default", new Color(0.2f, 0.55f, 1f, 1f));
             }
 
