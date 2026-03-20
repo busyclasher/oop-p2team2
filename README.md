@@ -4,7 +4,7 @@ Base package: `sg.edu.sit.inf1009.p2team2`
 
 This repository now contains:
 - a reusable abstract engine (`engine/*`), and
-- the current game implementation for Silicon Sentinel (`game/*`).
+- the current game implementation for CyberScouts (`game/*`).
 
 ## Tools Used
 - Java 17

@@ -129,7 +129,7 @@ public class Audio {
 
     // ── Persistence ──────────────────────────────────────────────────────────
 
-    private static final String SETTINGS_PREFS = "silicon-sentinel-settings";
+    private static final String SETTINGS_PREFS = "cyberscouts-settings";
 
     public void saveSettings() {
         Preferences prefs = Gdx.app.getPreferences(SETTINGS_PREFS);

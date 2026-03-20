@@ -11,19 +11,19 @@ import sg.edu.sit.inf1009.p2team2.game.components.HealthComponent;
 /**
  * Factory that assembles fully-configured {@link Entity} objects for the game.
  *
- * Design pattern: Factory Method — callers request an entity by type and
+ * Design pattern: Factory Method - callers request an entity by type and
  * receive a ready-to-use object without knowing how components are assembled.
  */
 public class EntityFactory {
 
-    /** Pixel size of every falling item (square). */
-    public static final float ENTITY_SIZE   = 44f;
+    /** Default pixel size of falling items (square). */
+    public static final float ENTITY_SIZE = 54f;
     /** Pixel width of the player rectangle. */
-    public static final float PLAYER_WIDTH  = 64f;
+    public static final float PLAYER_WIDTH = 80f;
     /** Pixel height of the player rectangle. */
-    public static final float PLAYER_HEIGHT = 80f;
+    public static final float PLAYER_HEIGHT = 100f;
     /** Starting number of player lives. */
-    public static final int   PLAYER_LIVES  = 3;
+    public static final int PLAYER_LIVES = 3;
 
     private final EntityManager entityManager;
 
@@ -59,9 +59,9 @@ public class EntityFactory {
     /**
      * Creates and registers a falling entity of the given type.
      *
-     * @param type  entity type (must not be PLAYER)
-     * @param x     world-space X spawn position
-     * @param y     world-space Y spawn position
+     * @param type entity type (must not be PLAYER)
+     * @param x world-space X spawn position
+     * @param y world-space Y spawn position
      * @param speed fall speed in pixels per second
      * @return the newly created falling {@link Entity}
      */
@@ -72,9 +72,11 @@ public class EntityFactory {
 
         Entity entity = entityManager.createEntity();
 
+        float size = type.getDisplaySize() > 0f ? type.getDisplaySize() : ENTITY_SIZE;
+
         TransformComponent transform = new TransformComponent();
         transform.setPosition(new Vector2(x, y));
-        transform.setScale(new Vector2(ENTITY_SIZE, ENTITY_SIZE));
+        transform.setScale(new Vector2(size, size));
 
         entity.add(transform);
         entity.add(new FallingComponent(speed));
