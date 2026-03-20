@@ -222,7 +222,7 @@ public class GameOverScene extends Scene {
     private void renderNameEntry(Renderer r, float ww, float wh) {
         float boxW  = 320f, boxH = 52f;
         float boxX  = ww / 2f - boxW / 2f;
-        float boxY  = wh / 2f - 10f;
+        float boxY  = wh / 2f - 70f;
 
         r.drawText("Enter your name:",
             new Vector2(ww / 2f - 100f, boxY + boxH + 24f), "default",

@@ -48,12 +48,14 @@ public class GameMenuScene extends Scene {
     }
 
     // ── Scene lifecycle ─────────────────────────────────────────────────────
-
+    
+    
     @Override
     public void onEnter() {
         selectedIndex    = 0;
         keyboardCooldown = 0;
         buildMenuItems();
+        updateLayout();
     }
 
     @Override

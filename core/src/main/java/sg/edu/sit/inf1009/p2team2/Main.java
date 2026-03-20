@@ -47,9 +47,6 @@ public class Main extends ApplicationAdapter {
             Gdx.graphics.getWidth(),
             Gdx.graphics.getHeight()
         );
-        engine.getInputManager().setMouseCoordinateTransformer((screenX, screenY) ->
-            engine.getOutputManager().getRenderer().screenToWorld(screenX, screenY)
-        );
         
         // 3. Start the engine
         engine.start();

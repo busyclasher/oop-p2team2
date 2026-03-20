@@ -73,6 +73,11 @@ public class EngineContext {
         this.configManager.addObserver(audioConfigListener);
         this.displayConfigListener.applyInitial();
         this.audioConfigListener.applyInitial();
+
+        // Keep mouse hit-testing aligned with the renderer viewport/world projection.
+        this.inputManager.setMouseCoordinateTransformer((screenX, screenY) ->
+            this.outputManager.getRenderer().screenToWorld(screenX, screenY)
+        );
         
         // 4. Scene manager (depends on context)
         this.sceneManager = new SceneManager(this);
