@@ -25,6 +25,11 @@ public class HealthComponent implements ComponentAdapter {
         }
     }
 
+    /** Restores 1 current life, capped at maxLives (does not raise the cap). */
+    public void gainLife() {
+        if (currentLives < maxLives) currentLives++;
+    }
+
     /** Permanently raises the max life cap by 1 and restores 1 current life. */
     public void increaseMaxLives() {
         maxLives++;

@@ -140,13 +140,13 @@ public class GamePlayScene extends Scene {
     // Buff system — card offered every BUFF_INTERVAL points
     private static final int BUFF_INTERVAL = 200;
     private int        nextBuffScore    = BUFF_INTERVAL;
-    BuffType[]         buffChoices      = new BuffType[3]; // package-private for renderer
-    int                buffHoveredIdx   = 0;               // package-private for renderer
+    private BuffType[]   buffChoices      = new BuffType[3];
+    private int          buffHoveredIdx   = 0;
     private GameState  preBuffState;
 
     // Active buff state
-    boolean  hasShield        = false; // package-private for HUD indicator
-    private float    playerSpeedBonus = 0f;
+    private boolean hasShield        = false;
+    private float   playerSpeedBonus = 0f;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -537,19 +537,18 @@ public class GamePlayScene extends Scene {
         float y       = wh / 2f - cardH / 2f;
         return new Rectangle(x, y, cardW, cardH);
     }
-
-    GameState        getGameState()         { return gameState; }
-    int              getScore()             { return score; }
-    int              getGoodCollected()     { return goodCollected; }
-    int              getTotalGoodCollected(){ return totalGoodCollected; }
-    HealthComponent  getPlayerHealth() { return playerHealth; }
-    Entity           getPlayerEntity() { return playerEntity; }
-    EntityManager    getEntityManager(){ return entityManager; }
-    QuizManager      getQuizManager()  { return quizManager; }
-    float            getTransitionTimer(){ return transitionTimer; }
-    QuizResult       getLastQuizResult(){ return lastQuizResult; }
-    boolean          isLastQuizBad()   { return lastQuizWasBad; }
-    float            getFeedbackTimer() { return feedbackTimer; }
+    private GameState getGameState()         { return gameState; }
+    private int getScore()             { return score; }
+    private int getGoodCollected()     { return goodCollected; }
+    private int getTotalGoodCollected(){ return totalGoodCollected; }
+    private HealthComponent getPlayerHealth() { return playerHealth; }
+    private Entity getPlayerEntity() { return playerEntity; }
+    private EntityManager getEntityManager(){ return entityManager; }
+    private QuizManager getQuizManager()  { return quizManager; }
+    private float getTransitionTimer(){ return transitionTimer; }
+    private QuizResult getLastQuizResult(){ return lastQuizResult; }
+    private boolean isLastQuizBad()   { return lastQuizWasBad; }
+    private float getFeedbackTimer() { return feedbackTimer; }
 
     // =========================================================================
     // Inner - InputHandler
@@ -1010,21 +1009,22 @@ public class GamePlayScene extends Scene {
                 boolean   sel  = (i == scene.buffHoveredIdx);
 
                 // Sprite fills the entire card at its natural 832x1295 proportions
-                r.drawSprite(buff.cardSprite,
+                r.drawSprite(buff.getCardSprite(),
                     new Vector2(card.x + card.width / 2f, card.y + card.height / 2f),
                     card.width, card.height);
 
                 // Border — full colour when selected, half-brightness when not
+                Color accent = buff.getAccentColor();
                 float bri = sel ? 1.0f : 0.45f;
                 r.drawRect(card,
-                    new Color(buff.color.r * bri, buff.color.g * bri, buff.color.b * bri, 1f), false);
+                    new Color(accent.r * bri, accent.g * bri, accent.b * bri, 1f), false);
                 if (sel) {
                     r.drawRect(new Rectangle(card.x + 2f, card.y + 2f,
-                        card.width - 4f, card.height - 4f), buff.color, false);
+                        card.width - 4f, card.height - 4f), accent, false);
                 }
             }
 
-            // Footer hint — card bottom at wh/2-194; give 20px gap below
+            // Footer hint
             r.drawText("← → / A D to navigate   1 2 3 or Enter to pick",
                 new Vector2(ww / 2f - 270f, wh / 2f - 220f), "default",
                 new Color(0.50f, 0.50f, 0.50f, 1f));
