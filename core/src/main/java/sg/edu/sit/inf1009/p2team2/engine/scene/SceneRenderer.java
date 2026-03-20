@@ -14,8 +14,8 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
  */
 public abstract class SceneRenderer {
 
-    protected final EngineContext context;
-    protected final List<RenderLayer> renderLayers;
+    private final EngineContext context;
+    private final List<RenderLayer> renderLayers;
     private boolean visible;
 
     public SceneRenderer(EngineContext context) {
@@ -34,6 +34,14 @@ public abstract class SceneRenderer {
             .sorted(Comparator.comparingInt(RenderLayer::getZOrder))
             .filter(RenderLayer::isVisible)
             .forEach(RenderLayer::render);
+    }
+
+    protected final EngineContext getContext() {
+        return context;
+    }
+
+    protected final List<RenderLayer> getRenderLayers() {
+        return renderLayers;
     }
 
     /** Add a layer to this renderer. */

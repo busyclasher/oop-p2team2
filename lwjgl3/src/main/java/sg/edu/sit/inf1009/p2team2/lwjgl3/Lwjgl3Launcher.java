@@ -21,11 +21,12 @@ public class Lwjgl3Launcher {
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("P2Team2AbstractEngine");
-        configuration.setHdpiMode(HdpiMode.Pixels);
+        configuration.setTitle("Silicon Sentinel");
+        configuration.setHdpiMode(HdpiMode.Logical);
         configuration.useVsync(true);
         configuration.setForegroundFPS(Lwjgl3ApplicationConfiguration.getDisplayMode().refreshRate + 1);
-        configuration.setWindowedMode(1280, 720);
+        configuration.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4);
+        configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }

@@ -46,6 +46,8 @@ public class Renderer {
         this.spriteBatch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
         this.defaultFont = new BitmapFont(); // libGDX default font
+        this.defaultFont.getRegion().getTexture().setFilter(
+            Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
         this.spriteCache = new HashMap<>();
         this.viewportWidth = 0;
         this.viewportHeight = 0;
@@ -154,10 +156,27 @@ public class Renderer {
     }
     
     // ===== SPRITE DRAWING =====
-    
+
+    /**
+     * Draw a sprite at an exact pixel size (no rotation, no tint).
+     * The position is the sprite's centre.
+     *
+     * @param spriteId    Path to sprite image
+     * @param position    Centre position in world space
+     * @param targetWidth  Desired width in world units
+     * @param targetHeight Desired height in world units
+     */
+    public void drawSprite(String spriteId, Vector2 position, float targetWidth, float targetHeight) {
+        Texture texture = getOrLoadTexture(spriteId);
+        if (texture == null) return;
+        float sx = targetWidth  / texture.getWidth();
+        float sy = targetHeight / texture.getHeight();
+        drawSprite(spriteId, position, 0f, new Vector2(sx, sy), Color.WHITE);
+    }
+
     /**
      * Draw a sprite (basic version)
-     * 
+     *
      * @param spriteId Path to sprite image (e.g., "player.png")
      * @param position Position to draw at
      * @param rotation Rotation in degrees
@@ -260,6 +279,7 @@ public class Renderer {
         if (!spriteCache.containsKey(spriteId)) {
             try {
                 Texture texture = new Texture(Gdx.files.internal(spriteId));
+                texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                 spriteCache.put(spriteId, texture);
             } catch (Exception e) {
                 Gdx.app.error("Renderer", "Could not load texture: " + spriteId, e);
@@ -305,10 +325,13 @@ public class Renderer {
             spriteBatch.end();
         }
         
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
         shapeRenderer.begin(filled ? ShapeRenderer.ShapeType.Filled : ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(color);
         shapeRenderer.rect(rect.x, rect.y, rect.width, rect.height);
         shapeRenderer.end();
+        Gdx.gl.glDisable(GL20.GL_BLEND);
         
         // Resume sprite batch if it was active
         if (batchWasActive) {

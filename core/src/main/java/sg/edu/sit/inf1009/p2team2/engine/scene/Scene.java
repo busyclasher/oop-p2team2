@@ -10,7 +10,7 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
  * # context: EngineContext
  */
 public abstract class Scene {
-    protected final EngineContext context;
+    private final EngineContext context;
     private InputHandler inputHandler;
     private SceneRenderer sceneRenderer;
     private ResourceLoader resourceLoader;

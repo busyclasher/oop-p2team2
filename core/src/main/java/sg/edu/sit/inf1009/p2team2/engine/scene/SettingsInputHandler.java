@@ -25,7 +25,7 @@ public class SettingsInputHandler extends InputHandler {
             scene.processSettingsInput();
         }
 
-        for (var entry : keyBindings.entrySet()) {
+        for (var entry : getKeyBindings().entrySet()) {
             if (isKeyPressed(entry.getKey())) {
                 entry.getValue().run();
             }
