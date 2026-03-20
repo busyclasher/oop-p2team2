@@ -3,7 +3,7 @@ package sg.edu.sit.inf1009.p2team2.game.entities;
 import com.badlogic.gdx.graphics.Color;
 
 /**
- * Enumerates every falling entity type in Silicon Sentinel.
+ * Enumerates every falling entity type in CyberScouts.
  *
  * Each constant carries its display color, score reward, harm flag,
  * and whether it triggers an MCQ quiz on contact.

@@ -17,7 +17,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 
 /**
- * Silicon Sentinel main menu.
+ * CyberScouts main menu.
  *
  * Menu items: Start Game | Leaderboard | Exit
  * Navigation: Arrow keys / WASD / Mouse hover + click.
@@ -121,7 +121,7 @@ public class GameMenuScene extends Scene {
         float cy = r.getWorldHeight() / 2f;
 
         // Title — kept well above the menu items (first item top ≈ cy+140)
-        r.drawText("SILICON SENTINEL",
+        r.drawText("CYBERSCOUTS",
             new Vector2(cx - 140f, cy + 270f), "default", new Color(0.2f, 0.9f, 0.4f, 1f));
         r.drawText("Protect the Network - Catch Good Data, Neutralize Threats",
             new Vector2(cx - 290f, cy + 230f), "default", new Color(0.75f, 0.75f, 0.75f, 1f));

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Pool of cybersecurity-themed MCQ questions for Silicon Sentinel.
+ * Pool of cybersecurity-themed MCQ questions for CyberScouts.
  *
  * Questions are drawn at random without immediate repetition to keep the
  * educational experience fresh across a play session.

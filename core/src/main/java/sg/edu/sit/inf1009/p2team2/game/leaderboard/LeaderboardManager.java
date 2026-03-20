@@ -14,7 +14,7 @@ import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 public class LeaderboardManager {
 
     private static final int    DEFAULT_MAX_ENTRIES = 10;
-    private static final String PREFS_NAME          = "silicon-sentinel-leaderboard";
+    private static final String PREFS_NAME          = "cyberscouts-leaderboard";
 
     private final List<LeaderboardEntry> entries;
     private final int                    maxEntries;
