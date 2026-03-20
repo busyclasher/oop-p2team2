@@ -64,6 +64,7 @@ public class GamePlayScene extends Scene {
     private static final float SPAWN_Y            = 750f;
     private static final float SPAWN_MARGIN       = 60f;
     private static final float STANDARD_DURATION  = 60f;   // seconds of standard mode
+    private static final int   QUIZ_BONUS_POINTS = 100;
 
     // Difficulty scaling (PLAYING mode only)
     private static final float DIFF_TICK          = 15f;   // seconds between each ramp-up
@@ -184,7 +185,9 @@ public class GamePlayScene extends Scene {
 
     @Override
     public void onEnter() {
-        resetGame();
+        if (playerEntity == null || playerHealth == null) {
+            resetGame();
+        }
         getContext().getOutputManager().getAudio().playMusic(MUSIC_ID, true);
     }
 
@@ -423,7 +426,7 @@ public class GamePlayScene extends Scene {
         if (isBadQuiz) {
             if (result == QuizResult.CORRECT) {
                 // Neutralised — no damage, bonus points
-                score += Math.round(100 * characterType.getScoreMultiplier());
+                score += QUIZ_BONUS_POINTS;
             } else {
                 applyDamageWithDeathDefier();
             }
@@ -431,10 +434,9 @@ public class GamePlayScene extends Scene {
             // Good entity quiz (Gold Envelope)
             if (result == QuizResult.CORRECT) {
                 playerHealth.gainLife();
-                score += Math.round(100 * characterType.getScoreMultiplier());
+                score += QUIZ_BONUS_POINTS;
             }
-            // Wrong answer → no bonus life, but entity still counted as collected
-            score        += triggered.get(GameEntityComponent.class).getScoreValue();
+            // Quiz entity is still collected regardless of answer.
             goodCollected++;
             totalGoodCollected++;
         }
@@ -897,11 +899,11 @@ public class GamePlayScene extends Scene {
                 ? scene.preBuffState : scene.gameState;
             if (displayState == GameState.FRENZY) {
                 int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
-                progressText  = "FRENZY " + secsLeft + "s  TOTAL " + scene.totalGoodCollected;
+                progressText  = "FRENZY " + secsLeft + "s  PTS " + scene.score;
                 progressColor = COL_FRENZY_BANNER;
             } else {
                 int secsLeft = Math.max(0, (int) Math.ceil(scene.getRoundTimer()));
-                progressText  = "TIME " + secsLeft + "s  TOTAL " + scene.totalGoodCollected;
+                progressText  = "TIME " + secsLeft + "s  PTS " + scene.score;
                 progressColor = secsLeft <= 10 ? new Color(1f, 0.3f, 0.3f, 1f) : Color.CYAN;
             }
             r.drawText(progressText, new Vector2(ww - 300f, wh - 14f), "default", progressColor);
@@ -1024,7 +1026,7 @@ public class GamePlayScene extends Scene {
             // Detail line
             String detail;
             if (correct) {
-                int bonus = Math.round(100 * scene.characterType.getScoreMultiplier());
+                int bonus = QUIZ_BONUS_POINTS;
                 detail = wasBad
                     ? "Threat neutralised! +" + bonus + " pts"
                     : "+" + bonus + " pts & +1 Life!";
