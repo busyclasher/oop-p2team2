@@ -40,9 +40,9 @@ import sg.edu.sit.inf1009.p2team2.game.quiz.QuizResult;
  * Entities fall from the top; the player catches good ones and avoids bad ones.
  *
  * Current game flow:
- *   PLAYING: collect good entities, scale difficulty, and trigger buffs by score.
- *   FRENZY: temporary fast phase triggered after a short PLAYING streak.
- *   WIN: reach the total-good target.
+ *   PLAYING: timer-driven survival and score-based buff choices.
+ *   FRENZY: temporary fast phase triggered by catching a frenzy orb.
+ *   WIN: reach timer zero in PLAYING mode.
  *   GAME_OVER: lose all lives.
  *
  * Design patterns used:
@@ -60,12 +60,10 @@ public class GamePlayScene extends Scene {
     private static final String MUSIC_ID          = "game-theme";
     private static final String SFX_COLLECT       = "spawn-marker";
 
-    private static final float WORLD_FLOOR        = 110f;   // y where entities "land"
-
+    private static final float WORLD_FLOOR        = 30f;    // y where entities "land"
     private static final float SPAWN_Y            = 750f;
     private static final float SPAWN_MARGIN       = 60f;
-    private static final int FRENZY_COUNT         = 10;
-    private static final int   GOAL_COUNT         = 100;
+    private static final float STANDARD_DURATION  = 60f;   // seconds of standard mode
 
     // Difficulty scaling (PLAYING mode only)
     private static final float DIFF_TICK          = 15f;   // seconds between each ramp-up
@@ -75,12 +73,13 @@ public class GamePlayScene extends Scene {
     private static final float SPAWN_INTERVAL_MIN = 0.65f; // floor before frenzy
 
     // Frenzy mode
-    private static final float FRENZY_DURATION    = 30f;   // seconds before returning to PLAYING
+    private static final float FRENZY_DURATION    = 8f;    // seconds of frenzy before returning to PLAYING
     private static final float FRENZY_DIFF_TICK   = 6f;    // ramp-up interval inside frenzy
     private static final float FRENZY_FALL_STEP   = 20f;   // px/s added per frenzy tick
     private static final float FRENZY_SPAWN_STEP  = 0.05f; // interval removed per frenzy tick
     private static final float FRENZY_FALL_MAX    = 600f;  // speed cap inside frenzy
     private static final float FRENZY_SPAWN_MIN   = 0.30f; // interval floor inside frenzy
+    private static final float FRENZY_ORB_INTERVAL= 20f;   // seconds between frenzy orb spawns
 
     // Entity type pools per mode
     private static final EntityType[] STANDARD_TYPES = {
@@ -119,8 +118,9 @@ public class GamePlayScene extends Scene {
 
     private GameState gameState;
     private int       score;
-    private int       goodCollected;      // resets each frenzy cycle (frenzy trigger)
-    private int       totalGoodCollected; // running total for WIN condition
+    private int       goodCollected;      // cosmetic counter
+    private int       totalGoodCollected; // running total for stats/display
+    private float     roundTimer;      // counts down in PLAYING mode
     private float     spawnTimer;
     private float     spawnInterval;
     private float     fallSpeed;
@@ -129,6 +129,14 @@ public class GamePlayScene extends Scene {
     private float     frenzyTimer;     // counts down while in FRENZY
     private float     frenzyDiffTimer; // ramp-up timer inside frenzy
     private int       frenzyCount;     // how many frenzy cycles have ended
+    private float     frenzyOrbTimer;  // counts down to next frenzy orb spawn
+    private boolean   frenzyOrbSpawned;
+    private float     preFrenzyFallSpeed;
+    private float     preFrenzySpawnInterval;
+
+    private static final float GRAVITY = -900f;
+    private float     playerVelocityY;
+    private boolean   playerOnGround;
 
     // Quiz feedback
     private QuizResult lastQuizResult;
@@ -233,12 +241,24 @@ public class GamePlayScene extends Scene {
 
     private void updateGameplay(float dt) {
         if (gameState == GameState.PLAYING) {
+            roundTimer -= dt;
+            if (roundTimer <= 0) {
+                roundTimer = 0;
+                gameState  = GameState.WIN;
+                return;
+            }
             // Progressive difficulty ramp in PLAYING mode
             difficultyTimer += dt;
             if (difficultyTimer >= DIFF_TICK) {
                 difficultyTimer -= DIFF_TICK;
                 fallSpeed     = Math.min(fallSpeed     + FALL_SPEED_STEP,    FALL_SPEED_MAX);
                 spawnInterval = Math.max(spawnInterval - SPAWN_INTERVAL_STEP, SPAWN_INTERVAL_MIN);
+            }
+            frenzyOrbTimer -= dt;
+            if (frenzyOrbTimer <= 0 && !frenzyOrbSpawned) {
+                spawnFrenzyOrb();
+                frenzyOrbSpawned = true;
+                frenzyOrbTimer   = FRENZY_ORB_INTERVAL;
             }
         } else if (gameState == GameState.FRENZY) {
             // Ramp up inside frenzy every FRENZY_DIFF_TICK seconds
@@ -278,7 +298,12 @@ public class GamePlayScene extends Scene {
             tf.getPosition().y -= fall.getSpeed() * dt;
 
             // Off screen below → remove quietly
-            if (tf.getPosition().y + EntityFactory.ENTITY_SIZE < 0) {
+            if (tf.getPosition().y + tf.getScale().y < 0) {
+                GameEntityComponent gec = entity.get(GameEntityComponent.class);
+                if (gec != null && gec.getEntityType() == EntityType.FRENZY_ORB) {
+                    frenzyOrbSpawned = false;
+                    frenzyOrbTimer = FRENZY_ORB_INTERVAL;
+                }
                 toRemove.add(entity);
                 continue;
             }
@@ -306,6 +331,24 @@ public class GamePlayScene extends Scene {
         float half = EntityFactory.PLAYER_WIDTH / 2f;
         newX = Math.max(half, Math.min(r.getWorldWidth() - half, newX));
         tf.getPosition().x = newX;
+
+        if (playerOnGround && (kb.isKeyPressed(Input.Keys.SPACE)
+                || kb.isKeyPressed(Input.Keys.W)
+                || kb.isKeyPressed(Input.Keys.UP))) {
+            playerVelocityY = characterType.getJumpStrength();
+            playerOnGround  = false;
+        }
+
+        if (!playerOnGround) {
+            playerVelocityY += GRAVITY * dt;
+            float newY = tf.getPosition().y + playerVelocityY * dt;
+            if (newY <= WORLD_FLOOR) {
+                newY            = WORLD_FLOOR;
+                playerVelocityY = 0;
+                playerOnGround  = true;
+            }
+            tf.getPosition().y = newY;
+        }
     }
 
     private void spawnRandomEntity() {
@@ -315,7 +358,9 @@ public class GamePlayScene extends Scene {
         Renderer r  = getContext().getOutputManager().getRenderer();
         float spawnX = SPAWN_MARGIN + random.nextFloat() * (r.getWorldWidth() - SPAWN_MARGIN * 2);
 
-        entityFactory.createFallingEntity(type, spawnX, SPAWN_Y, fallSpeed);
+        float speed = fallSpeed * type.getSpeedMultiplier();
+        speed *= 0.9f + random.nextFloat() * 0.2f;
+        entityFactory.createFallingEntity(type, spawnX, SPAWN_Y, speed);
     }
 
     private boolean overlapsPlayer(Entity entity) {
@@ -324,15 +369,16 @@ public class GamePlayScene extends Scene {
 
         float pw = EntityFactory.PLAYER_WIDTH;
         float ph = EntityFactory.PLAYER_HEIGHT;
-        float ew = EntityFactory.ENTITY_SIZE;
+        float ew = entTf.getScale().x;
+        float eh = entTf.getScale().y;
 
         float px = playerTf.getPosition().x - pw / 2;
         float py = playerTf.getPosition().y;
         float ex = entTf.getPosition().x  - ew / 2;
-        float ey = entTf.getPosition().y  - ew / 2;
+        float ey = entTf.getPosition().y  - eh / 2;
 
         return px < ex + ew && px + pw > ex
-            && py < ey + ew && py + ph > ey;
+            && py < ey + eh && py + ph > ey;
     }
 
     private void handleCollision(Entity entity, List<Entity> toRemove) {
@@ -340,7 +386,13 @@ public class GamePlayScene extends Scene {
         if (gec == null || gec.isCollected()) return;
         gec.markCollected();
 
-        if (gec.isQuizTrigger()) {
+        if (gec.getEntityType() == EntityType.FRENZY_ORB) {
+            getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
+            toRemove.add(entity);
+            frenzyOrbSpawned = false;
+            gameState        = GameState.TRANSITION_TO_FRENZY;
+            transitionTimer  = 3f;
+        } else if (gec.isQuizTrigger()) {
             // Freeze game and show quiz overlay
             entity.get(FallingComponent.class).deactivate();
             quizManager.triggerQuiz(entity);
@@ -403,7 +455,7 @@ public class GamePlayScene extends Scene {
         } else {
             // Restore pre-quiz play state so checkGoal() can evaluate correctly
             gameState = preQuizState;
-            if (!isBadQuiz) checkGoal(); // may update gameState to WIN or TRANSITION_TO_FRENZY
+            if (!isBadQuiz) checkGoal(); // may update gameState to buff selection
             postFeedbackState = gameState;
         }
 
@@ -416,21 +468,8 @@ public class GamePlayScene extends Scene {
     // ── Goal/death checks ────────────────────────────────────────────────────
 
     private void checkGoal() {
-        // Overall win condition — 100 total good items across both modes
-        if (totalGoodCollected >= GOAL_COUNT) {
-            gameState = GameState.WIN;
-            return;
-        }
-        // Buff card threshold — offer every BUFF_INTERVAL points
         if (score >= nextBuffScore && gameState != GameState.BUFF_SELECT) {
             triggerBuffSelect();
-            return; // frenzy check deferred; applyBuff() calls checkGoal() again
-        }
-        // Frenzy trigger — 10 items in the current PLAYING cycle
-        if (gameState == GameState.PLAYING && goodCollected >= FRENZY_COUNT) {
-            gameState       = GameState.TRANSITION_TO_FRENZY;
-            transitionTimer = 3f;
-            goodCollected   = 0;
         }
     }
 
@@ -438,7 +477,6 @@ public class GamePlayScene extends Scene {
         nextBuffScore += BUFF_INTERVAL;
         // Always present all three cards, one per card image
         buffChoices    = new BuffType[]{ BuffType.EXTRA_LIFE, BuffType.SPEED_SURGE, BuffType.SHIELD };
-        buffHoveredIdx = 0;
         preBuffState   = gameState;
         gameState      = GameState.BUFF_SELECT;
     }
@@ -466,6 +504,8 @@ public class GamePlayScene extends Scene {
     }
 
     private void startFrenzyMode() {
+        preFrenzyFallSpeed     = fallSpeed;
+        preFrenzySpawnInterval = spawnInterval;
         gameState       = GameState.FRENZY;
         fallSpeed       = 320f;
         spawnInterval   = 0.7f;
@@ -478,16 +518,24 @@ public class GamePlayScene extends Scene {
 
     private void endFrenzyMode() {
         frenzyCount++;
-        // Each completed frenzy cycle permanently raises the PLAYING base difficulty
-        int bonusTicks = frenzyCount * 5;
-        fallSpeed     = Math.min(200f + bonusTicks * FALL_SPEED_STEP,    450f);
-        spawnInterval = Math.max(1.4f - bonusTicks * SPAWN_INTERVAL_STEP, 0.45f);
+        // Restore pre-frenzy pacing for timer-based gameplay.
+        fallSpeed       = preFrenzyFallSpeed > 0f ? preFrenzyFallSpeed : 200f;
+        spawnInterval   = preFrenzySpawnInterval > 0f ? preFrenzySpawnInterval : 1.4f;
         spawnTimer      = spawnInterval;
         difficultyTimer = 0;
         goodCollected   = 0;
+        frenzyOrbSpawned = false;
+        frenzyOrbTimer   = FRENZY_ORB_INTERVAL;
         gameState       = GameState.PLAYING;
         entityManager.clear();
         entityManager.addEntity(playerEntity);
+    }
+
+    private void spawnFrenzyOrb() {
+        Renderer r  = getContext().getOutputManager().getRenderer();
+        float spawnX = SPAWN_MARGIN + random.nextFloat() * (r.getWorldWidth() - SPAWN_MARGIN * 2);
+        float speed  = fallSpeed * EntityType.FRENZY_ORB.getSpeedMultiplier();
+        entityFactory.createFallingEntity(EntityType.FRENZY_ORB, spawnX, SPAWN_Y, speed);
     }
 
     // ── Transition to next scene ─────────────────────────────────────────────
@@ -513,15 +561,24 @@ public class GamePlayScene extends Scene {
         fallSpeed       = 200f;
         spawnInterval   = 1.4f;
         spawnTimer      = spawnInterval;
+        roundTimer      = STANDARD_DURATION;
         transitionTimer = 0;
         difficultyTimer = 0;
         frenzyTimer     = 0;
         frenzyDiffTimer = 0;
         frenzyCount     = 0;
+        frenzyOrbTimer  = FRENZY_ORB_INTERVAL;
+        frenzyOrbSpawned = false;
+        preFrenzyFallSpeed     = 0;
+        preFrenzySpawnInterval = 0;
+
+        playerVelocityY = 0;
+        playerOnGround  = true;
         // Buff state
         nextBuffScore    = BUFF_INTERVAL;
         hasShield        = false;
         playerSpeedBonus = 0f;
+
         Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
@@ -541,6 +598,7 @@ public class GamePlayScene extends Scene {
     private GameState getGameState()         { return gameState; }
     private int getScore()             { return score; }
     private int getGoodCollected()     { return goodCollected; }
+    private float getRoundTimer()      { return roundTimer; }
     private int getTotalGoodCollected(){ return totalGoodCollected; }
     private HealthComponent getPlayerHealth() { return playerHealth; }
     private Entity getPlayerEntity() { return playerEntity; }
@@ -565,7 +623,7 @@ public class GamePlayScene extends Scene {
 
         @Override
         public void handleInput() {
-            Keyboard kb = getContext().getInputManager().getKeyboard();
+            Keyboard kb = scene.getContext().getInputManager().getKeyboard();
 
             switch (scene.gameState) {
                 case PLAYING:
@@ -696,7 +754,7 @@ public class GamePlayScene extends Scene {
 
         @Override
         public void render() {
-            Renderer r = getContext().getOutputManager().getRenderer();
+            Renderer r = scene.getContext().getOutputManager().getRenderer();
             r.clear();
             r.begin();
 
@@ -762,7 +820,8 @@ public class GamePlayScene extends Scene {
                     h = EntityFactory.PLAYER_HEIGHT;
                     drawPlayer(r, tf.getPosition(), w, h, color);
                 } else {
-                    w = h = EntityFactory.ENTITY_SIZE;
+                    w = tf.getScale().x;
+                    h = tf.getScale().y;
                     drawFallingEntity(r, tf.getPosition(), w, h, gec.getEntityType(), color);
                 }
             }
@@ -784,6 +843,14 @@ public class GamePlayScene extends Scene {
                 case MALWARE_SWARM:   r.drawSprite("virus.png",              pos, w, h); break;
                 case ROOTKIT:         r.drawSprite("old-pc.png",             pos, w, h); break;
                 case SPYWARE:         r.drawSprite("magnifiying-glass.png",  pos, w, h); break;
+                case FRENZY_ORB: {
+                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2f,
+                        new Color(0.90f, 0.20f, 0.95f, 0.7f), true);
+                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2.5f,
+                        new Color(1f, 0.5f, 1f, 0.9f), true);
+                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2f, Color.WHITE, false);
+                    break;
+                }
                 default: {
                     float x = pos.x - w / 2, y = pos.y - h / 2;
                     r.drawRect(new Rectangle(x, y, w, h), color, true);
@@ -815,21 +882,21 @@ public class GamePlayScene extends Scene {
             r.drawText("SCORE: " + scene.score,
                 new Vector2(ww / 2f - 70f, wh - 14f), "default", Color.WHITE);
 
-            // Progress / frenzy countdown
+            // Timer / mode display
             String progressText;
             Color  progressColor;
             GameState displayState = (scene.gameState == GameState.BUFF_SELECT)
                 ? scene.preBuffState : scene.gameState;
             if (displayState == GameState.FRENZY) {
                 int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
-                progressText  = "FRENZY " + secsLeft + "s  TOTAL " + scene.totalGoodCollected + "/" + GOAL_COUNT;
+                progressText  = "FRENZY " + secsLeft + "s  TOTAL " + scene.totalGoodCollected;
                 progressColor = COL_FRENZY_BANNER;
             } else {
-                progressText  = "NEXT " + scene.goodCollected + "/" + FRENZY_COUNT
-                              + "  TOTAL " + scene.totalGoodCollected + "/" + GOAL_COUNT;
-                progressColor = Color.CYAN;
+                int secsLeft = Math.max(0, (int) Math.ceil(scene.getRoundTimer()));
+                progressText  = "TIME " + secsLeft + "s  TOTAL " + scene.totalGoodCollected;
+                progressColor = secsLeft <= 10 ? new Color(1f, 0.3f, 0.3f, 1f) : Color.CYAN;
             }
-            r.drawText(progressText, new Vector2(ww - 360f, wh - 14f), "default", progressColor);
+            r.drawText(progressText, new Vector2(ww - 300f, wh - 14f), "default", progressColor);
 
             // Active buff indicators (bottom-right)
             if (scene.hasShield) {
@@ -838,7 +905,7 @@ public class GamePlayScene extends Scene {
             }
 
             // Controls hint
-            r.drawText("A or D to Move   ESC Quit",
+            r.drawText("A/D Move  |  SPACE Jump  |  ESC Quit",
                 new Vector2(20f, 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
         }
 
