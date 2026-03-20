@@ -34,21 +34,22 @@ import sg.edu.sit.inf1009.p2team2.game.quiz.QuizBank;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizResult;
 
 /**
- * Silicon Sentinel — main gameplay scene.
+ * Main gameplay scene.
  *
- * The T-Rex (player) moves left/right at the bottom of the screen.
+ * The player moves left/right near the bottom of the screen.
  * Entities fall from the top; the player catches good ones and avoids bad ones.
  *
- * Game flow:
- *   Standard mode  → collect 100 good entities  → Frenzy mode
- *   Frenzy mode    → collect 100 good entities  → Win → LeaderboardScene
- *   0 lives         → GameOverScene
+ * Current game flow:
+ *   PLAYING: collect good entities, scale difficulty, and trigger buffs by score.
+ *   FRENZY: temporary fast phase triggered after a short PLAYING streak.
+ *   WIN: reach the total-good target.
+ *   GAME_OVER: lose all lives.
  *
  * Design patterns used:
- *   Factory  – EntityFactory creates entities by type.
- *   Strategy – InputHandler / SceneRenderer per-scene strategy.
- *   State    – GameState enum drives update/render branching.
- *   Observer – QuizManager decouples quiz triggers from gameplay state.
+ *   Factory  - EntityFactory creates entities by type.
+ *   Strategy - InputHandler / SceneRenderer per-scene strategy.
+ *   State    - GameState enum drives update/render branching.
+ *   Observer - QuizManager decouples quiz triggers from gameplay state.
  */
 public class GamePlayScene extends Scene {
 
@@ -529,7 +530,7 @@ public class GamePlayScene extends Scene {
     // ── Accessors for renderer / input handler ───────────────────────────────
 
     /** Shared card rectangle used by both input handler and renderer. */
-    Rectangle buffCardRect(int idx, float ww, float wh) {
+    private Rectangle buffCardRect(int idx, float ww, float wh) {
         float cardW   = 250f, cardH = 389f, gap = 40f;
         float totalW  = 3 * cardW + 2 * gap;
         float startX  = ww / 2f - totalW / 2f;
