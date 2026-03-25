@@ -11,6 +11,8 @@ public final class GameAudio {
     public static final String UI_CLICK_SOUND_PATH = "audio/ui-click.wav";
     public static final String JUMP_SOUND_ID = "jump";
     public static final String JUMP_SOUND_PATH = "audio/jump.wav";
+    public static final String LOSE_LIFE_SOUND_ID = "lose-life";
+    public static final String LOSE_LIFE_SOUND_PATH = "audio/lose-life.wav";
     public static final String GAME_OVER_SOUND_ID = "game-over";
     public static final String GAME_OVER_SOUND_PATH = "audio/game-over.wav";
     public static final String GAME_COMPLETE_SOUND_ID = "game-complete";
@@ -25,6 +27,7 @@ public final class GameAudio {
         }
         audio.loadSound(UI_CLICK_SOUND_PATH, UI_CLICK_SOUND_ID);
         audio.loadSound(JUMP_SOUND_PATH, JUMP_SOUND_ID);
+        audio.loadSound(LOSE_LIFE_SOUND_PATH, LOSE_LIFE_SOUND_ID);
         audio.loadSound(GAME_OVER_SOUND_PATH, GAME_OVER_SOUND_ID);
         audio.loadSound(GAME_COMPLETE_SOUND_PATH, GAME_COMPLETE_SOUND_ID);
     }
@@ -36,6 +39,10 @@ public final class GameAudio {
     public static void playJump(EngineContext context) {
         // Keep jump prominent enough to cut through the background music mix.
         play(context, JUMP_SOUND_ID, 1.0f);
+    }
+
+    public static void playLoseLife(EngineContext context) {
+        play(context, LOSE_LIFE_SOUND_ID, 0.9f);
     }
 
     public static void playGameOver(EngineContext context) {

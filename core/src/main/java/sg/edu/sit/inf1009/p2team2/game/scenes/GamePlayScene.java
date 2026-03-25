@@ -528,14 +528,16 @@ public class GamePlayScene extends Scene {
     private void applyDamageWithDeathDefier() {
         playerHealth.takeDamage();
         if (playerHealth.isDead() && hasShield) {
+            GameAudio.playLoseLife(getContext());
             playerHealth.gainLife();
             hasShield = false;
             triggerReviveBanner();
-            getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
             return;
         }
 
-        getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 0.5f);
+        if (!playerHealth.isDead()) {
+            GameAudio.playLoseLife(getContext());
+        }
         checkGameOver();
     }
 
@@ -949,7 +951,7 @@ public class GamePlayScene extends Scene {
             for (int i = 0; i < maxL; i++) {
                 Color c = (i < lives) ? COL_HEART : COL_HEART_EMPTY;
                 float hx = 20f + i * 36f;
-                float hy = wh - 44f;
+                float hy = wh - 40f;
                 drawHeart(r, hx, hy, c);
             }
 
@@ -986,14 +988,14 @@ public class GamePlayScene extends Scene {
             float iconDiameter = 28f;
             float gap = 10f;
             float progressX = ww - textWidth - iconDiameter - gap - 24f;
-            Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 18f);
+            Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 21f);
             Color iconAccent = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
             Color iconFrame = dangerFlash && flashOn
                 ? new Color(1f, 0.92f, 0.92f, 1f)
                 : GameUiTheme.TEXT_PRIMARY;
 
             drawTimerIcon(r, iconCenter, iconFrame, iconAccent, dangerFlash);
-            r.drawText(progressText, new Vector2(progressX + iconDiameter + gap, wh - 14f),
+            r.drawText(progressText, new Vector2(progressX + iconDiameter + gap, wh - 18f),
                 GameUiTheme.FONT_BODY, progressColor);
 
             // Active buff indicators (bottom-right)
@@ -1004,7 +1006,7 @@ public class GamePlayScene extends Scene {
 
             // Controls hint
             r.drawText("A/D Move  |  SPACE Jump  |  ESC Quit",
-                new Vector2(20f, 12f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
+                new Vector2(20f, 18f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
         }
 
         private void drawReviveBanner(Renderer r) {
