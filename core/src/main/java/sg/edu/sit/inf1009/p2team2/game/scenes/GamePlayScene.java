@@ -78,7 +78,7 @@ public class GamePlayScene extends Scene {
     private static final float SPAWN_INTERVAL_MIN = 0.65f; // floor before frenzy
 
     // Frenzy mode
-    private static final float FRENZY_DURATION    = 8f;    // seconds of frenzy before returning to PLAYING
+    private static final float FRENZY_DURATION    = 15f;   // seconds of frenzy before returning to PLAYING
     private static final float FRENZY_DIFF_TICK   = 6f;    // ramp-up interval inside frenzy
     private static final float FRENZY_FALL_STEP   = 20f;   // px/s added per frenzy tick
     private static final float FRENZY_SPAWN_STEP  = 0.05f; // interval removed per frenzy tick
@@ -952,8 +952,13 @@ public class GamePlayScene extends Scene {
             // Timer / mode display
             String progressText;
             Color  progressColor;
-            GameState displayState = (scene.gameState == GameState.BUFF_SELECT)
-                ? scene.preBuffState : scene.gameState;
+            GameState displayState = (scene.gameState == GameState.QUIZ)
+                ? scene.preQuizState
+                : (scene.gameState == GameState.QUIZ_FEEDBACK)
+                    ? scene.postFeedbackState
+                    : (scene.gameState == GameState.BUFF_SELECT)
+                        ? scene.preBuffState
+                        : scene.gameState;
             if (displayState == GameState.FRENZY) {
                 int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
                 progressText  = "FRENZY " + secsLeft + "s  PTS " + scene.score;
