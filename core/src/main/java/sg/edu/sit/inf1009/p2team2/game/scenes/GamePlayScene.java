@@ -58,7 +58,8 @@ public class GamePlayScene extends Scene {
     private static final String BACKGROUND_NORMAL     = "game-scene.png";
     private static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
     private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
-    private static final String MUSIC_ID          = "game-theme";
+    private static final String GAMEPLAY_MUSIC_ID = "game-theme";
+    private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
 
     private static final float WORLD_FLOOR        = 30f;    // y where entities "land"
@@ -196,7 +197,7 @@ public class GamePlayScene extends Scene {
         if (playerEntity == null || playerHealth == null) {
             resetGame();
         }
-        getContext().getOutputManager().getAudio().playMusic(MUSIC_ID, true);
+        playCurrentSceneMusic();
     }
 
     @Override
@@ -206,12 +207,19 @@ public class GamePlayScene extends Scene {
 
     private void loadResources() {
         Audio audio = getContext().getOutputManager().getAudio();
-        audio.loadMusic("audio/nightstarsmix.ogg", MUSIC_ID);
+        audio.loadMusic("audio/cyberscouts-theme.ogg", GAMEPLAY_MUSIC_ID);
+        audio.loadMusic("audio/cyberscouts-frenzy.ogg", FRENZY_MUSIC_ID);
         audio.loadSound("audio/spawn_click.wav", SFX_COLLECT);
     }
 
     private void unloadResources() {
         entityManager.clear();
+    }
+
+    private void playCurrentSceneMusic() {
+        Audio audio = getContext().getOutputManager().getAudio();
+        String musicId = (gameState == GameState.FRENZY) ? FRENZY_MUSIC_ID : GAMEPLAY_MUSIC_ID;
+        audio.playMusic(musicId, true);
     }
 
     // ── Update ───────────────────────────────────────────────────────────────
@@ -531,6 +539,7 @@ public class GamePlayScene extends Scene {
         preFrenzyFallSpeed     = fallSpeed;
         preFrenzySpawnInterval = spawnInterval;
         gameState       = GameState.FRENZY;
+        playCurrentSceneMusic();
         fallSpeed       = 320f;
         spawnInterval   = 0.7f;
         spawnTimer      = spawnInterval;
@@ -551,6 +560,7 @@ public class GamePlayScene extends Scene {
         frenzyOrbSpawned = false;
         frenzyOrbTimer   = FRENZY_ORB_INTERVAL;
         gameState       = GameState.PLAYING;
+        playCurrentSceneMusic();
         entityManager.clear();
         entityManager.addEntity(playerEntity);
     }
