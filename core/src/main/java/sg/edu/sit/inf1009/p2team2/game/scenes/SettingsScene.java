@@ -223,10 +223,18 @@ public class SettingsScene extends Scene {
         return cy + 160f - row * ROW_SPACING;
     }
 
+    private float volumeLabelBaseline(int row, Renderer r) {
+        return sliderY(r, row) + 44f;
+    }
+
+    private float optionLabelBaseline(int row, Renderer r) {
+        return sliderY(r, row) + 52f;
+    }
+
     private Rectangle optionRect(Renderer r, int row) {
         float sx = sliderX(r);
         float sy = sliderY(r, row);
-        return new Rectangle(sx, sy - 22f, SLIDER_W, 44f);
+        return new Rectangle(sx, sy - 24f, SLIDER_W, 48f);
     }
 
     private Rectangle dropdownOptionRect(Renderer r, int index) {
@@ -414,18 +422,19 @@ public class SettingsScene extends Scene {
 
         for (int i = 0; i < LABELS.length; i++) {
             float sy   = sliderY(r, i);
+            float labelY = volumeLabelBaseline(i, r);
             boolean sel = (i == selectedRow);
 
             Color labelColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
 
             // Volume icon — mute when at 0, speaker otherwise
             String icon = (vols[i] <= 0f) ? "volume-mute.png" : "volume-on.png";
-            r.drawSprite(icon, new Vector2(sx - 26f, sy + 16f), 32f, 32f);
+            r.drawSprite(icon, new Vector2(sx - 26f, labelY - 10f), 30f, 30f);
 
             // Label + percentage
             int pct = Math.round(vols[i] * 100f);
             r.drawText(LABELS[i] + "   " + pct + "%",
-                new Vector2(sx, sy + 28f), GameUiTheme.FONT_BODY_LARGE, labelColor);
+                new Vector2(sx, labelY), GameUiTheme.FONT_BODY_LARGE, labelColor);
 
             // Track (background bar)
             r.drawRect(new Rectangle(sx, sy - SLIDER_H / 2f, SLIDER_W, SLIDER_H),
@@ -467,10 +476,11 @@ public class SettingsScene extends Scene {
     private void drawOptionRow(Renderer r, int row, String label, String value, Color valueColor, boolean toggleStyle) {
         float sx = sliderX(r);
         float sy = sliderY(r, row);
+        float labelY = optionLabelBaseline(row, r);
         boolean selected = (row == selectedRow);
         Rectangle rect = optionRect(r, row);
 
-        r.drawText(label, new Vector2(sx, sy + 28f), GameUiTheme.FONT_BODY_LARGE,
+        r.drawText(label, new Vector2(sx, labelY), GameUiTheme.FONT_BODY_LARGE,
             selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         r.drawRect(rect, new Color(0.12f, 0.12f, 0.12f, 0.9f), true);
         r.drawRect(rect, selected ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);

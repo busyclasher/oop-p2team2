@@ -23,7 +23,7 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
  */
 public class StartGamePromptScene extends Scene {
 
-    private static final float BTN_W = 300f, BTN_H = 58f, BTN_GAP = 20f;
+    private static final float BTN_W = 420f, BTN_H = 58f, BTN_GAP = 20f;
     private static final int   COOLDOWN_FRAMES = 10;
 
     private final LeaderboardManager leaderboard;
@@ -145,7 +145,7 @@ public class StartGamePromptScene extends Scene {
                 new Color(0f, 0f, 0f, 0.70f), true);
 
             // Card
-            float cw = 440f, ch = 320f;
+            float cw = 560f, ch = 320f;
             float cardX = cx - cw / 2f, cardY = cy - ch / 2f;
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
                 new Color(0.06f, 0.10f, 0.06f, 0.95f), true);
@@ -180,9 +180,12 @@ public class StartGamePromptScene extends Scene {
             Color bg     = active ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
                                   : new Color(0.10f, 0.10f, 0.10f, 0.70f);
             Color border = active ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
+            String font = r.measureTextWidth(label, GameUiTheme.FONT_BODY_LARGE) > box.width - 48f
+                ? GameUiTheme.FONT_BODY
+                : GameUiTheme.FONT_BODY_LARGE;
             r.drawRect(box, bg, true);
             r.drawRect(box, border, false);
-            r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE,
+            r.drawTextCentered(label, box, font,
                 active ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         }
     }

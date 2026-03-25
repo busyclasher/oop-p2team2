@@ -116,21 +116,28 @@ public class LeaderboardScene extends Scene {
             GameUiTheme.TEXT_MUTED);
 
         // Column headers
-        float tableX = ww / 2f - 220f;
-        float headerY = wh - 160f;
-        r.drawText("#",     new Vector2(tableX,        headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
-        r.drawText("Name",  new Vector2(tableX + 50f,  headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
-        r.drawText("Score", new Vector2(tableX + 300f, headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+        float tableWidth = 540f;
+        float tableX = ww / 2f - tableWidth / 2f;
+        float rankX = tableX + 20f;
+        float nameX = tableX + 120f;
+        float scoreX = tableX + 420f;
+        float headerY = wh - 170f;
+        float separatorY = headerY - 22f;
+        float firstRowY = separatorY - 28f;
 
-        r.drawLine(new Vector2(tableX - 10f, headerY - 10f),
-            new Vector2(tableX + 440f, headerY - 10f),
-            new Color(0.5f, 0.5f, 0.5f, 1f), 1f);
+        r.drawText("#",     new Vector2(rankX,  headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+        r.drawText("Name",  new Vector2(nameX,  headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+        r.drawText("Score", new Vector2(scoreX, headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+
+        r.drawLine(new Vector2(tableX, separatorY),
+            new Vector2(tableX + tableWidth, separatorY),
+            new Color(0.5f, 0.5f, 0.5f, 1f), 1.5f);
 
         // Rows
         List<LeaderboardEntry> entries = leaderboard.getEntries();
         for (int i = 0; i < entries.size(); i++) {
             LeaderboardEntry e  = entries.get(i);
-            float ry = headerY - 30f - i * 42f;
+            float ry = firstRowY - i * 38f;
 
             Color rowColor;
             if (i == 0)      rowColor = new Color(1f, 0.84f, 0f, 1f);
@@ -138,9 +145,9 @@ public class LeaderboardScene extends Scene {
             else if (i == 2) rowColor = new Color(0.8f, 0.5f, 0.2f, 1f);
             else             rowColor = Color.WHITE;
 
-            r.drawText(String.valueOf(i + 1), new Vector2(tableX, ry), GameUiTheme.FONT_BODY, rowColor);
-            r.drawText(e.getPlayerName(), new Vector2(tableX + 50f, ry), GameUiTheme.FONT_BODY, rowColor);
-            r.drawText(String.valueOf(e.getScore()), new Vector2(tableX + 300f, ry), GameUiTheme.FONT_BODY, rowColor);
+            r.drawText(String.valueOf(i + 1), new Vector2(rankX, ry), GameUiTheme.FONT_BODY, rowColor);
+            r.drawText(e.getPlayerName(), new Vector2(nameX, ry), GameUiTheme.FONT_BODY, rowColor);
+            r.drawText(String.valueOf(e.getScore()), new Vector2(scoreX, ry), GameUiTheme.FONT_BODY, rowColor);
         }
 
         if (entries.isEmpty()) {

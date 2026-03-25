@@ -22,6 +22,8 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 public class HowToPlayScene extends Scene {
 
     private static final float BTN_W = 160f, BTN_H = 46f;
+    private static final Color PANEL_FILL = new Color(0.05f, 0.08f, 0.12f, 0.78f);
+    private static final Color PANEL_BORDER = new Color(0.33f, 0.80f, 0.92f, 0.75f);
     private boolean backHovered = false;
 
     public HowToPlayScene(EngineContext context) {
@@ -79,71 +81,67 @@ public class HowToPlayScene extends Scene {
         r.drawTextCentered("HOW TO PLAY",
             new Vector2(ww / 2f, wh - 58f), GameUiTheme.FONT_TITLE_SMALL,
             GameUiTheme.TITLE_PRIMARY);
+        r.drawTextCentered("Catch the right tech, dodge the threats, and survive the countdown.",
+            new Vector2(ww / 2f, wh - 96f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_MUTED);
 
-        float col1 = 60f;
-        float col2 = ww / 2f + 20f;
-        float y    = wh - 110f;
-        float gap  = 26f;
+        float margin = 52f;
+        float panelGap = 28f;
+        float panelY = 88f;
+        float panelTop = wh - 128f;
+        float panelW = (ww - margin * 2f - panelGap) / 2f;
+        float panelH = panelTop - panelY;
+        Rectangle leftPanel = new Rectangle(margin, panelY, panelW, panelH);
+        Rectangle rightPanel = new Rectangle(margin + panelW + panelGap, panelY, panelW, panelH);
 
-        // ── Objective ────────────────────────────────────────────────────────
-        r.drawText("OBJECTIVE", new Vector2(col1, y), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
-        y -= gap;
-        r.drawText("Catch good data, avoid cyber threats.", new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
-        y -= gap;
-        r.drawText("Catch a Frenzy Orb to trigger Frenzy Mode.", new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
-        y -= gap;
-        r.drawText("Survive until the timer reaches 0 to win.", new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
-        y -= gap * 1.5f;
+        drawPanel(r, leftPanel);
+        drawPanel(r, rightPanel);
 
-        // ── Controls ─────────────────────────────────────────────────────────
-        r.drawText("CONTROLS", new Vector2(col1, y), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
-        y -= gap;
-        r.drawText("A / Left Arrow    Move left",  new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y -= gap;
-        r.drawText("D / Right Arrow   Move right", new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y -= gap;
-        r.drawText("SPACE / W / UP    Jump",       new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y -= gap;
-        r.drawText("ESC               Pause menu", new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y -= gap;
-        r.drawText("1 / 2 / 3 / 4     Answer quiz", new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
-        y -= gap * 1.5f;
+        float leftX = leftPanel.x + 24f;
+        float leftY = leftPanel.y + leftPanel.height - 22f;
+        leftY = drawSectionHeader(r, "OBJECTIVE", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
+        leftY = drawInfoLine(r, "Catch good data, avoid cyber threats.", leftX, leftY);
+        leftY = drawInfoLine(r, "Catch a Frenzy Orb to trigger Frenzy Mode.", leftX, leftY);
+        leftY = drawInfoLine(r, "Survive until the timer reaches 0 to win.", leftX, leftY - 4f);
 
-        // ── Good Entities ─────────────────────────────────────────────────────
-        r.drawText("GOOD ENTITIES  (catch these!)", new Vector2(col1, y), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_SUCCESS);
-        y -= gap;
-        r.drawText("Laptop       +5 pts",  new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, new Color(0.52f, 0.84f, 1.0f, 1f)); y -= gap;
-        r.drawText("Shield       +5 pts",  new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, new Color(0.45f, 1.0f, 0.65f, 1f)); y -= gap;
-        r.drawText("Phone        +10 pts  (triggers quiz - correct = +100 pts & +1 Life)",
-            new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_HIGHLIGHT);
-        y -= gap * 1.5f;
+        leftY -= 12f;
+        leftY = drawSectionHeader(r, "CONTROLS", leftX, leftY, GameUiTheme.TEXT_INFO);
+        leftY = drawInfoLine(r, "A / Left Arrow    Move left", leftX, leftY);
+        leftY = drawInfoLine(r, "D / Right Arrow   Move right", leftX, leftY);
+        leftY = drawInfoLine(r, "SPACE / W / UP    Jump", leftX, leftY);
+        leftY = drawInfoLine(r, "ESC               Pause menu", leftX, leftY);
+        leftY = drawInfoLine(r, "1 / 2 / 3 / 4     Answer quiz", leftX, leftY - 2f);
 
-        // ── Bad Entities ──────────────────────────────────────────────────────
-        float y2 = wh - 110f;
-        r.drawText("BAD ENTITIES  (avoid!)", new Vector2(col2, y2), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_DANGER);
-        y2 -= gap;
-        r.drawText("Phishing Hook   -1 Life", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, new Color(1.0f, 0.42f, 0.48f, 1f)); y2 -= gap;
-        r.drawText("Ransomware      triggers quiz - wrong = -1 Life", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_HIGHLIGHT); y2 -= gap;
-        r.drawText("Malware Swarm   -1 Life", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, new Color(0.78f, 0.45f, 1.0f, 1f));
-        y2 -= gap * 1.5f;
+        leftY -= 12f;
+        leftY = drawSectionHeader(r, "GOOD CATCHES", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
+        leftY = drawEntityRow(r, "laptop.png", "Laptop", "+5 pts", leftX, leftY, GameUiTheme.TEXT_INFO);
+        leftY = drawEntityRow(r, "shield.png", "Shield", "+5 pts", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
+        leftY = drawEntityRow(r, "phone.png", "Phone", "+10 pts + quiz trigger", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
 
-        // ── Frenzy Mode ───────────────────────────────────────────────────────
-        r.drawText("FRENZY MODE", new Vector2(col2, y2), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_WARNING);
-        y2 -= gap;
-        r.drawText("Catch a glowing Frenzy Orb to trigger it.", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y2 -= gap;
-        r.drawText("Frenzy lasts 15 seconds and freezes the main timer.", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y2 -= gap;
-        r.drawText("Extra enemies: Rootkit and Spyware.", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
-        y2 -= gap * 1.5f;
+        leftY -= 8f;
+        leftY = drawSectionHeader(r, "THREATS", leftX, leftY, GameUiTheme.TEXT_DANGER);
+        leftY = drawEntityRow(r, "fraud.png", "Phishing Hook", "-1 life", leftX, leftY, GameUiTheme.TEXT_DANGER);
+        leftY = drawEntityRow(r, "hoax.png", "Ransomware", "wrong quiz = -1 life", leftX, leftY, GameUiTheme.TEXT_WARNING);
+        drawEntityRow(r, "virus.png", "Malware Swarm", "-1 life", leftX, leftY, new Color(0.78f, 0.45f, 1.0f, 1f));
 
-        // ── Characters ───────────────────────────────────────────────────────
-        r.drawText("CHARACTERS", new Vector2(col2, y2), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
-        y2 -= gap;
-        r.drawText("Specter   450 px/s  3 lives  x1.2 score", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y2 -= gap;
-        r.drawText("           Perk: Speed Demon - bonus pts per catch", new Vector2(col2, y2), GameUiTheme.FONT_BODY_TINY, GameUiTheme.TEXT_MUTED); y2 -= gap;
-        r.drawText("Guardian  300 px/s  5 lives  x1.0 score", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y2 -= gap;
-        r.drawText("           Perk: Iron Defense - 2 extra starting lives", new Vector2(col2, y2), GameUiTheme.FONT_BODY_TINY, GameUiTheme.TEXT_MUTED); y2 -= gap;
-        r.drawText("Cipher    500 px/s  2 lives  x1.5 score", new Vector2(col2, y2), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY); y2 -= gap;
-        r.drawText("           Perk: Data Rush - highest score but very risky", new Vector2(col2, y2), GameUiTheme.FONT_BODY_TINY, GameUiTheme.TEXT_MUTED);
+        float rightX = rightPanel.x + 24f;
+        float rightY = rightPanel.y + rightPanel.height - 22f;
+        rightY = drawSectionHeader(r, "FRENZY MODE", rightX, rightY, GameUiTheme.TEXT_WARNING);
+        rightY = drawFrenzyOrbRow(r, rightX, rightY);
+        rightY = drawInfoLine(r, "The main timer freezes for 15 seconds.", rightX, rightY);
+        rightY = drawEntityRow(r, "old-pc.png", "Rootkit", "extra frenzy-only threat", rightX, rightY - 2f, GameUiTheme.TEXT_WARNING);
+        rightY = drawEntityRow(r, "magnifiying-glass.png", "Spyware", "quiz threat during frenzy", rightX, rightY, GameUiTheme.TEXT_WARNING);
 
-        // ── Quiz tip ─────────────────────────────────────────────────────────
-        r.drawText("TIP: Answer quiz questions correctly for +100 pts bonus!",
-            new Vector2(col1, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_INFO);
+        rightY -= 12f;
+        rightY = drawSectionHeader(r, "CHARACTERS", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
+        rightY = drawCharacterLine(r, "Specter", "450 px/s  |  3 lives  |  x1.2 score", "Perk: Speed Demon - bonus pts per catch", rightX, rightY);
+        rightY = drawCharacterLine(r, "Guardian", "300 px/s  |  5 lives  |  x1.0 score", "Perk: Iron Defense - 2 extra starting lives", rightX, rightY);
+        rightY = drawCharacterLine(r, "Cipher", "500 px/s  |  2 lives  |  x1.5 score", "Perk: Data Rush - highest score but very risky", rightX, rightY);
+
+        rightY -= 10f;
+        rightY = drawSectionHeader(r, "QUIZ BONUS", rightX, rightY, GameUiTheme.TEXT_INFO);
+        rightY = drawInfoLine(r, "Correct answers give +100 pts and +1 life.", rightX, rightY);
+        drawInfoLine(r, "Wrong answers on bad quizzes cost 1 life.", rightX, rightY);
 
         // ── Back button ──────────────────────────────────────────────────────
         Rectangle box = backRect(ww);
@@ -155,6 +153,45 @@ public class HowToPlayScene extends Scene {
             backHovered ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
 
         r.end();
+    }
+
+    private void drawPanel(Renderer r, Rectangle panel) {
+        r.drawRect(panel, PANEL_FILL, true);
+        r.drawRect(panel, PANEL_BORDER, false);
+    }
+
+    private float drawSectionHeader(Renderer r, String title, float x, float y, Color color) {
+        r.drawText(title, new Vector2(x, y), GameUiTheme.FONT_BODY_LARGE, color);
+        return y - 26f;
+    }
+
+    private float drawInfoLine(Renderer r, String text, float x, float y) {
+        r.drawText(text, new Vector2(x, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
+        return y - 20f;
+    }
+
+    private float drawEntityRow(Renderer r, String spriteId, String name, String detail, float x, float y, Color nameColor) {
+        r.drawSprite(spriteId, new Vector2(x + 12f, y - 8f), 28f, 28f);
+        r.drawText(name, new Vector2(x + 34f, y), GameUiTheme.FONT_BODY_SMALL, nameColor);
+        r.drawText(detail, new Vector2(x + 170f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
+        return y - 30f;
+    }
+
+    private float drawFrenzyOrbRow(Renderer r, float x, float y) {
+        Vector2 orbCenter = new Vector2(x + 13f, y - 8f);
+        r.drawCircle(orbCenter, 12f, new Color(0.90f, 0.20f, 0.95f, 1f), true);
+        r.drawCircle(orbCenter, 7f, new Color(1.0f, 0.88f, 1.0f, 1f), true);
+        r.drawCircle(orbCenter, 14f, Color.WHITE, false);
+        r.drawText("Frenzy Orb", new Vector2(x + 34f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_WARNING);
+        r.drawText("catch it to trigger Frenzy Mode", new Vector2(x + 170f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
+        return y - 30f;
+    }
+
+    private float drawCharacterLine(Renderer r, String name, String stats, String perk, float x, float y) {
+        r.drawText(name, new Vector2(x, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_HIGHLIGHT);
+        r.drawText(stats, new Vector2(x + 88f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
+        r.drawText(perk, new Vector2(x + 20f, y - 18f), GameUiTheme.FONT_BODY_TINY, GameUiTheme.TEXT_MUTED);
+        return y - 42f;
     }
 
     // ── Inner classes ────────────────────────────────────────────────────────
