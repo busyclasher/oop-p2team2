@@ -55,7 +55,7 @@ public class GamePlayScene extends Scene {
 
     // ── Constants ────────────────────────────────────────────────────────────
     private static final String BACKGROUND_NORMAL     = "game-scene.png";
-    private static final String BACKGROUND_FRENZY     = "frenzy-scene.png"; // swap if a frenzy bg exists
+    private static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
     private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
     private static final String MUSIC_ID          = "game-theme";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -802,7 +802,8 @@ public class GamePlayScene extends Scene {
 
         private void drawBackground(Renderer r) {
             // In feedback state use the background of the state we're returning to
-            GameState bg_state = (scene.gameState == GameState.QUIZ_FEEDBACK) ? scene.postFeedbackState
+            GameState bg_state = (scene.gameState == GameState.QUIZ)          ? scene.preQuizState
+                               : (scene.gameState == GameState.QUIZ_FEEDBACK) ? scene.postFeedbackState
                                : (scene.gameState == GameState.BUFF_SELECT)   ? scene.preBuffState
                                : scene.gameState;
             String bg;
