@@ -59,6 +59,7 @@ public class GamePlayScene extends Scene {
     private static final String BACKGROUND_NORMAL     = "game-scene.png";
     private static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
     private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
+    private static final String TIMER_ICON_SPRITE = "ui/hourglass-timer.png";
     private static final String GAMEPLAY_MUSIC_ID = "game-theme";
     private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -167,6 +168,7 @@ public class GamePlayScene extends Scene {
     private float   reviveFlashTimer = 0f;
     private int     reviveFlashTogglesRemaining = 0;
     private boolean reviveTextVisible = false;
+    private float   hudAnimTime = 0f;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -227,6 +229,7 @@ public class GamePlayScene extends Scene {
 
     @Override
     public void update(float dt) {
+        hudAnimTime += dt;
         updateReviveBanner(dt);
 
         switch (gameState) {
@@ -266,6 +269,7 @@ public class GamePlayScene extends Scene {
             roundTimer -= dt;
             if (roundTimer <= 0) {
                 roundTimer = 0;
+                GameAudio.playGameComplete(getContext());
                 gameState  = GameState.WIN;
                 return;
             }
@@ -576,6 +580,7 @@ public class GamePlayScene extends Scene {
     // ── Transition to next scene ─────────────────────────────────────────────
 
     void goToGameOver() {
+        GameAudio.playGameOver(getContext());
         getContext().getSceneManager().pop();
         getContext().getSceneManager().push(new GameOverScene(getContext(), score, leaderboard));
     }
@@ -807,6 +812,9 @@ public class GamePlayScene extends Scene {
         private static final Color COL_HEART     = new Color(0.95f, 0.25f, 0.25f, 1f);
         private static final Color COL_HEART_EMPTY = new Color(0.4f, 0.15f, 0.15f, 0.6f);
         private static final Color COL_FRENZY_BANNER = new Color(1f, 0.35f, 0f, 1f);
+        private static final Color COL_TIMER_ICON_BG = new Color(0.10f, 0.16f, 0.22f, 0.85f);
+        private static final Color COL_TIMER_ICON_RING = new Color(0.52f, 0.84f, 1.0f, 1f);
+        private static final Color COL_WARNING = new Color(1f, 0.25f, 0.25f, 1f);
         private static final Color COL_OVERLAY   = new Color(0f, 0f, 0f, 0.72f);
         private static final Color COL_QUIZ_BG   = new Color(0.05f, 0.08f, 0.18f, 0.95f);
         private static final Color COL_WIN       = new Color(0.15f, 0.95f, 0.40f, 1f);
@@ -960,17 +968,38 @@ public class GamePlayScene extends Scene {
                     : (scene.gameState == GameState.BUFF_SELECT)
                         ? scene.preBuffState
                         : scene.gameState;
+            int secsLeft;
+            Color baseProgressColor;
             if (displayState == GameState.FRENZY) {
-                int secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
+                secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
                 progressText  = "FRENZY " + secsLeft + "s  PTS " + scene.score;
-                progressColor = COL_FRENZY_BANNER;
+                baseProgressColor = COL_FRENZY_BANNER;
             } else {
-                int secsLeft = Math.max(0, (int) Math.ceil(scene.getRoundTimer()));
+                secsLeft = Math.max(0, (int) Math.ceil(scene.getRoundTimer()));
                 progressText  = "TIME " + secsLeft + "s  PTS " + scene.score;
-                progressColor = secsLeft <= 10 ? new Color(1f, 0.3f, 0.3f, 1f) : Color.CYAN;
+                baseProgressColor = Color.CYAN;
             }
-            float progressX = ww - r.measureTextWidth(progressText, GameUiTheme.FONT_BODY) - 24f;
-            r.drawText(progressText, new Vector2(progressX, wh - 14f), GameUiTheme.FONT_BODY, progressColor);
+            boolean dangerFlash = secsLeft <= 5;
+            boolean flashOn = ((int) (scene.hudAnimTime * 6f) % 2) == 0;
+            progressColor = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
+
+            float iconBob = (float) Math.sin(scene.hudAnimTime * 4f) * 1.75f;
+            float iconPulse = 13f + (float) Math.sin(scene.hudAnimTime * 5f) * 1.2f;
+            float textWidth = r.measureTextWidth(progressText, GameUiTheme.FONT_BODY);
+            float iconDiameter = 28f;
+            float gap = 10f;
+            float progressX = ww - textWidth - iconDiameter - gap - 24f;
+            Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 18f + iconBob);
+            Color iconBg = dangerFlash && flashOn
+                ? new Color(0.40f, 0.05f, 0.08f, 0.95f)
+                : COL_TIMER_ICON_BG;
+            Color iconRing = dangerFlash && flashOn ? COL_WARNING : COL_TIMER_ICON_RING;
+
+            r.drawCircle(iconCenter, iconPulse, iconBg, true);
+            r.drawCircle(iconCenter, iconPulse + 1.5f, iconRing, false);
+            r.drawSprite(TIMER_ICON_SPRITE, iconCenter, iconDiameter, iconDiameter);
+            r.drawText(progressText, new Vector2(progressX + iconDiameter + gap, wh - 14f),
+                GameUiTheme.FONT_BODY, progressColor);
 
             // Active buff indicators (bottom-right)
             if (scene.hasShield) {
