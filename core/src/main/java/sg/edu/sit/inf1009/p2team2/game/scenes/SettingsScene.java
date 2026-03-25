@@ -33,6 +33,8 @@ public class SettingsScene extends Scene {
     private static final float ROW_SPACING  = 90f;
     private static final float DROPDOWN_OPTION_H = 40f;
     private static final float DROPDOWN_GAP = 6f;
+    private static final float SAVE_BTN_W = 240f;
+    private static final float SAVE_BTN_H = 46f;
 
     private static final String[] LABELS = { "Master Volume", "Music Volume", "SFX Volume" };
     private static final int ROW_MASTER = 0;
@@ -40,7 +42,8 @@ public class SettingsScene extends Scene {
     private static final int ROW_SFX = 2;
     private static final int ROW_RESOLUTION = 3;
     private static final int ROW_FULLSCREEN = 4;
-    private static final int ROW_COUNT = 5;
+    private static final int ROW_SAVE = 5;
+    private static final int ROW_COUNT = 6;
     private static final int[][] RESOLUTION_OPTIONS = {
         { 800, 600 },
         { 1024, 576 },
@@ -238,16 +241,26 @@ public class SettingsScene extends Scene {
     }
 
     private Rectangle dropdownOptionRect(Renderer r, int index) {
-        Rectangle base = optionRect(r, ROW_RESOLUTION);
-        float y = base.y - DROPDOWN_GAP - (index + 1) * DROPDOWN_OPTION_H - index * DROPDOWN_GAP;
-        return new Rectangle(base.x, y, base.width, DROPDOWN_OPTION_H);
+        Rectangle bounds = dropdownBounds(r);
+        float y = bounds.y + (RESOLUTION_OPTIONS.length - 1 - index) * (DROPDOWN_OPTION_H + DROPDOWN_GAP);
+        return new Rectangle(bounds.x, y, bounds.width, DROPDOWN_OPTION_H);
     }
 
     private Rectangle dropdownBounds(Renderer r) {
         Rectangle base = optionRect(r, ROW_RESOLUTION);
         float totalHeight = RESOLUTION_OPTIONS.length * DROPDOWN_OPTION_H
             + (RESOLUTION_OPTIONS.length - 1) * DROPDOWN_GAP;
-        return new Rectangle(base.x, base.y - DROPDOWN_GAP - totalHeight, base.width, totalHeight);
+        return new Rectangle(base.x, base.y + base.height + DROPDOWN_GAP, base.width, totalHeight);
+    }
+
+    private Rectangle saveButtonRect(Renderer r) {
+        float x = r.getWorldWidth() / 2f - SAVE_BTN_W / 2f;
+        return new Rectangle(x, 56f, SAVE_BTN_W, SAVE_BTN_H);
+    }
+
+    private void saveAndExit() {
+        saveSettings();
+        getContext().getSceneManager().pop();
     }
 
     private void updateMouseHover(Renderer r, Vector2 mp) {
@@ -264,10 +277,13 @@ public class SettingsScene extends Scene {
 
         Rectangle resolutionRect = optionRect(r, ROW_RESOLUTION);
         Rectangle fullscreenRect = optionRect(r, ROW_FULLSCREEN);
+        Rectangle saveRect = saveButtonRect(r);
         if (resolutionRect.contains(mp.x, mp.y)) {
             selectedRow = ROW_RESOLUTION;
         } else if (fullscreenRect.contains(mp.x, mp.y)) {
             selectedRow = ROW_FULLSCREEN;
+        } else if (saveRect.contains(mp.x, mp.y)) {
+            selectedRow = ROW_SAVE;
         }
 
         if (resolutionDropdownOpen) {
@@ -297,7 +313,7 @@ public class SettingsScene extends Scene {
                 return;
             }
             GameAudio.playUiClick(getContext());
-            getContext().getSceneManager().pop();
+            saveAndExit();
             return;
         }
 
@@ -353,6 +369,11 @@ public class SettingsScene extends Scene {
                         resolutionDropdownOpen = !resolutionDropdownOpen;
                         keyboardCooldown = COOLDOWN_MAX;
                         GameAudio.playUiClick(getContext());
+                    } else if (selectedRow == ROW_SAVE) {
+                        keyboardCooldown = COOLDOWN_MAX;
+                        GameAudio.playUiClick(getContext());
+                        saveAndExit();
+                        return;
                     }
                 }
             }
@@ -379,6 +400,7 @@ public class SettingsScene extends Scene {
         if (mousePressed) {
             Rectangle resolutionRect = optionRect(r, ROW_RESOLUTION);
             Rectangle fullscreenRect = optionRect(r, ROW_FULLSCREEN);
+            Rectangle saveRect = saveButtonRect(r);
 
             if (resolutionDropdownOpen && hoveredResolutionIndex >= 0) {
                 selectedResolutionIndex = hoveredResolutionIndex;
@@ -393,6 +415,12 @@ public class SettingsScene extends Scene {
                 resolutionDropdownOpen = false;
                 toggleFullscreenSelection();
                 GameAudio.playUiClick(getContext());
+            } else if (saveRect.contains(mp.x, mp.y)) {
+                selectedRow = ROW_SAVE;
+                resolutionDropdownOpen = false;
+                GameAudio.playUiClick(getContext());
+                saveAndExit();
+                return;
             } else if (resolutionDropdownOpen && !dropdownBounds(r).contains(mp.x, mp.y)) {
                 resolutionDropdownOpen = false;
             }
@@ -462,12 +490,14 @@ public class SettingsScene extends Scene {
             drawResolutionDropdown(r);
         }
 
+        drawSaveButton(r);
+
         // Footer
-        r.drawTextCentered("Up/Down - select   Left/Right - adjust   Enter/Space - toggle",
-            new Vector2(ww / 2f, 30f), GameUiTheme.FONT_BODY_SMALL,
+        r.drawTextCentered("Up/Down - select   Left/Right - adjust   Enter/Space - confirm",
+            new Vector2(ww / 2f, 22f), GameUiTheme.FONT_BODY_SMALL,
             GameUiTheme.TEXT_SUBTLE);
-        r.drawTextCentered("Drag sliders   Click resolution/fullscreen   ESC - save + back",
-            new Vector2(ww / 2f, 10f), GameUiTheme.FONT_BODY_SMALL,
+        r.drawTextCentered("Drag sliders   Click controls with mouse   ESC - quick save + back",
+            new Vector2(ww / 2f, 6f), GameUiTheme.FONT_BODY_SMALL,
             GameUiTheme.TEXT_SUBTLE);
 
         r.end();
@@ -520,6 +550,19 @@ public class SettingsScene extends Scene {
             r.drawTextCentered(resolution[0] + " x " + resolution[1],
                 option, GameUiTheme.FONT_BODY, textColor);
         }
+    }
+
+    private void drawSaveButton(Renderer r) {
+        Rectangle rect = saveButtonRect(r);
+        boolean selected = (selectedRow == ROW_SAVE);
+        Color bg = selected ? new Color(0.15f, 0.55f, 0.25f, 0.90f)
+            : new Color(0.10f, 0.10f, 0.10f, 0.82f);
+        Color border = selected ? Color.YELLOW : new Color(0.50f, 0.50f, 0.50f, 1f);
+
+        r.drawRect(rect, bg, true);
+        r.drawRect(rect, border, false);
+        r.drawTextCentered("Save & Exit", rect, GameUiTheme.FONT_BODY_LARGE,
+            selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
     }
 
     // ── Inner classes ────────────────────────────────────────────────────────
