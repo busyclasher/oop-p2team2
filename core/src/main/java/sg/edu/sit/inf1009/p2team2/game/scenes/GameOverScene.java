@@ -14,6 +14,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Displayed when the player loses all lives.
@@ -199,21 +200,23 @@ public class GameOverScene extends Scene {
 
         // Header — win vs loss variant
         if (isWin) {
-            r.drawText("NETWORK SECURED!",
-                new Vector2(ww / 2f - 125f, wh / 2f + 165f), "default",
-                new Color(0.15f, 0.95f, 0.40f, 1f));
-            r.drawText("Cyber-Hydra defeated! Save your name.",
-                new Vector2(ww / 2f - 215f, wh / 2f + 115f), "default", Color.WHITE);
+            r.drawTextCentered("NETWORK SECURED!",
+                new Vector2(ww / 2f, wh / 2f + 165f), GameUiTheme.FONT_TITLE_SMALL,
+                GameUiTheme.TEXT_SUCCESS);
+            r.drawTextCentered("Cyber-Hydra defeated! Save your name.",
+                new Vector2(ww / 2f, wh / 2f + 116f), GameUiTheme.FONT_BODY_LARGE,
+                GameUiTheme.TEXT_PRIMARY);
         } else {
-            r.drawText("SYSTEM CRASH",
-                new Vector2(ww / 2f - 105f, wh / 2f + 165f), "default",
-                new Color(0.95f, 0.25f, 0.25f, 1f));
-            r.drawText("The network has been compromised.",
-                new Vector2(ww / 2f - 195f, wh / 2f + 115f), "default", Color.WHITE);
+            r.drawTextCentered("SYSTEM CRASH",
+                new Vector2(ww / 2f, wh / 2f + 165f), GameUiTheme.FONT_TITLE_SMALL,
+                GameUiTheme.TEXT_DANGER);
+            r.drawTextCentered("The network has been compromised.",
+                new Vector2(ww / 2f, wh / 2f + 116f), GameUiTheme.FONT_BODY_LARGE,
+                GameUiTheme.TEXT_PRIMARY);
         }
-        r.drawText("Final Score: " + finalScore,
-            new Vector2(ww / 2f - 90f, wh / 2f + 68f), "default",
-            new Color(1f, 0.85f, 0.2f, 1f));
+        r.drawTextCentered("Final Score: " + finalScore,
+            new Vector2(ww / 2f, wh / 2f + 70f), GameUiTheme.FONT_BODY_LARGE,
+            GameUiTheme.TEXT_HIGHLIGHT);
 
         if (isEnteringName) {
             renderNameEntry(r, ww, wh);
@@ -229,9 +232,9 @@ public class GameOverScene extends Scene {
         float boxX  = ww / 2f - boxW / 2f;
         float boxY  = wh / 2f - 70f;
 
-        r.drawText("Enter your name:",
-            new Vector2(ww / 2f - 100f, boxY + boxH + 24f), "default",
-            new Color(0.7f, 0.9f, 1f, 1f));
+        r.drawTextCentered("Enter your name:",
+            new Vector2(ww / 2f, boxY + boxH + 26f), GameUiTheme.FONT_BODY_LARGE,
+            GameUiTheme.TEXT_INFO);
 
         // Input box
         r.drawRect(new Rectangle(boxX, boxY, boxW, boxH),
@@ -243,11 +246,12 @@ public class GameOverScene extends Scene {
         boolean cursorOn = (System.currentTimeMillis() / 500) % 2 == 0;
         String display   = playerName + (cursorOn ? "|" : " ");
         r.drawText(display,
-            new Vector2(boxX + 12f, boxY + boxH / 2f + 10f), "default", Color.WHITE);
+            new Vector2(boxX + 12f, boxY + boxH / 2f + 10f), GameUiTheme.FONT_BODY_LARGE,
+            GameUiTheme.TEXT_PRIMARY);
 
-        r.drawText("ENTER to save   ESC to skip",
-            new Vector2(ww / 2f - 155f, boxY - 38f), "default",
-            new Color(0.5f, 0.5f, 0.5f, 1f));
+        r.drawTextCentered("ENTER to save   ESC to skip",
+            new Vector2(ww / 2f, boxY - 36f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
     }
 
     private void renderButtons(Renderer r, float ww, float wh) {
@@ -259,14 +263,13 @@ public class GameOverScene extends Scene {
                             : new Color(0.15f, 0.15f, 0.15f, 0.65f);
             r.drawRect(box, bg, true);
             r.drawRect(box, sel ? Color.YELLOW : Color.WHITE, false);
-            r.drawText(OPTIONS[i],
-                new Vector2(box.x + BTN_W / 2f - 55f, box.y + BTN_H / 2f + 10f),
-                "default", sel ? Color.YELLOW : Color.WHITE);
+            r.drawTextCentered(OPTIONS[i], box, GameUiTheme.FONT_BODY_LARGE,
+                sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         }
 
-        r.drawText("W / S or Mouse   Enter / Click to Select",
-            new Vector2(ww / 2f - 225f, 30f), "default",
-            new Color(0.55f, 0.55f, 0.55f, 1f));
+        r.drawTextCentered("W / S or Mouse   Enter / Click to Select",
+            new Vector2(ww / 2f, 30f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
     }
 
     // ── Inner classes ─────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ eclipse.project.name = appName + '-core'
 
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   testRuntimeOnly "org.junit.platform:junit-platform-launcher"
   testImplementation platform("org.junit:junit-bom:5.10.2")
   testImplementation "org.junit.jupiter:junit-jupiter"

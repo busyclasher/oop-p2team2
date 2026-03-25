@@ -16,6 +16,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardEntry;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Displays the top scores and lets the player return to the main menu or retry.
@@ -107,19 +108,19 @@ public class LeaderboardScene extends Scene {
         r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.60f), true);
 
         // Title
-        r.drawText("LEADERBOARD",
-            new Vector2(ww / 2f - 100f, wh - 80f), "default",
-            new Color(0.15f, 0.95f, 0.40f, 1f));
-        r.drawText("Top Scores - CyberScouts",
-            new Vector2(ww / 2f - 165f, wh - 116f), "default",
-            new Color(0.75f, 0.75f, 0.75f, 1f));
+        r.drawTextCentered("LEADERBOARD",
+            new Vector2(ww / 2f, wh - 78f), GameUiTheme.FONT_TITLE_SMALL,
+            GameUiTheme.TITLE_PRIMARY);
+        r.drawTextCentered("Top Scores - CyberScouts",
+            new Vector2(ww / 2f, wh - 114f), GameUiTheme.FONT_BODY,
+            GameUiTheme.TEXT_MUTED);
 
         // Column headers
         float tableX = ww / 2f - 220f;
         float headerY = wh - 160f;
-        r.drawText("#",     new Vector2(tableX,        headerY), "default", Color.YELLOW);
-        r.drawText("Name",  new Vector2(tableX + 50f,  headerY), "default", Color.YELLOW);
-        r.drawText("Score", new Vector2(tableX + 300f, headerY), "default", Color.YELLOW);
+        r.drawText("#",     new Vector2(tableX,        headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+        r.drawText("Name",  new Vector2(tableX + 50f,  headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+        r.drawText("Score", new Vector2(tableX + 300f, headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
 
         r.drawLine(new Vector2(tableX - 10f, headerY - 10f),
             new Vector2(tableX + 440f, headerY - 10f),
@@ -137,15 +138,15 @@ public class LeaderboardScene extends Scene {
             else if (i == 2) rowColor = new Color(0.8f, 0.5f, 0.2f, 1f);
             else             rowColor = Color.WHITE;
 
-            r.drawText(String.valueOf(i + 1),   new Vector2(tableX,        ry), "default", rowColor);
-            r.drawText(e.getPlayerName(),        new Vector2(tableX + 50f,  ry), "default", rowColor);
-            r.drawText(String.valueOf(e.getScore()), new Vector2(tableX + 300f, ry), "default", rowColor);
+            r.drawText(String.valueOf(i + 1), new Vector2(tableX, ry), GameUiTheme.FONT_BODY, rowColor);
+            r.drawText(e.getPlayerName(), new Vector2(tableX + 50f, ry), GameUiTheme.FONT_BODY, rowColor);
+            r.drawText(String.valueOf(e.getScore()), new Vector2(tableX + 300f, ry), GameUiTheme.FONT_BODY, rowColor);
         }
 
         if (entries.isEmpty()) {
-            r.drawText("No scores yet - play a game first!",
-                new Vector2(ww / 2f - 195f, wh / 2f), "default",
-                new Color(0.6f, 0.6f, 0.6f, 1f));
+            r.drawTextCentered("No scores yet - play a game first!",
+                new Vector2(ww / 2f, wh / 2f), GameUiTheme.FONT_BODY,
+                GameUiTheme.TEXT_MUTED);
         }
 
         // Footer buttons
@@ -161,8 +162,8 @@ public class LeaderboardScene extends Scene {
         Color border = hovered ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
         r.drawRect(box, bg, true);
         r.drawRect(box, border, false);
-        r.drawText(label, new Vector2(box.x + box.width / 2f - 45f, box.y + box.height / 2f + 8f),
-            "default", hovered ? Color.YELLOW : Color.WHITE);
+        r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE,
+            hovered ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
     }
 
     // ── Inner classes ────────────────────────────────────────────────────────

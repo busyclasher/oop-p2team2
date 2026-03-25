@@ -16,6 +16,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * CyberScouts main menu.
@@ -126,17 +127,17 @@ public class GameMenuScene extends Scene {
         float cy = r.getWorldHeight() / 2f;
 
         // Title — kept well above the menu items (first item top ≈ cy+140)
-        r.drawText("CYBERSCOUTS",
-            new Vector2(cx - 140f, cy + 270f), "default", new Color(0.2f, 0.9f, 0.4f, 1f));
-        r.drawText("Protect the Network - Catch Good Data, Neutralize Threats",
-            new Vector2(cx - 290f, cy + 230f), "default", new Color(0.75f, 0.75f, 0.75f, 1f));
+        r.drawTextCentered("CYBERSCOUTS",
+            new Vector2(cx, cy + 272f), GameUiTheme.FONT_TITLE, GameUiTheme.TITLE_PRIMARY);
+        r.drawTextCentered("Protect the Network - Catch Good Data, Neutralize Threats",
+            new Vector2(cx, cy + 230f), GameUiTheme.FONT_BODY, GameUiTheme.TEXT_MUTED);
 
         for (int i = 0; i < menuItems.size(); i++) {
             menuItems.get(i).render(r, i == selectedIndex);
         }
 
-        r.drawText("Arrow Keys / WASD / Mouse  |  Enter / Click to select",
-            new Vector2(cx - 240f, 28f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+        r.drawTextCentered("Arrow Keys / WASD / Mouse  |  Enter / Click to select",
+            new Vector2(cx, 28f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
 
         r.end();
     }
@@ -199,10 +200,10 @@ public class GameMenuScene extends Scene {
             com.badlogic.gdx.math.Rectangle box = new com.badlogic.gdx.math.Rectangle(l, b, W, H);
             Color bg  = selected ? new Color(0.15f, 0.55f, 0.25f, 0.85f)
                                  : new Color(0.10f, 0.10f, 0.10f, 0.65f);
-            Color txt = selected ? Color.YELLOW : Color.WHITE;
+            Color txt = selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawRect(box, bg,         true);
             r.drawRect(box, Color.WHITE, false);
-            r.drawText(label, new Vector2(position.x - 65f, position.y + 8f), "default", txt);
+            r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE, txt);
         }
     }
 

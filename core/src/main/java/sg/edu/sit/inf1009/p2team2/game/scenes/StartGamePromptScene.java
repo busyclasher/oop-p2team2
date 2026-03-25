@@ -15,6 +15,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Shown when "Start Game" is pressed and a previous character exists.
@@ -152,12 +153,12 @@ public class StartGamePromptScene extends Scene {
                 new Color(0.2f, 0.8f, 0.3f, 1f), false);
 
             // Title
-            r.drawText("WELCOME BACK!",
-                new Vector2(cx - 115f, cardY + ch - 36f), "default",
-                new Color(0.2f, 0.9f, 0.4f, 1f));
-            r.drawText("Last played: " + scene.lastCharacter.getName(),
-                new Vector2(cx - 110f, cardY + ch - 72f), "default",
-                new Color(0.75f, 0.75f, 0.75f, 1f));
+            r.drawTextCentered("WELCOME BACK!",
+                new Vector2(cx, cardY + ch - 28f), GameUiTheme.FONT_TITLE_SMALL,
+                GameUiTheme.TITLE_PRIMARY);
+            r.drawTextCentered("Last played: " + scene.lastCharacter.getName(),
+                new Vector2(cx, cardY + ch - 66f), GameUiTheme.FONT_BODY,
+                GameUiTheme.TEXT_MUTED);
 
             // Buttons
             drawBtn(r, scene.continueRect(cx, cy), 0,
@@ -166,9 +167,9 @@ public class StartGamePromptScene extends Scene {
                 "New Game (Change Character)",                    scene.selectedIndex);
 
             // Footer
-            r.drawText("ESC - Back",
-                new Vector2(cx - 45f, cardY + 18f), "default",
-                new Color(0.5f, 0.5f, 0.5f, 1f));
+            r.drawTextCentered("ESC - Back",
+                new Vector2(cx, cardY + 18f), GameUiTheme.FONT_BODY_SMALL,
+                GameUiTheme.TEXT_SUBTLE);
 
             r.end();
         }
@@ -181,9 +182,8 @@ public class StartGamePromptScene extends Scene {
             Color border = active ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
             r.drawRect(box, bg, true);
             r.drawRect(box, border, false);
-            r.drawText(label,
-                new Vector2(box.x + 16f, box.y + box.height / 2f + 10f),
-                "default", active ? Color.YELLOW : Color.WHITE);
+            r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE,
+                active ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         }
     }
 }

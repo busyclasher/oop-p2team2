@@ -33,6 +33,7 @@ import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizManager;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizBank;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizResult;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Main gameplay scene.
@@ -946,8 +947,8 @@ public class GamePlayScene extends Scene {
             }
 
             // Score
-            r.drawText("SCORE: " + scene.score,
-                new Vector2(ww / 2f - 70f, wh - 14f), "default", Color.WHITE);
+            r.drawTextCentered("SCORE: " + scene.score,
+                new Vector2(ww / 2f, wh - 14f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
 
             // Timer / mode display
             String progressText;
@@ -968,17 +969,18 @@ public class GamePlayScene extends Scene {
                 progressText  = "TIME " + secsLeft + "s  PTS " + scene.score;
                 progressColor = secsLeft <= 10 ? new Color(1f, 0.3f, 0.3f, 1f) : Color.CYAN;
             }
-            r.drawText(progressText, new Vector2(ww - 300f, wh - 14f), "default", progressColor);
+            float progressX = ww - r.measureTextWidth(progressText, GameUiTheme.FONT_BODY) - 24f;
+            r.drawText(progressText, new Vector2(progressX, wh - 14f), GameUiTheme.FONT_BODY, progressColor);
 
             // Active buff indicators (bottom-right)
             if (scene.hasShield) {
                 r.drawText("[REVIVE READY]", new Vector2(ww - 230f, 12f),
-                    "default", new Color(0.2f, 0.55f, 1f, 1f));
+                    GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_INFO);
             }
 
             // Controls hint
             r.drawText("A/D Move  |  SPACE Jump  |  ESC Quit",
-                new Vector2(20f, 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+                new Vector2(20f, 12f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
         }
 
         private void drawReviveBanner(Renderer r) {
@@ -988,12 +990,13 @@ public class GamePlayScene extends Scene {
 
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
-            Vector2 textPos = new Vector2(ww / 2f - 42f, wh / 2f + 90f);
+            Vector2 textPos = new Vector2(ww / 2f, wh / 2f + 90f);
             Color shadow = new Color(0.18f, 0.10f, 0.02f, 0.95f);
-            Color gold = new Color(1.0f, 0.86f, 0.22f, 1.0f);
+            Color gold = GameUiTheme.TEXT_HIGHLIGHT;
 
-            r.drawText("REVIVED", new Vector2(textPos.x + 2f, textPos.y - 2f), "default", shadow);
-            r.drawText("REVIVED", textPos, "default", gold);
+            r.drawTextCentered("REVIVED", new Vector2(textPos.x + 2f, textPos.y - 2f),
+                GameUiTheme.FONT_TITLE_SMALL, shadow);
+            r.drawTextCentered("REVIVED", textPos, GameUiTheme.FONT_TITLE_SMALL, gold);
         }
 
         private void drawHeart(Renderer r, float x, float y, Color c) {
@@ -1030,7 +1033,7 @@ public class GamePlayScene extends Scene {
                 : "RARE FIND! Answer correctly for +1 Life & +100 pts:";
             Color headerCol = qm.isBadEntityQuiz()
                 ? new Color(1f, 0.4f, 0.4f, 1f) : new Color(1f, 0.85f, 0.2f, 1f);
-            r.drawText(header, new Vector2(cx + 20f, cy + ch - 28f), "default", headerCol);
+            r.drawText(header, new Vector2(cx + 20f, cy + ch - 28f), GameUiTheme.FONT_BODY, headerCol);
 
             // Question text (simple word-wrap at ~60 chars)
             drawWrappedText(r, q, cx + 20f, cy + ch - 70f, 60, Color.WHITE);
@@ -1046,11 +1049,11 @@ public class GamePlayScene extends Scene {
                 r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), bg, true);
                 r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), border, false);
                 r.drawText("[" + labels[i] + "]  " + opts[i],
-                    new Vector2(cx + 32f, oy + 26f), "default", hov ? Color.YELLOW : Color.WHITE);
+                    new Vector2(cx + 32f, oy + 27f), GameUiTheme.FONT_BODY, hov ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
             }
 
             r.drawText("Press 1 - 4  or  Click to answer",
-                new Vector2(cx + 20f, cy + 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+                new Vector2(cx + 20f, cy + 12f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
         }
 
         private void drawWrappedText(Renderer r, String text, float x, float startY,
@@ -1060,15 +1063,15 @@ public class GamePlayScene extends Scene {
             float y = startY;
             for (String word : words) {
                 if (line.length() + word.length() + 1 > lineLen && line.length() > 0) {
-                    r.drawText(line.toString(), new Vector2(x, y), "default", color);
-                    y -= 22f;
+                    r.drawText(line.toString(), new Vector2(x, y), GameUiTheme.FONT_BODY, color);
+                    y -= 24f;
                     line = new StringBuilder();
                 }
                 if (line.length() > 0) line.append(" ");
                 line.append(word);
             }
             if (line.length() > 0) {
-                r.drawText(line.toString(), new Vector2(x, y), "default", color);
+                r.drawText(line.toString(), new Vector2(x, y), GameUiTheme.FONT_BODY, color);
             }
         }
 
@@ -1096,9 +1099,9 @@ public class GamePlayScene extends Scene {
 
             // Result heading
             String heading = correct ? "CORRECT!" : "WRONG!";
-            r.drawText(heading,
-                new Vector2(ww / 2f - 55f, cy + ch - 34f),
-                "default", borderColor);
+            r.drawTextCentered(heading,
+                new Vector2(ww / 2f, cy + ch - 34f),
+                GameUiTheme.FONT_TITLE_SMALL, borderColor);
 
             // Detail line
             String detail;
@@ -1110,9 +1113,9 @@ public class GamePlayScene extends Scene {
             } else {
                 detail = wasBad ? "-1 Life - stay alert!" : "No bonus this time.";
             }
-            r.drawText(detail,
-                new Vector2(ww / 2f - 140f, cy + ch - 76f),
-                "default", Color.WHITE);
+            r.drawTextCentered(detail,
+                new Vector2(ww / 2f, cy + ch - 76f),
+                GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
 
             // Progress bar (shrinks as timer counts down)
             float barW = cw - 40f;
@@ -1122,9 +1125,9 @@ public class GamePlayScene extends Scene {
             r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW * progress, 10f),
                 borderColor, true);
 
-            r.drawText("SPACE / ENTER to continue",
-                new Vector2(ww / 2f - 140f, cy + 42f),
-                "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+            r.drawTextCentered("SPACE / ENTER to continue",
+                new Vector2(ww / 2f, cy + 42f),
+                GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
         }
 
         // ── Frenzy transition banner ─────────────────────────────────────────
@@ -1133,13 +1136,13 @@ public class GamePlayScene extends Scene {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
             r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.6f), true);
-            r.drawText("CYBER-HYDRA AWAKENS!", new Vector2(ww / 2f - 160f, wh / 2f + 40f),
-                "default", COL_FRENZY_BANNER);
-            r.drawText("FRENZY MODE INCOMING...",
-                new Vector2(ww / 2f - 170f, wh / 2f), "default", Color.YELLOW);
+            r.drawTextCentered("CYBER-HYDRA AWAKENS!", new Vector2(ww / 2f, wh / 2f + 42f),
+                GameUiTheme.FONT_TITLE_SMALL, COL_FRENZY_BANNER);
+            r.drawTextCentered("FRENZY MODE INCOMING...",
+                new Vector2(ww / 2f, wh / 2f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
             int secs = (int) Math.ceil(scene.transitionTimer);
-            r.drawText("Starting in " + secs + "...",
-                new Vector2(ww / 2f - 80f, wh / 2f - 50f), "default", Color.WHITE);
+            r.drawTextCentered("Starting in " + secs + "...",
+                new Vector2(ww / 2f, wh / 2f - 50f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
         }
 
         // ── Buff card selection overlay ──────────────────────────────────────
@@ -1151,12 +1154,12 @@ public class GamePlayScene extends Scene {
             r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
 
             // Title — cardH=389, so card top at wh/2+194; give 20px gap above
-            r.drawText("SYSTEM UPGRADE!",
-                new Vector2(ww / 2f - 130f, wh / 2f + 228f), "default",
-                new Color(0.3f, 1f, 0.6f, 1f));
-            r.drawText("Choose a buff:",
-                new Vector2(ww / 2f - 78f, wh / 2f + 212f), "default",
-                new Color(0.8f, 0.8f, 0.8f, 1f));
+            r.drawTextCentered("SYSTEM UPGRADE!",
+                new Vector2(ww / 2f, wh / 2f + 230f), GameUiTheme.FONT_TITLE_SMALL,
+                GameUiTheme.TEXT_SUCCESS);
+            r.drawTextCentered("Choose a buff:",
+                new Vector2(ww / 2f, wh / 2f + 198f), GameUiTheme.FONT_BODY_LARGE,
+                GameUiTheme.TEXT_MUTED);
 
             for (int i = 0; i < 3; i++) {
                 BuffType  buff = scene.buffChoices[i];
@@ -1180,9 +1183,9 @@ public class GamePlayScene extends Scene {
             }
 
             // Footer hint
-            r.drawText("← → / A D to navigate   1 2 3 or Enter to pick",
-                new Vector2(ww / 2f - 270f, wh / 2f - 220f), "default",
-                new Color(0.50f, 0.50f, 0.50f, 1f));
+            r.drawTextCentered("< > / A D to navigate   1 2 3 or Enter to pick",
+                new Vector2(ww / 2f, wh / 2f - 220f), GameUiTheme.FONT_BODY_SMALL,
+                GameUiTheme.TEXT_SUBTLE);
         }
 
         // ── Game-over overlay ────────────────────────────────────────────────
@@ -1191,13 +1194,13 @@ public class GamePlayScene extends Scene {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
             r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.75f), true);
-            r.drawText("SYSTEM CRASH!", new Vector2(ww / 2f - 100f, wh / 2f + 60f),
-                "default", COL_LOSE);
-            r.drawText("The network is down. Score: " + scene.score,
-                new Vector2(ww / 2f - 170f, wh / 2f + 10f), "default", Color.WHITE);
-            r.drawText("Press ENTER to continue",
-                new Vector2(ww / 2f - 140f, wh / 2f - 50f), "default",
-                new Color(0.7f, 0.7f, 0.7f, 1f));
+            r.drawTextCentered("SYSTEM CRASH!", new Vector2(ww / 2f, wh / 2f + 60f),
+                GameUiTheme.FONT_TITLE_SMALL, COL_LOSE);
+            r.drawTextCentered("The network is down. Score: " + scene.score,
+                new Vector2(ww / 2f, wh / 2f + 10f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
+            r.drawTextCentered("Press ENTER to continue",
+                new Vector2(ww / 2f, wh / 2f - 50f), GameUiTheme.FONT_BODY_SMALL,
+                GameUiTheme.TEXT_MUTED);
         }
 
         // ── Win overlay ──────────────────────────────────────────────────────
@@ -1206,13 +1209,13 @@ public class GamePlayScene extends Scene {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
             r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
-            r.drawText("NETWORK SECURED!", new Vector2(ww / 2f - 120f, wh / 2f + 60f),
-                "default", COL_WIN);
-            r.drawText("Cyber-Hydra defeated! Final score: " + scene.score,
-                new Vector2(ww / 2f - 210f, wh / 2f + 10f), "default", Color.WHITE);
-            r.drawText("Press ENTER for leaderboard",
-                new Vector2(ww / 2f - 165f, wh / 2f - 50f), "default",
-                new Color(0.7f, 0.7f, 0.7f, 1f));
+            r.drawTextCentered("NETWORK SECURED!", new Vector2(ww / 2f, wh / 2f + 60f),
+                GameUiTheme.FONT_TITLE_SMALL, COL_WIN);
+            r.drawTextCentered("Cyber-Hydra defeated! Final score: " + scene.score,
+                new Vector2(ww / 2f, wh / 2f + 10f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
+            r.drawTextCentered("Press ENTER for leaderboard",
+                new Vector2(ww / 2f, wh / 2f - 50f), GameUiTheme.FONT_BODY_SMALL,
+                GameUiTheme.TEXT_MUTED);
         }
     }
 }

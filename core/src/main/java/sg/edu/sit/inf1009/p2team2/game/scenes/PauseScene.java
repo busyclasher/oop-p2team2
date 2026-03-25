@@ -15,6 +15,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Pause screen — pushed on top of GamePlayScene when ESC is pressed.
@@ -146,9 +147,9 @@ public class PauseScene extends Scene {
         r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
 
         // Title
-        r.drawText("PAUSED",
-            new Vector2(cx - 55f, cy + 180f), "default",
-            new Color(0.2f, 0.9f, 0.4f, 1f));
+        r.drawTextCentered("PAUSED",
+            new Vector2(cx, cy + 180f), GameUiTheme.FONT_TITLE_SMALL,
+            GameUiTheme.TITLE_PRIMARY);
 
         // Buttons
         for (int i = 0; i < items.size(); i++) {
@@ -156,18 +157,16 @@ public class PauseScene extends Scene {
             Rectangle box = buttonRect(cx, cy, i);
             Color bg  = sel ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
                             : new Color(0.08f, 0.08f, 0.08f, 0.75f);
-            Color txt = sel ? Color.YELLOW : Color.WHITE;
+            Color txt = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawRect(box, bg, true);
             r.drawRect(box, sel ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
-            r.drawText(items.get(i),
-                new Vector2(box.x + BTN_W / 2f - 65f, box.y + BTN_H / 2f + 8f),
-                "default", txt);
+            r.drawTextCentered(items.get(i), box, GameUiTheme.FONT_BODY_LARGE, txt);
         }
 
         // Footer
-        r.drawText("ESC — Resume   Arrow Keys / Enter to navigate",
-            new Vector2(cx - 230f, 30f), "default",
-            new Color(0.55f, 0.55f, 0.55f, 1f));
+        r.drawTextCentered("ESC - Resume   Arrow Keys / Enter to navigate",
+            new Vector2(cx, 30f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
 
         r.end();
     }

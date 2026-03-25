@@ -17,6 +17,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Settings screen — adjust master, music, and SFX volume with sliders.
@@ -315,9 +316,9 @@ public class SettingsScene extends Scene {
         r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.65f), true);
 
         // Title
-        r.drawText("SETTINGS",
-            new Vector2(ww / 2f - 70f, wh - 80f), "default",
-            new Color(0.2f, 0.9f, 0.4f, 1f));
+        r.drawTextCentered("SETTINGS",
+            new Vector2(ww / 2f, wh - 78f), GameUiTheme.FONT_TITLE_SMALL,
+            GameUiTheme.TITLE_PRIMARY);
 
         float sx = sliderX(r);
 
@@ -325,7 +326,7 @@ public class SettingsScene extends Scene {
             float sy   = sliderY(r, i);
             boolean sel = (i == selectedRow);
 
-            Color labelColor = sel ? Color.YELLOW : Color.WHITE;
+            Color labelColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
 
             // Volume icon — mute when at 0, speaker otherwise
             String icon = (vols[i] <= 0f) ? "volume-mute.png" : "volume-on.png";
@@ -334,7 +335,7 @@ public class SettingsScene extends Scene {
             // Label + percentage
             int pct = Math.round(vols[i] * 100f);
             r.drawText(LABELS[i] + "   " + pct + "%",
-                new Vector2(sx, sy + 28f), "default", labelColor);
+                new Vector2(sx, sy + 28f), GameUiTheme.FONT_BODY_LARGE, labelColor);
 
             // Track (background bar)
             r.drawRect(new Rectangle(sx, sy - SLIDER_H / 2f, SLIDER_W, SLIDER_H),
@@ -360,12 +361,12 @@ public class SettingsScene extends Scene {
             fullscreenEnabled ? new Color(0.30f, 0.95f, 0.45f, 1f) : new Color(0.95f, 0.45f, 0.45f, 1f), true);
 
         // Footer
-        r.drawText("Up/Down - select   Left/Right - adjust   Enter/Space - toggle",
-            new Vector2(ww / 2f - 315f, 30f), "default",
-            new Color(0.55f, 0.55f, 0.55f, 1f));
-        r.drawText("Drag sliders   Click resolution/fullscreen   ESC - save + back",
-            new Vector2(ww / 2f - 310f, 10f), "default",
-            new Color(0.55f, 0.55f, 0.55f, 1f));
+        r.drawTextCentered("Up/Down - select   Left/Right - adjust   Enter/Space - toggle",
+            new Vector2(ww / 2f, 30f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
+        r.drawTextCentered("Drag sliders   Click resolution/fullscreen   ESC - save + back",
+            new Vector2(ww / 2f, 10f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
 
         r.end();
     }
@@ -376,13 +377,13 @@ public class SettingsScene extends Scene {
         boolean selected = (row == selectedRow);
         Rectangle rect = optionRect(r, row);
 
-        r.drawText(label, new Vector2(sx, sy + 28f), "default", selected ? Color.YELLOW : Color.WHITE);
+        r.drawText(label, new Vector2(sx, sy + 28f), GameUiTheme.FONT_BODY_LARGE,
+            selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         r.drawRect(rect, new Color(0.12f, 0.12f, 0.12f, 0.9f), true);
         r.drawRect(rect, selected ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
 
         String decoratedValue = toggleStyle ? "[ " + value + " ]" : "<  " + value + "  >";
-        r.drawText(decoratedValue,
-            new Vector2(rect.x + 16f, sy + 6f), "default", valueColor);
+        r.drawTextCentered(decoratedValue, rect, GameUiTheme.FONT_BODY_LARGE, valueColor);
     }
 
     // ── Inner classes ────────────────────────────────────────────────────────

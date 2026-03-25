@@ -15,6 +15,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Character selection screen.
@@ -140,12 +141,12 @@ public class CharacterSelectScene extends Scene {
         r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.65f), true);
 
         // Title
-        r.drawText("SELECT YOUR CHARACTER",
-            new Vector2(cx - 200f, wh - 60f), "default",
-            new Color(0.2f, 0.9f, 0.4f, 1f));
-        r.drawText("Click a card or use Left / Right arrows, then Enter to confirm",
-            new Vector2(cx - 295f, wh - 96f), "default",
-            new Color(0.6f, 0.6f, 0.6f, 1f));
+        r.drawTextCentered("SELECT YOUR CHARACTER",
+            new Vector2(cx, wh - 58f), GameUiTheme.FONT_TITLE_SMALL,
+            GameUiTheme.TITLE_PRIMARY);
+        r.drawTextCentered("Click a card or use Left / Right arrows, then Enter to confirm",
+            new Vector2(cx, wh - 94f), GameUiTheme.FONT_BODY,
+            GameUiTheme.TEXT_MUTED);
 
         for (int i = 0; i < CHARS.length; i++) {
             CharacterType ch  = CHARS[i];
@@ -165,36 +166,36 @@ public class CharacterSelectScene extends Scene {
             r.drawSprite(ch.getSprite(), new Vector2(spriteX, spriteY), CHAR_W, CHAR_H);
 
             // Name
-            Color nameColor = sel ? Color.YELLOW : Color.WHITE;
-            r.drawText(ch.getName(),
-                new Vector2(card.x + CARD_W / 2f - 45f, card.y + CARD_H - CHAR_H - 50f),
-                "default", nameColor);
+            Color nameColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
+            r.drawTextCentered(ch.getName(),
+                new Rectangle(card.x, card.y + CARD_H - CHAR_H - 78f, CARD_W, 34f),
+                GameUiTheme.FONT_BODY_LARGE, nameColor);
 
             // Stats
             float statsY = card.y + CARD_H - CHAR_H - 80f;
             r.drawText("Speed:  " + (int) ch.getSpeed() + " px/s",
-                new Vector2(card.x + 14f, statsY),         "default", new Color(0.8f, 0.8f, 0.8f, 1f));
+                new Vector2(card.x + 14f, statsY),         GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
             r.drawText("Lives:  " + ch.getLives(),
-                new Vector2(card.x + 14f, statsY - 28f),   "default", new Color(0.8f, 0.8f, 0.8f, 1f));
+                new Vector2(card.x + 14f, statsY - 28f),   GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
             r.drawText("Score:  x" + ch.getScoreMultiplier(),
-                new Vector2(card.x + 14f, statsY - 56f),   "default", new Color(0.8f, 0.8f, 0.8f, 1f));
+                new Vector2(card.x + 14f, statsY - 56f),   GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
 
             // Perk
             r.drawText("Perk: " + ch.getPerkName(),
-                new Vector2(card.x + 14f, statsY - 90f),   "default", new Color(0.35f, 0.90f, 0.50f, 1f));
+                new Vector2(card.x + 14f, statsY - 90f),   GameUiTheme.FONT_BODY, GameUiTheme.TEXT_SUCCESS);
             // perk desc (two lines split on \n)
             String[] descLines = ch.getPerkDesc().split("\n");
             for (int l = 0; l < descLines.length; l++) {
                 r.drawText(descLines[l],
                     new Vector2(card.x + 14f, statsY - 114f - l * 24f),
-                    "default", new Color(0.65f, 0.65f, 0.65f, 1f));
+                    GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_MUTED);
             }
         }
 
         // Footer
-        r.drawText("ESC - Back   Enter / Double-click - Confirm",
-            new Vector2(cx - 220f, 28f), "default",
-            new Color(0.55f, 0.55f, 0.55f, 1f));
+        r.drawTextCentered("ESC - Back   Enter / Double-click - Confirm",
+            new Vector2(cx, 28f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
 
         r.end();
     }
