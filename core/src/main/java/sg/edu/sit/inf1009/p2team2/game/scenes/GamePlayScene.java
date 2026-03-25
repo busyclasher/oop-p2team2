@@ -66,6 +66,8 @@ public class GamePlayScene extends Scene {
     private static final float SPAWN_MARGIN       = 60f;
     private static final float STANDARD_DURATION  = 60f;   // seconds of standard mode
     private static final int   QUIZ_BONUS_POINTS = 100;
+    private static final int   REVIVE_FLASH_COUNT = 3;
+    private static final float REVIVE_FLASH_INTERVAL = 0.12f;
 
     // Difficulty scaling (PLAYING mode only)
     private static final float DIFF_TICK          = 15f;   // seconds between each ramp-up
@@ -159,6 +161,11 @@ public class GamePlayScene extends Scene {
     private boolean hasShield        = false;
     private float   playerSpeedBonus = 0f;
 
+    // Revive feedback
+    private float   reviveFlashTimer = 0f;
+    private int     reviveFlashTogglesRemaining = 0;
+    private boolean reviveTextVisible = false;
+
     // ── Constructor ──────────────────────────────────────────────────────────
 
     public GamePlayScene(EngineContext context, LeaderboardManager leaderboard) {
@@ -211,6 +218,8 @@ public class GamePlayScene extends Scene {
 
     @Override
     public void update(float dt) {
+        updateReviveBanner(dt);
+
         switch (gameState) {
             case PLAYING:
             case FRENZY:
@@ -509,6 +518,7 @@ public class GamePlayScene extends Scene {
         if (playerHealth.isDead() && hasShield) {
             playerHealth.gainLife();
             hasShield = false;
+            triggerReviveBanner();
             getContext().getOutputManager().getAudio().playSound(SFX_COLLECT, 1.0f);
             return;
         }
@@ -592,10 +602,36 @@ public class GamePlayScene extends Scene {
         nextBuffScore    = BUFF_INTERVAL;
         hasShield        = false;
         playerSpeedBonus = 0f;
+        reviveFlashTimer = 0f;
+        reviveFlashTogglesRemaining = 0;
+        reviveTextVisible = false;
 
         Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
+    }
+
+    private void triggerReviveBanner() {
+        reviveTextVisible = true;
+        reviveFlashTimer = REVIVE_FLASH_INTERVAL;
+        reviveFlashTogglesRemaining = REVIVE_FLASH_COUNT * 2 - 1;
+    }
+
+    private void updateReviveBanner(float dt) {
+        if (!reviveTextVisible && reviveFlashTogglesRemaining <= 0) {
+            return;
+        }
+
+        reviveFlashTimer -= dt;
+        while (reviveFlashTimer <= 0f && reviveFlashTogglesRemaining > 0) {
+            reviveTextVisible = !reviveTextVisible;
+            reviveFlashTogglesRemaining--;
+            reviveFlashTimer += REVIVE_FLASH_INTERVAL;
+        }
+
+        if (reviveFlashTogglesRemaining == 0 && !reviveTextVisible) {
+            reviveFlashTimer = 0f;
+        }
     }
 
     // ── Accessors for renderer / input handler ───────────────────────────────
@@ -803,6 +839,8 @@ public class GamePlayScene extends Scene {
                     break;
             }
 
+            drawReviveBanner(r);
+
             r.end();
         }
 
@@ -926,6 +964,21 @@ public class GamePlayScene extends Scene {
             // Controls hint
             r.drawText("A/D Move  |  SPACE Jump  |  ESC Quit",
                 new Vector2(20f, 12f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+        }
+
+        private void drawReviveBanner(Renderer r) {
+            if (!scene.reviveTextVisible) {
+                return;
+            }
+
+            float ww = r.getWorldWidth();
+            float wh = r.getWorldHeight();
+            Vector2 textPos = new Vector2(ww / 2f - 42f, wh / 2f + 90f);
+            Color shadow = new Color(0.18f, 0.10f, 0.02f, 0.95f);
+            Color gold = new Color(1.0f, 0.86f, 0.22f, 1.0f);
+
+            r.drawText("REVIVED", new Vector2(textPos.x + 2f, textPos.y - 2f), "default", shadow);
+            r.drawText("REVIVED", textPos, "default", gold);
         }
 
         private void drawHeart(Renderer r, float x, float y, Color c) {
