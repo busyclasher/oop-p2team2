@@ -74,17 +74,17 @@ public class Renderer {
         fonts.put("title", fallback);
         fonts.put("title-small", fallback);
 
-        loadGeneratedFont("title", "fonts/orbitron.ttf", 50,
+        loadGeneratedFont("title", "fonts/orbitron.ttf", 42,
             new Color(0.02f, 0.06f, 0.10f, 0.95f), 2f, 2, 2);
-        loadGeneratedFont("title-small", "fonts/orbitron.ttf", 34,
+        loadGeneratedFont("title-small", "fonts/orbitron.ttf", 30,
             new Color(0.02f, 0.06f, 0.10f, 0.95f), 1.5f, 2, 2);
-        loadGeneratedFont("body-large", "fonts/rajdhani-medium.ttf", 28,
+        loadGeneratedFont("body-large", "fonts/rajdhani-medium.ttf", 22,
             new Color(0.03f, 0.05f, 0.10f, 0.80f), 1.2f, 1, 1);
-        loadGeneratedFont("body", "fonts/rajdhani-medium.ttf", 24,
+        loadGeneratedFont("body", "fonts/rajdhani-medium.ttf", 20,
             new Color(0.03f, 0.05f, 0.10f, 0.80f), 1.0f, 1, 1);
-        loadGeneratedFont("body-small", "fonts/rajdhani-medium.ttf", 20,
+        loadGeneratedFont("body-small", "fonts/rajdhani-medium.ttf", 17,
             new Color(0.03f, 0.05f, 0.10f, 0.75f), 0.8f, 1, 1);
-        loadGeneratedFont("body-tiny", "fonts/rajdhani-medium.ttf", 18,
+        loadGeneratedFont("body-tiny", "fonts/rajdhani-medium.ttf", 15,
             new Color(0.03f, 0.05f, 0.10f, 0.70f), 0.8f, 1, 1);
     }
 
@@ -411,6 +411,13 @@ public class Renderer {
     public float measureTextWidth(String text, String font) {
         glyphLayout.setText(resolveFont(font), text);
         return glyphLayout.width;
+    }
+
+    /**
+     * Get the line height of the selected font for vertical layout.
+     */
+    public float getLineHeight(String font) {
+        return resolveFont(font).getLineHeight();
     }
     
     // ===== SHAPE DRAWING =====

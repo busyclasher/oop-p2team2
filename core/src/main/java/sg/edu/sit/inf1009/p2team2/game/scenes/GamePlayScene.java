@@ -1061,10 +1061,11 @@ public class GamePlayScene extends Scene {
             String[] words = text.split(" ");
             StringBuilder line = new StringBuilder();
             float y = startY;
+            float lineStep = r.getLineHeight(GameUiTheme.FONT_BODY) + 4f;
             for (String word : words) {
                 if (line.length() + word.length() + 1 > lineLen && line.length() > 0) {
                     r.drawText(line.toString(), new Vector2(x, y), GameUiTheme.FONT_BODY, color);
-                    y -= 24f;
+                    y -= lineStep;
                     line = new StringBuilder();
                 }
                 if (line.length() > 0) line.append(" ");

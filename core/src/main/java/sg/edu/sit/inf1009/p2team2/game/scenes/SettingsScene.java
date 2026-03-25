@@ -31,6 +31,8 @@ public class SettingsScene extends Scene {
     private static final float STEP         = 0.05f;
     private static final int   COOLDOWN_MAX = 6;
     private static final float ROW_SPACING  = 90f;
+    private static final float DROPDOWN_OPTION_H = 40f;
+    private static final float DROPDOWN_GAP = 6f;
 
     private static final String[] LABELS = { "Master Volume", "Music Volume", "SFX Volume" };
     private static final int ROW_MASTER = 0;
@@ -51,6 +53,8 @@ public class SettingsScene extends Scene {
     private int   keyboardCooldown;
     private int   selectedResolutionIndex;
     private boolean fullscreenEnabled;
+    private boolean resolutionDropdownOpen;
+    private int hoveredResolutionIndex;
 
     public SettingsScene(EngineContext context) {
         super(context);
@@ -58,6 +62,8 @@ public class SettingsScene extends Scene {
         this.keyboardCooldown = 0;
         this.selectedResolutionIndex = 2;
         this.fullscreenEnabled = false;
+        this.resolutionDropdownOpen = false;
+        this.hoveredResolutionIndex = -1;
 
         setInputHandler(new SettingsInputHandler(this));
         setSceneRenderer(new SettingsRenderer(this));
@@ -71,6 +77,8 @@ public class SettingsScene extends Scene {
     public void onEnter() {
         selectedRow = 0;
         keyboardCooldown = 0;
+        resolutionDropdownOpen = false;
+        hoveredResolutionIndex = -1;
         loadDisplaySettings();
     }
 
@@ -221,6 +229,51 @@ public class SettingsScene extends Scene {
         return new Rectangle(sx, sy - 22f, SLIDER_W, 44f);
     }
 
+    private Rectangle dropdownOptionRect(Renderer r, int index) {
+        Rectangle base = optionRect(r, ROW_RESOLUTION);
+        float y = base.y - DROPDOWN_GAP - (index + 1) * DROPDOWN_OPTION_H - index * DROPDOWN_GAP;
+        return new Rectangle(base.x, y, base.width, DROPDOWN_OPTION_H);
+    }
+
+    private Rectangle dropdownBounds(Renderer r) {
+        Rectangle base = optionRect(r, ROW_RESOLUTION);
+        float totalHeight = RESOLUTION_OPTIONS.length * DROPDOWN_OPTION_H
+            + (RESOLUTION_OPTIONS.length - 1) * DROPDOWN_GAP;
+        return new Rectangle(base.x, base.y - DROPDOWN_GAP - totalHeight, base.width, totalHeight);
+    }
+
+    private void updateMouseHover(Renderer r, Vector2 mp) {
+        hoveredResolutionIndex = -1;
+
+        float sx = sliderX(r);
+        for (int i = 0; i < LABELS.length; i++) {
+            float sy = sliderY(r, i);
+            Rectangle hitArea = new Rectangle(sx - 42f, sy - SLIDER_H * 2f, SLIDER_W + 42f, SLIDER_H * 4f);
+            if (hitArea.contains(mp.x, mp.y)) {
+                selectedRow = i;
+            }
+        }
+
+        Rectangle resolutionRect = optionRect(r, ROW_RESOLUTION);
+        Rectangle fullscreenRect = optionRect(r, ROW_FULLSCREEN);
+        if (resolutionRect.contains(mp.x, mp.y)) {
+            selectedRow = ROW_RESOLUTION;
+        } else if (fullscreenRect.contains(mp.x, mp.y)) {
+            selectedRow = ROW_FULLSCREEN;
+        }
+
+        if (resolutionDropdownOpen) {
+            for (int i = 0; i < RESOLUTION_OPTIONS.length; i++) {
+                Rectangle option = dropdownOptionRect(r, i);
+                if (option.contains(mp.x, mp.y)) {
+                    hoveredResolutionIndex = i;
+                    selectedRow = ROW_RESOLUTION;
+                    break;
+                }
+            }
+        }
+    }
+
     // ── Input ────────────────────────────────────────────────────────────────
 
     void processInput() {
@@ -230,37 +283,69 @@ public class SettingsScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            if (resolutionDropdownOpen) {
+                resolutionDropdownOpen = false;
+                GameAudio.playUiClick(getContext());
+                return;
+            }
             GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
 
+        Vector2 mp = mouse.getPosition();
+        updateMouseHover(r, mp);
+
         if (keyboardCooldown == 0) {
-            if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
-                selectedRow = (selectedRow - 1 + ROW_COUNT) % ROW_COUNT;
-                keyboardCooldown = COOLDOWN_MAX;
-                GameAudio.playUiClick(getContext());
-            } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
-                selectedRow = (selectedRow + 1) % ROW_COUNT;
-                keyboardCooldown = COOLDOWN_MAX;
-                GameAudio.playUiClick(getContext());
-            } else if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
-                adjustSelectedSetting(-1, vols);
-                keyboardCooldown = COOLDOWN_MAX;
-                GameAudio.playUiClick(getContext());
-            } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
-                adjustSelectedSetting(1, vols);
-                keyboardCooldown = COOLDOWN_MAX;
-                GameAudio.playUiClick(getContext());
-            } else if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
-                if (selectedRow == ROW_FULLSCREEN) {
-                    toggleFullscreenSelection();
+            if (resolutionDropdownOpen) {
+                if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+                    adjustResolution(-1);
                     keyboardCooldown = COOLDOWN_MAX;
                     GameAudio.playUiClick(getContext());
-                } else if (selectedRow == ROW_RESOLUTION) {
+                } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
                     adjustResolution(1);
                     keyboardCooldown = COOLDOWN_MAX;
                     GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                    resolutionDropdownOpen = false;
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+                    adjustResolution(-1);
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
+                    adjustResolution(1);
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                }
+            } else {
+                if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+                    selectedRow = (selectedRow - 1 + ROW_COUNT) % ROW_COUNT;
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
+                    selectedRow = (selectedRow + 1) % ROW_COUNT;
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+                    adjustSelectedSetting(-1, vols);
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
+                    adjustSelectedSetting(1, vols);
+                    keyboardCooldown = COOLDOWN_MAX;
+                    GameAudio.playUiClick(getContext());
+                } else if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                    if (selectedRow == ROW_FULLSCREEN) {
+                        toggleFullscreenSelection();
+                        keyboardCooldown = COOLDOWN_MAX;
+                        GameAudio.playUiClick(getContext());
+                    } else if (selectedRow == ROW_RESOLUTION) {
+                        resolutionDropdownOpen = !resolutionDropdownOpen;
+                        keyboardCooldown = COOLDOWN_MAX;
+                        GameAudio.playUiClick(getContext());
+                    }
                 }
             }
         }
@@ -268,11 +353,10 @@ public class SettingsScene extends Scene {
         // Mouse click/drag — set volume to mouse position while held
         boolean mousePressed = mouse.isButtonPressed(0);
         if (mouse.isButtonDown(0)) {
-            Vector2 mp = mouse.getPosition();
             float sx = sliderX(r);
             for (int i = 0; i < LABELS.length; i++) {
                 float sy = sliderY(r, i);
-                Rectangle hitArea = new Rectangle(sx, sy - SLIDER_H * 2f, SLIDER_W, SLIDER_H * 4f);
+                Rectangle hitArea = new Rectangle(sx - 42f, sy - SLIDER_H * 2f, SLIDER_W + 42f, SLIDER_H * 4f);
                 if (hitArea.contains(mp.x, mp.y)) {
                     selectedRow = i;
                     if (mousePressed) {
@@ -285,18 +369,24 @@ public class SettingsScene extends Scene {
         }
 
         if (mousePressed) {
-            Vector2 mp = mouse.getPosition();
             Rectangle resolutionRect = optionRect(r, ROW_RESOLUTION);
             Rectangle fullscreenRect = optionRect(r, ROW_FULLSCREEN);
 
-            if (resolutionRect.contains(mp.x, mp.y)) {
+            if (resolutionDropdownOpen && hoveredResolutionIndex >= 0) {
+                selectedResolutionIndex = hoveredResolutionIndex;
+                resolutionDropdownOpen = false;
+                GameAudio.playUiClick(getContext());
+            } else if (resolutionRect.contains(mp.x, mp.y)) {
                 selectedRow = ROW_RESOLUTION;
-                adjustResolution(mp.x < resolutionRect.x + resolutionRect.width / 2f ? -1 : 1);
+                resolutionDropdownOpen = !resolutionDropdownOpen;
                 GameAudio.playUiClick(getContext());
             } else if (fullscreenRect.contains(mp.x, mp.y)) {
                 selectedRow = ROW_FULLSCREEN;
+                resolutionDropdownOpen = false;
                 toggleFullscreenSelection();
                 GameAudio.playUiClick(getContext());
+            } else if (resolutionDropdownOpen && !dropdownBounds(r).contains(mp.x, mp.y)) {
+                resolutionDropdownOpen = false;
             }
         }
     }
@@ -359,6 +449,9 @@ public class SettingsScene extends Scene {
         drawOptionRow(r, ROW_RESOLUTION, "Resolution", currentResolutionLabel(), Color.WHITE, false);
         drawOptionRow(r, ROW_FULLSCREEN, "Fullscreen", fullscreenEnabled ? "ON" : "OFF",
             fullscreenEnabled ? new Color(0.30f, 0.95f, 0.45f, 1f) : new Color(0.95f, 0.45f, 0.45f, 1f), true);
+        if (resolutionDropdownOpen) {
+            drawResolutionDropdown(r);
+        }
 
         // Footer
         r.drawTextCentered("Up/Down - select   Left/Right - adjust   Enter/Space - toggle",
@@ -382,8 +475,41 @@ public class SettingsScene extends Scene {
         r.drawRect(rect, new Color(0.12f, 0.12f, 0.12f, 0.9f), true);
         r.drawRect(rect, selected ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
 
-        String decoratedValue = toggleStyle ? "[ " + value + " ]" : "<  " + value + "  >";
+        String decoratedValue;
+        if (toggleStyle) {
+            decoratedValue = "[ " + value + " ]";
+        } else {
+            decoratedValue = resolutionDropdownOpen ? "v  " + value + "  v" : "<  " + value + "  >";
+        }
         r.drawTextCentered(decoratedValue, rect, GameUiTheme.FONT_BODY_LARGE, valueColor);
+    }
+
+    private void drawResolutionDropdown(Renderer r) {
+        Rectangle bounds = dropdownBounds(r);
+        r.drawRect(bounds, new Color(0.06f, 0.08f, 0.10f, 0.95f), true);
+        r.drawRect(bounds, new Color(0.50f, 0.80f, 1.0f, 1f), false);
+
+        for (int i = 0; i < RESOLUTION_OPTIONS.length; i++) {
+            Rectangle option = dropdownOptionRect(r, i);
+            boolean selected = (i == selectedResolutionIndex);
+            boolean hovered = (i == hoveredResolutionIndex);
+
+            Color fill = hovered
+                ? new Color(0.12f, 0.28f, 0.40f, 1f)
+                : selected
+                    ? new Color(0.10f, 0.20f, 0.18f, 1f)
+                    : new Color(0.10f, 0.10f, 0.10f, 0.95f);
+            Color textColor = hovered || selected
+                ? GameUiTheme.TEXT_HIGHLIGHT
+                : GameUiTheme.TEXT_PRIMARY;
+
+            r.drawRect(option, fill, true);
+            r.drawRect(option,
+                hovered ? Color.YELLOW : new Color(0.35f, 0.45f, 0.55f, 1f), false);
+            int[] resolution = RESOLUTION_OPTIONS[i];
+            r.drawTextCentered(resolution[0] + " x " + resolution[1],
+                option, GameUiTheme.FONT_BODY, textColor);
+        }
     }
 
     // ── Inner classes ────────────────────────────────────────────────────────

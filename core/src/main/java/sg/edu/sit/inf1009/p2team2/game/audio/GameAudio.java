@@ -28,7 +28,8 @@ public final class GameAudio {
     }
 
     public static void playJump(EngineContext context) {
-        play(context, JUMP_SOUND_ID, 0.85f);
+        // Keep jump prominent enough to cut through the background music mix.
+        play(context, JUMP_SOUND_ID, 1.0f);
     }
 
     private static void play(EngineContext context, String soundId, float volume) {
