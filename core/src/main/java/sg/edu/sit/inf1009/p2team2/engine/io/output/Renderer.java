@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
@@ -40,8 +39,6 @@ public class Renderer {
     private OrthographicCamera camera;
     private Viewport viewport;
     private Vector3 tempScreenPosition;
-    private Matrix4 screenProjection;
-    private Matrix4 worldProjection;
     
     // Sprite cache
     private Map<String, Texture> spriteCache;
@@ -61,8 +58,6 @@ public class Renderer {
         this.camera = new OrthographicCamera();
         this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.tempScreenPosition = new Vector3();
-        this.screenProjection = new Matrix4();
-        this.worldProjection = new Matrix4();
 
         initialiseFonts();
         syncViewport();
@@ -152,14 +147,7 @@ public class Renderer {
         viewportWidth = width;
         viewportHeight = height;
         viewport.update(width, height, true);
-        worldProjection.set(camera.combined);
-        screenProjection.setToOrtho2D(
-            0f,
-            0f,
-            Gdx.graphics.getBackBufferWidth(),
-            Gdx.graphics.getBackBufferHeight()
-        );
-        spriteBatch.setProjectionMatrix(worldProjection);
+        spriteBatch.setProjectionMatrix(camera.combined);
         shapeRenderer.setProjectionMatrix(camera.combined);
     }
 
@@ -201,8 +189,7 @@ public class Renderer {
      */
     public void begin() {
         syncViewport();
-        worldProjection.set(camera.combined);
-        spriteBatch.setProjectionMatrix(worldProjection);
+        spriteBatch.setProjectionMatrix(camera.combined);
         spriteBatch.begin();
     }
 
@@ -343,43 +330,21 @@ public class Renderer {
      * @param spriteId Path to background image
      */
     public void drawBackground(String spriteId) {
+        float screenWidth = viewport.getWorldWidth();
+        float screenHeight = viewport.getWorldHeight();
+        
+        Vector2 center = new Vector2(screenWidth / 2f, screenHeight / 2f);
+        
         Texture texture = getOrLoadTexture(spriteId);
         if (texture == null) {
             return;
         }
-
-        syncViewport();
-
-        boolean batchWasActive = spriteBatch.isDrawing();
-        if (batchWasActive) {
-            spriteBatch.end();
-        }
-
-        int bufferWidth = Gdx.graphics.getBackBufferWidth();
-        int bufferHeight = Gdx.graphics.getBackBufferHeight();
-        Gdx.gl.glViewport(0, 0, bufferWidth, bufferHeight);
-
-        float scale = Math.max(
-            (float) bufferWidth / texture.getWidth(),
-            (float) bufferHeight / texture.getHeight()
-        );
-        float drawWidth = texture.getWidth() * scale;
-        float drawHeight = texture.getHeight() * scale;
-        float drawX = (bufferWidth - drawWidth) / 2f;
-        float drawY = (bufferHeight - drawHeight) / 2f;
-
-        spriteBatch.setProjectionMatrix(screenProjection);
-        spriteBatch.begin();
-        spriteBatch.draw(texture, drawX, drawY, drawWidth, drawHeight);
-        spriteBatch.end();
-
-        viewport.apply();
-        spriteBatch.setProjectionMatrix(worldProjection);
-        shapeRenderer.setProjectionMatrix(worldProjection);
-
-        if (batchWasActive) {
-            spriteBatch.begin();
-        }
+        
+        // Calculate scale to fill screen
+        float scaleX = screenWidth / texture.getWidth();
+        float scaleY = screenHeight / texture.getHeight();
+        
+        drawSprite(spriteId, center, 0f, new Vector2(scaleX, scaleY));
     }
     
     /**
