@@ -21,6 +21,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.components.FallingComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.GameEntityComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.HealthComponent;
@@ -338,6 +339,7 @@ public class GamePlayScene extends Scene {
         if (playerOnGround && (kb.isKeyPressed(Input.Keys.SPACE)
                 || kb.isKeyPressed(Input.Keys.W)
                 || kb.isKeyPressed(Input.Keys.UP))) {
+            GameAudio.playJump(getContext());
             playerVelocityY = characterType.getJumpStrength();
             playerOnGround  = false;
         }
@@ -418,6 +420,7 @@ public class GamePlayScene extends Scene {
 
     void submitQuizAnswer(int index) {
         if (!quizManager.isActive()) return;
+        GameAudio.playUiClick(getContext());
 
         Entity  triggered = quizManager.getTriggeringEntity();
         boolean isBadQuiz = quizManager.isBadEntityQuiz();
@@ -476,6 +479,7 @@ public class GamePlayScene extends Scene {
     }
 
     void applyBuff(BuffType buff) {
+        GameAudio.playUiClick(getContext());
         switch (buff) {
             case EXTRA_LIFE:
                 playerHealth.increaseMaxLives();
@@ -639,6 +643,7 @@ public class GamePlayScene extends Scene {
                 case PLAYING:
                 case FRENZY:
                     if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+                        GameAudio.playUiClick(scene.getContext());
                         scene.getContext().getSceneManager().push(new PauseScene(scene.getContext()));
                     }
                     break;
@@ -649,6 +654,7 @@ public class GamePlayScene extends Scene {
 
                 case QUIZ_FEEDBACK:
                     if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                        GameAudio.playUiClick(scene.getContext());
                         scene.feedbackTimer = 0;
                         if (scene.postFeedbackState == GameState.GAME_OVER) {
                             scene.goToGameOver();
@@ -664,12 +670,14 @@ public class GamePlayScene extends Scene {
 
                 case GAME_OVER:
                     if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                        GameAudio.playUiClick(scene.getContext());
                         scene.goToGameOver();
                     }
                     break;
 
                 case WIN:
                     if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                        GameAudio.playUiClick(scene.getContext());
                         scene.goToLeaderboard();
                     }
                     break;

@@ -12,6 +12,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 
@@ -65,6 +66,7 @@ public class CharacterSelectScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
@@ -73,9 +75,11 @@ public class CharacterSelectScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
                 selectedIndex    = (selectedIndex - 1 + CHARS.length) % CHARS.length;
                 keyboardCooldown = COOLDOWN;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
                 selectedIndex    = (selectedIndex + 1) % CHARS.length;
                 keyboardCooldown = COOLDOWN;
+                GameAudio.playUiClick(getContext());
             }
         }
 
@@ -95,6 +99,7 @@ public class CharacterSelectScene extends Scene {
                     startGame();
                 } else {
                     selectedIndex = i;
+                    GameAudio.playUiClick(getContext());
                 }
                 return;
             }
@@ -113,6 +118,7 @@ public class CharacterSelectScene extends Scene {
     }
 
     private void startGame() {
+        GameAudio.playUiClick(getContext());
         CharacterType chosen = CHARS[selectedIndex];
         leaderboard.setLastCharacter(chosen);
         getContext().getSceneManager().pop();                                       // remove CharacterSelectScene

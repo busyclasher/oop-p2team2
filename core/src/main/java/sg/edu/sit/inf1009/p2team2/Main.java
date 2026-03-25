@@ -7,6 +7,7 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.scene.MainScene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.MenuScene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 import sg.edu.sit.inf1009.p2team2.game.scenes.GameMenuScene;
 
@@ -43,6 +44,7 @@ public class Main extends ApplicationAdapter {
         // 2. Initialize the engine (after libGDX context is ready)
         engine.initialize();
         engine.getOutputManager().getAudio().loadSettings();
+        GameAudio.loadGameSounds(engine.getOutputManager().getAudio());
         engine.getOutputManager().getRenderer().resizeViewport(
             Gdx.graphics.getWidth(),
             Gdx.graphics.getHeight()

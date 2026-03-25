@@ -13,6 +13,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 
 /**
  * Settings screen — adjust master, music, and SFX volume with sliders.
@@ -86,6 +87,7 @@ public class SettingsScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getOutputManager().getAudio().saveSettings();
             getContext().getSceneManager().pop();
             return;
@@ -95,19 +97,24 @@ public class SettingsScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
                 selectedRow = (selectedRow - 1 + LABELS.length) % LABELS.length;
                 keyboardCooldown = COOLDOWN_MAX;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
                 selectedRow = (selectedRow + 1) % LABELS.length;
                 keyboardCooldown = COOLDOWN_MAX;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
                 setVolume(selectedRow, vols[selectedRow] - STEP);
                 keyboardCooldown = COOLDOWN_MAX;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
                 setVolume(selectedRow, vols[selectedRow] + STEP);
                 keyboardCooldown = COOLDOWN_MAX;
+                GameAudio.playUiClick(getContext());
             }
         }
 
         // Mouse click/drag — set volume to mouse position while held
+        boolean mousePressed = mouse.isButtonPressed(0);
         if (mouse.isButtonDown(0)) {
             Vector2 mp = mouse.getPosition();
             float sx = sliderX(r);
@@ -116,6 +123,9 @@ public class SettingsScene extends Scene {
                 Rectangle hitArea = new Rectangle(sx, sy - SLIDER_H * 2f, SLIDER_W, SLIDER_H * 4f);
                 if (hitArea.contains(mp.x, mp.y)) {
                     selectedRow = i;
+                    if (mousePressed) {
+                        GameAudio.playUiClick(getContext());
+                    }
                     setVolume(i, (mp.x - sx) / SLIDER_W);
                     break;
                 }

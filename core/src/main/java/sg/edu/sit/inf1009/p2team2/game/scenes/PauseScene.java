@@ -14,6 +14,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 
 /**
  * Pause screen — pushed on top of GamePlayScene when ESC is pressed.
@@ -65,6 +66,7 @@ public class PauseScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop(); // resume
             return;
         }
@@ -73,9 +75,11 @@ public class PauseScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
                 selectedIndex = (selectedIndex - 1 + items.size()) % items.size();
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
                 selectedIndex = (selectedIndex + 1) % items.size();
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             }
         }
 
@@ -112,6 +116,7 @@ public class PauseScene extends Scene {
     }
 
     private void activate(int index) {
+        GameAudio.playUiClick(getContext());
         switch (items.get(index)) {
             case "Resume":
                 getContext().getSceneManager().pop();

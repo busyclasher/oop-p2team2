@@ -12,6 +12,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 
 /**
@@ -73,6 +74,7 @@ public class GameOverScene extends Scene {
     // ── Name confirmation ─────────────────────────────────────────────────────
 
     private void confirmName() {
+        GameAudio.playUiClick(getContext());
         String name = playerName.trim().isEmpty() ? "PLAYER" : playerName.trim().toUpperCase();
         leaderboard.addEntry(name, finalScore);
         isEnteringName   = false;
@@ -142,9 +144,11 @@ public class GameOverScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
                 selectedIndex    = (selectedIndex - 1 + OPTIONS.length) % OPTIONS.length;
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
                 selectedIndex    = (selectedIndex + 1) % OPTIONS.length;
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             }
         }
 
@@ -166,6 +170,7 @@ public class GameOverScene extends Scene {
     }
 
     private void activate(int index) {
+        GameAudio.playUiClick(getContext());
         switch (OPTIONS[index]) {
             case "Back to Menu":
                 getContext().getSceneManager().pop();

@@ -12,6 +12,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 
@@ -70,6 +71,7 @@ public class StartGamePromptScene extends Scene {
         float cx = r.getWorldWidth() / 2f, cy = r.getWorldHeight() / 2f;
 
         if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
@@ -78,9 +80,11 @@ public class StartGamePromptScene extends Scene {
             if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
                 selectedIndex    = (selectedIndex - 1 + 2) % 2;
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
                 selectedIndex    = (selectedIndex + 1) % 2;
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             }
         }
 
@@ -101,6 +105,7 @@ public class StartGamePromptScene extends Scene {
     }
 
     private void activate(int index) {
+        GameAudio.playUiClick(getContext());
         getContext().getSceneManager().pop(); // remove this prompt
         if (index == 0) {
             // Continue with same character — straight into game

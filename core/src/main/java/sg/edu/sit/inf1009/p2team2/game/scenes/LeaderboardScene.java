@@ -13,6 +13,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardEntry;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 
@@ -64,10 +65,12 @@ public class LeaderboardScene extends Scene {
         if (kb.isKeyPressed(Input.Keys.ESCAPE)
                 || kb.isKeyPressed(Input.Keys.ENTER)
                 || kb.isKeyPressed(Input.Keys.SPACE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
         if (kb.isKeyPressed(Input.Keys.R)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
             return;
@@ -82,8 +85,10 @@ public class LeaderboardScene extends Scene {
         // Mouse click
         if (mouse.isButtonPressed(0)) {
             if (hoveredBtn == 0) {
+                GameAudio.playUiClick(getContext());
                 getContext().getSceneManager().pop();
             } else if (hoveredBtn == 1) {
+                GameAudio.playUiClick(getContext());
                 getContext().getSceneManager().pop();
                 getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
             }

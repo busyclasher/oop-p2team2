@@ -12,6 +12,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 
 /**
  * How To Play screen — explains rules, controls, entities and characters.
@@ -49,6 +50,7 @@ public class HowToPlayScene extends Scene {
         if (kb.isKeyPressed(Input.Keys.ESCAPE)
                 || kb.isKeyPressed(Input.Keys.ENTER)
                 || kb.isKeyPressed(Input.Keys.SPACE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
@@ -56,6 +58,7 @@ public class HowToPlayScene extends Scene {
         Vector2 mp = mouse.getPosition();
         backHovered = backRect(ww).contains(mp.x, mp.y);
         if (backHovered && mouse.isButtonPressed(0)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
         }
     }
