@@ -59,7 +59,6 @@ public class GamePlayScene extends Scene {
     private static final String BACKGROUND_NORMAL     = "game-scene.png";
     private static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
     private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
-    private static final String TIMER_ICON_SPRITE = "ui/hourglass-timer.png";
     private static final String GAMEPLAY_MUSIC_ID = "game-theme";
     private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -983,21 +982,17 @@ public class GamePlayScene extends Scene {
             boolean flashOn = ((int) (scene.hudAnimTime * 6f) % 2) == 0;
             progressColor = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
 
-            float iconBob = (float) Math.sin(scene.hudAnimTime * 4f) * 1.75f;
-            float iconPulse = 13f + (float) Math.sin(scene.hudAnimTime * 5f) * 1.2f;
             float textWidth = r.measureTextWidth(progressText, GameUiTheme.FONT_BODY);
             float iconDiameter = 28f;
             float gap = 10f;
             float progressX = ww - textWidth - iconDiameter - gap - 24f;
-            Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 18f + iconBob);
-            Color iconBg = dangerFlash && flashOn
-                ? new Color(0.40f, 0.05f, 0.08f, 0.95f)
-                : COL_TIMER_ICON_BG;
-            Color iconRing = dangerFlash && flashOn ? COL_WARNING : COL_TIMER_ICON_RING;
+            Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 18f);
+            Color iconAccent = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
+            Color iconFrame = dangerFlash && flashOn
+                ? new Color(1f, 0.92f, 0.92f, 1f)
+                : GameUiTheme.TEXT_PRIMARY;
 
-            r.drawCircle(iconCenter, iconPulse, iconBg, true);
-            r.drawCircle(iconCenter, iconPulse + 1.5f, iconRing, false);
-            r.drawSprite(TIMER_ICON_SPRITE, iconCenter, iconDiameter, iconDiameter);
+            drawTimerIcon(r, iconCenter, iconFrame, iconAccent, dangerFlash);
             r.drawText(progressText, new Vector2(progressX + iconDiameter + gap, wh - 14f),
                 GameUiTheme.FONT_BODY, progressColor);
 
@@ -1035,6 +1030,50 @@ public class GamePlayScene extends Scene {
             // bottom triangle approximated by two lines
             r.drawLine(new Vector2(x, y), new Vector2(x + 11f, y - 8f), c, 3f);
             r.drawLine(new Vector2(x + 22f, y), new Vector2(x + 11f, y - 8f), c, 3f);
+        }
+
+        private void drawTimerIcon(Renderer r, Vector2 center, Color frameColor, Color accentColor, boolean warning) {
+            float pulse = warning
+                ? 13.0f + (float) Math.sin(scene.hudAnimTime * 10f) * 1.0f
+                : 13.0f;
+            Color badgeColor = warning
+                ? new Color(0.32f, 0.05f, 0.08f, 0.97f)
+                : COL_TIMER_ICON_BG;
+            Color ringColor = warning ? accentColor : COL_TIMER_ICON_RING;
+
+            r.drawCircle(center, pulse, badgeColor, true);
+            r.drawCircle(center, pulse + 1.4f, ringColor, false);
+
+            float thickness = 1.7f;
+            float halfBar = 6.0f;
+            float sideInset = 4.8f;
+            float topY = center.y + 7.0f;
+            float upperMidY = center.y + 2.1f;
+            float lowerMidY = center.y - 2.1f;
+            float bottomY = center.y - 7.0f;
+
+            r.drawLine(new Vector2(center.x - halfBar, topY), new Vector2(center.x + halfBar, topY),
+                frameColor, thickness);
+            r.drawLine(new Vector2(center.x - halfBar, bottomY), new Vector2(center.x + halfBar, bottomY),
+                frameColor, thickness);
+            r.drawLine(new Vector2(center.x - sideInset, topY - 0.8f), new Vector2(center.x, upperMidY),
+                frameColor, thickness);
+            r.drawLine(new Vector2(center.x + sideInset, topY - 0.8f), new Vector2(center.x, upperMidY),
+                frameColor, thickness);
+            r.drawLine(new Vector2(center.x - sideInset, bottomY + 0.8f), new Vector2(center.x, lowerMidY),
+                frameColor, thickness);
+            r.drawLine(new Vector2(center.x + sideInset, bottomY + 0.8f), new Vector2(center.x, lowerMidY),
+                frameColor, thickness);
+            r.drawLine(new Vector2(center.x, upperMidY), new Vector2(center.x, lowerMidY),
+                frameColor, 1.0f);
+
+            r.drawLine(new Vector2(center.x - 2.6f, center.y + 3.3f), new Vector2(center.x + 2.6f, center.y + 3.3f),
+                accentColor, 1.7f);
+            r.drawLine(new Vector2(center.x - 1.9f, center.y + 1.8f), new Vector2(center.x + 1.9f, center.y + 1.8f),
+                accentColor, 1.5f);
+            r.drawLine(new Vector2(center.x, center.y + 0.2f), new Vector2(center.x, center.y - 2.8f),
+                accentColor, 0.9f);
+            r.drawCircle(new Vector2(center.x, center.y - 4.3f), 1.8f, accentColor, true);
         }
 
         // ── Quiz overlay ─────────────────────────────────────────────────────
