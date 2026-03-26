@@ -4,8 +4,10 @@ import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigListener;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigVar;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
@@ -24,7 +26,7 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
  * Navigation: Up/Down to select row, Left/Right to adjust, ESC to go back.
  * Mouse: click anywhere on a slider bar to set the value directly.
  */
-public class SettingsScene extends Scene {
+public class SettingsScene extends Scene implements ConfigListener {
 
     private static final float SLIDER_W     = 400f;
     private static final float SLIDER_H     = 18f;
@@ -82,17 +84,34 @@ public class SettingsScene extends Scene {
         keyboardCooldown = 0;
         resolutionDropdownOpen = false;
         hoveredResolutionIndex = -1;
+        ConfigManager config = getContext().getConfigManager();
+        if (config != null) {
+            config.addObserver(this);
+        }
         loadDisplaySettings();
     }
 
     @Override
     public void onExit() {
+        ConfigManager config = getContext().getConfigManager();
+        if (config != null) {
+            config.removeObserver(this);
+        }
         saveSettings();
     }
 
     @Override
     public void update(float dt) {
         if (keyboardCooldown > 0) keyboardCooldown--;
+    }
+
+    @Override
+    public void onConfigChanged(String key, ConfigVar<?> val) {
+        if (ConfigKeys.DISPLAY_WIDTH.name().equals(key)
+            || ConfigKeys.DISPLAY_HEIGHT.name().equals(key)
+            || ConfigKeys.DISPLAY_FULLSCREEN.name().equals(key)) {
+            loadDisplaySettings();
+        }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
