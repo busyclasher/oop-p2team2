@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
@@ -198,11 +198,11 @@ public class GameMenuScene extends Scene {
         void render(Renderer r, boolean selected) {
             float l = position.x - W / 2, b = position.y - H / 2;
             com.badlogic.gdx.math.Rectangle box = new com.badlogic.gdx.math.Rectangle(l, b, W, H);
-            Color bg  = selected ? new Color(0.15f, 0.55f, 0.25f, 0.85f)
-                                 : new Color(0.10f, 0.10f, 0.10f, 0.65f);
-            Color txt = selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
+            EngineColor bg  = selected ? new EngineColor(0.15f, 0.55f, 0.25f, 0.85f)
+                                 : new EngineColor(0.10f, 0.10f, 0.10f, 0.65f);
+            EngineColor txt = selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawRect(box, bg,         true);
-            r.drawRect(box, Color.WHITE, false);
+            r.drawRect(box, EngineColor.WHITE, false);
             r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE, txt);
         }
     }

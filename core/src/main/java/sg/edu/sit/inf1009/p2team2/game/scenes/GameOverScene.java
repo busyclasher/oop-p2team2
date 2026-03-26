@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -196,7 +196,7 @@ public class GameOverScene extends Scene {
         r.begin();
 
         r.drawBackground("win-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.65f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.65f), true);
 
         // Header — win vs loss variant
         if (isWin) {
@@ -238,9 +238,9 @@ public class GameOverScene extends Scene {
 
         // Input box
         r.drawRect(new Rectangle(boxX, boxY, boxW, boxH),
-            new Color(0.05f, 0.12f, 0.22f, 0.95f), true);
+            new EngineColor(0.05f, 0.12f, 0.22f, 0.95f), true);
         r.drawRect(new Rectangle(boxX, boxY, boxW, boxH),
-            new Color(0.3f, 0.7f, 1f, 1f), false);
+            new EngineColor(0.3f, 0.7f, 1f, 1f), false);
 
         // Typed text + blinking cursor
         boolean cursorOn = (System.currentTimeMillis() / 500) % 2 == 0;
@@ -258,11 +258,11 @@ public class GameOverScene extends Scene {
         for (int i = 0; i < OPTIONS.length; i++) {
             boolean   sel = (i == selectedIndex);
             Rectangle box = buttonRect(ww, wh, i);
-            Color bg  = sel ? (isWin ? new Color(0.1f, 0.5f, 0.15f, 0.85f)
-                                     : new Color(0.7f, 0.1f, 0.1f, 0.85f))
-                            : new Color(0.15f, 0.15f, 0.15f, 0.65f);
+            EngineColor bg  = sel ? (isWin ? new EngineColor(0.1f, 0.5f, 0.15f, 0.85f)
+                                     : new EngineColor(0.7f, 0.1f, 0.1f, 0.85f))
+                            : new EngineColor(0.15f, 0.15f, 0.15f, 0.65f);
             r.drawRect(box, bg, true);
-            r.drawRect(box, sel ? Color.YELLOW : Color.WHITE, false);
+            r.drawRect(box, sel ? EngineColor.YELLOW : EngineColor.WHITE, false);
             r.drawTextCentered(OPTIONS[i], box, GameUiTheme.FONT_BODY_LARGE,
                 sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         }

@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -145,15 +145,15 @@ public class StartGamePromptScene extends Scene {
 
             r.drawBackground("menu-scene.png");
             r.drawRect(new com.badlogic.gdx.math.Rectangle(0, 0, ww, wh),
-                new Color(0f, 0f, 0f, 0.70f), true);
+                new EngineColor(0f, 0f, 0f, 0.70f), true);
 
             // Card
             float cw = 560f, ch = 320f;
             float cardX = cx - cw / 2f, cardY = cy - ch / 2f;
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
-                new Color(0.06f, 0.10f, 0.06f, 0.95f), true);
+                new EngineColor(0.06f, 0.10f, 0.06f, 0.95f), true);
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
-                new Color(0.2f, 0.8f, 0.3f, 1f), false);
+                new EngineColor(0.2f, 0.8f, 0.3f, 1f), false);
 
             // Title
             r.drawTextCentered("CONTINUE RUN?",
@@ -180,9 +180,9 @@ public class StartGamePromptScene extends Scene {
         private void drawBtn(Renderer r, com.badlogic.gdx.math.Rectangle box,
                              int idx, String label, int sel) {
             boolean active = (idx == sel);
-            Color bg     = active ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
-                                  : new Color(0.10f, 0.10f, 0.10f, 0.70f);
-            Color border = active ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
+            EngineColor bg     = active ? new EngineColor(0.15f, 0.55f, 0.25f, 0.9f)
+                                  : new EngineColor(0.10f, 0.10f, 0.10f, 0.70f);
+            EngineColor border = active ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f);
             String font = r.measureTextWidth(label, GameUiTheme.FONT_BODY_LARGE) > box.width - 48f
                 ? GameUiTheme.FONT_BODY
                 : GameUiTheme.FONT_BODY_LARGE;

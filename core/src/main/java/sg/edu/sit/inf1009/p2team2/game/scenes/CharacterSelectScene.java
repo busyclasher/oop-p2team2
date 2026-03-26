@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -141,7 +141,7 @@ public class CharacterSelectScene extends Scene {
         r.begin();
 
         r.drawBackground("menu-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.65f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.65f), true);
 
         // Title
         r.drawTextCentered("SELECT YOUR CHARACTER",
@@ -157,11 +157,11 @@ public class CharacterSelectScene extends Scene {
             Rectangle     card = cardRect(cx, cy, i);
 
             // Card background
-            Color cardBg = sel
-                ? new Color(0.10f, 0.40f, 0.18f, 0.90f)
-                : new Color(0.08f, 0.08f, 0.08f, 0.80f);
+            EngineColor cardBg = sel
+                ? new EngineColor(0.10f, 0.40f, 0.18f, 0.90f)
+                : new EngineColor(0.08f, 0.08f, 0.08f, 0.80f);
             r.drawRect(card, cardBg, true);
-            r.drawRect(card, sel ? Color.YELLOW : new Color(0.45f, 0.45f, 0.45f, 1f), false);
+            r.drawRect(card, sel ? EngineColor.YELLOW : new EngineColor(0.45f, 0.45f, 0.45f, 1f), false);
 
             // Character sprite
             float spriteX = card.x + (CARD_W - CHAR_W) / 2f + CHAR_W / 2f;
@@ -169,7 +169,7 @@ public class CharacterSelectScene extends Scene {
             r.drawSprite(ch.getSprite(), new Vector2(spriteX, spriteY), CHAR_W, CHAR_H);
 
             // Name
-            Color nameColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
+            EngineColor nameColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawTextCentered(ch.getName(),
                 new Rectangle(card.x, card.y + CARD_H - CHAR_H - 122f, CARD_W, 34f),
                 GameUiTheme.FONT_BODY_LARGE, nameColor);

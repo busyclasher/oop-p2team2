@@ -2,7 +2,7 @@ package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import static sg.edu.sit.inf1009.p2team2.game.scenes.GamePlayScene.*;
 
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
@@ -22,17 +22,17 @@ final class GamePlayRenderer extends SceneRenderer {
         private final GamePlayScene scene;
 
         // Colors
-        private static final Color COL_HUD_BG   = new Color(0f, 0f, 0f, 0.55f);
-        private static final Color COL_HEART     = new Color(0.95f, 0.25f, 0.25f, 1f);
-        private static final Color COL_HEART_EMPTY = new Color(0.4f, 0.15f, 0.15f, 0.6f);
-        private static final Color COL_FRENZY_BANNER = new Color(1f, 0.35f, 0f, 1f);
-        private static final Color COL_TIMER_ICON_BG = new Color(0.10f, 0.16f, 0.22f, 0.85f);
-        private static final Color COL_TIMER_ICON_RING = new Color(0.52f, 0.84f, 1.0f, 1f);
-        private static final Color COL_WARNING = new Color(1f, 0.25f, 0.25f, 1f);
-        private static final Color COL_OVERLAY   = new Color(0f, 0f, 0f, 0.72f);
-        private static final Color COL_QUIZ_BG   = new Color(0.05f, 0.08f, 0.18f, 0.95f);
-        private static final Color COL_WIN       = new Color(0.15f, 0.95f, 0.40f, 1f);
-        private static final Color COL_LOSE      = new Color(0.95f, 0.25f, 0.25f, 1f);
+        private static final EngineColor COL_HUD_BG   = new EngineColor(0f, 0f, 0f, 0.55f);
+        private static final EngineColor COL_HEART     = new EngineColor(0.95f, 0.25f, 0.25f, 1f);
+        private static final EngineColor COL_HEART_EMPTY = new EngineColor(0.4f, 0.15f, 0.15f, 0.6f);
+        private static final EngineColor COL_FRENZY_BANNER = new EngineColor(1f, 0.35f, 0f, 1f);
+        private static final EngineColor COL_TIMER_ICON_BG = new EngineColor(0.10f, 0.16f, 0.22f, 0.85f);
+        private static final EngineColor COL_TIMER_ICON_RING = new EngineColor(0.52f, 0.84f, 1.0f, 1f);
+        private static final EngineColor COL_WARNING = new EngineColor(1f, 0.25f, 0.25f, 1f);
+        private static final EngineColor COL_OVERLAY   = new EngineColor(0f, 0f, 0f, 0.72f);
+        private static final EngineColor COL_QUIZ_BG   = new EngineColor(0.05f, 0.08f, 0.18f, 0.95f);
+        private static final EngineColor COL_WIN       = new EngineColor(0.15f, 0.95f, 0.40f, 1f);
+        private static final EngineColor COL_LOSE      = new EngineColor(0.95f, 0.25f, 0.25f, 1f);
 
         GamePlayRenderer(GamePlayScene scene) {
             super(scene.getContext());
@@ -102,7 +102,7 @@ final class GamePlayRenderer extends SceneRenderer {
                 GameEntityComponent gec = entity.get(GameEntityComponent.class);
                 if (gec == null) continue;
 
-                Color color = gec.getEntityType().getColor();
+                EngineColor color = gec.getEntityType().getColor();
                 float w, h;
 
                 if (gec.getEntityType() == EntityType.PLAYER) {
@@ -117,25 +117,25 @@ final class GamePlayRenderer extends SceneRenderer {
             }
         }
 
-        private void drawPlayer(Renderer r, Vector2 pos, float w, float h, Color color) {
+        private void drawPlayer(Renderer r, Vector2 pos, float w, float h, EngineColor color) {
             if (scene.isBonusLifeShieldActive()) {
                 float shieldPulse = 1.0f + 0.05f * (float) Math.sin(scene.getHudAnimTime() * 4.5f);
                 Vector2 shieldCenter = new Vector2(pos.x, pos.y + h / 2f);
                 r.drawCircle(shieldCenter, (w * 0.62f) * shieldPulse,
-                    new Color(0.16f, 0.82f, 1.0f, 0.12f), true);
+                    new EngineColor(0.16f, 0.82f, 1.0f, 0.12f), true);
                 r.drawCircle(shieldCenter, (w * 0.74f) * shieldPulse,
-                    new Color(0.55f, 0.90f, 1.0f, 0.18f), false);
+                    new EngineColor(0.55f, 0.90f, 1.0f, 0.18f), false);
                 r.drawCircle(shieldCenter, (w * 0.79f) * shieldPulse,
-                    new Color(0.80f, 0.96f, 1.0f, 0.90f), false);
+                    new EngineColor(0.80f, 0.96f, 1.0f, 0.90f), false);
                 r.drawCircle(shieldCenter, (w * 0.86f) * shieldPulse,
-                    new Color(0.22f, 0.70f, 1.0f, 0.40f), false);
+                    new EngineColor(0.22f, 0.70f, 1.0f, 0.40f), false);
             }
             r.drawSprite(scene.getCharacterType().getSprite(),
                 new Vector2(pos.x, pos.y + h / 2f), w, h);
         }
 
         private void drawFallingEntity(Renderer r, Vector2 pos, float w, float h,
-                                       EntityType type, Color color) {
+                                       EntityType type, EngineColor color) {
             switch (type) {
                 case GOOD_BYTE:       r.drawSprite(GOOD_BYTE_SPRITE,          pos, w, h); break;
                 case SAFE_EMAIL:      r.drawSprite(SAFE_EMAIL_SPRITE,         pos, w, h); break;
@@ -147,17 +147,17 @@ final class GamePlayRenderer extends SceneRenderer {
                 case SPYWARE:         r.drawSprite(SPYWARE_SPRITE,            pos, w, h); break;
                 case FRENZY_ORB: {
                     boolean orbFlashOn = ((int) (scene.getHudAnimTime() * 7f) % 2) == 0;
-                    Color orbAura = orbFlashOn
-                        ? new Color(1f, 0.10f, 0.18f, 0.24f)
-                        : new Color(1f, 0.42f, 0.64f, 0.16f);
-                    Color orbRing = orbFlashOn
-                        ? new Color(1f, 0.20f, 0.22f, 1f)
-                        : new Color(1f, 0.78f, 0.86f, 1f);
+                    EngineColor orbAura = orbFlashOn
+                        ? new EngineColor(1f, 0.10f, 0.18f, 0.24f)
+                        : new EngineColor(1f, 0.42f, 0.64f, 0.16f);
+                    EngineColor orbRing = orbFlashOn
+                        ? new EngineColor(1f, 0.20f, 0.22f, 1f)
+                        : new EngineColor(1f, 0.78f, 0.86f, 1f);
                     r.drawCircle(new Vector2(pos.x, pos.y), w / 2.05f, orbAura, true);
                     r.drawSprite(FRENZY_ORB_SPRITE, pos, w, h);
                     if (orbFlashOn) {
                         r.drawCircle(new Vector2(pos.x, pos.y), w / 4.2f,
-                            new Color(1f, 0.16f, 0.22f, 0.22f), true);
+                            new EngineColor(1f, 0.16f, 0.22f, 0.22f), true);
                     }
                     r.drawCircle(new Vector2(pos.x, pos.y), w / 2f, orbRing, false);
                     break;
@@ -165,7 +165,7 @@ final class GamePlayRenderer extends SceneRenderer {
                 default: {
                     float x = pos.x - w / 2, y = pos.y - h / 2;
                     r.drawRect(new Rectangle(x, y, w, h), color, true);
-                    r.drawRect(new Rectangle(x, y, w, h), Color.WHITE, false);
+                    r.drawRect(new Rectangle(x, y, w, h), EngineColor.WHITE, false);
                 }
             }
         }
@@ -183,7 +183,7 @@ final class GamePlayRenderer extends SceneRenderer {
             int lives = scene.getPlayerHealth().getCurrentLives();
             int maxL  = scene.getPlayerHealth().getMaxLives();
             for (int i = 0; i < maxL; i++) {
-                Color c = (i < lives) ? COL_HEART : COL_HEART_EMPTY;
+                EngineColor c = (i < lives) ? COL_HEART : COL_HEART_EMPTY;
                 float hx = 20f + i * 36f;
                 float hy = wh - 40f;
                 drawHeart(r, hx, hy, c);
@@ -195,7 +195,7 @@ final class GamePlayRenderer extends SceneRenderer {
 
             // Timer / mode display
             String progressText;
-            Color  progressColor;
+            EngineColor  progressColor;
             GameState displayState = (scene.getGameState() == GameState.QUIZ)
                 ? scene.getPreQuizState()
                 : (scene.getGameState() == GameState.QUIZ_FEEDBACK)
@@ -204,7 +204,7 @@ final class GamePlayRenderer extends SceneRenderer {
                         ? scene.getPreBuffState()
                         : scene.getGameState();
             int secsLeft;
-            Color baseProgressColor;
+            EngineColor baseProgressColor;
             if (displayState == GameState.FRENZY) {
                 secsLeft = Math.max(0, (int) Math.ceil(scene.getFrenzyTimer()));
                 progressText  = "FRENZY " + secsLeft + "s  PTS " + scene.getScore();
@@ -212,7 +212,7 @@ final class GamePlayRenderer extends SceneRenderer {
             } else {
                 secsLeft = Math.max(0, (int) Math.ceil(scene.getRoundTimer()));
                 progressText  = "TIME " + secsLeft + "s  PTS " + scene.getScore();
-                baseProgressColor = Color.CYAN;
+                baseProgressColor = EngineColor.CYAN;
             }
             boolean dangerFlash = secsLeft <= 5;
             boolean flashOn = ((int) (scene.getHudAnimTime() * 6f) % 2) == 0;
@@ -223,9 +223,9 @@ final class GamePlayRenderer extends SceneRenderer {
             float gap = 10f;
             float progressX = ww - textWidth - iconDiameter - gap - 24f;
             Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 21f);
-            Color iconAccent = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
-            Color iconFrame = dangerFlash && flashOn
-                ? new Color(1f, 0.92f, 0.92f, 1f)
+            EngineColor iconAccent = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
+            EngineColor iconFrame = dangerFlash && flashOn
+                ? new EngineColor(1f, 0.92f, 0.92f, 1f)
                 : GameUiTheme.TEXT_PRIMARY;
 
             drawTimerIcon(r, iconCenter, iconFrame, iconAccent, dangerFlash);
@@ -251,15 +251,15 @@ final class GamePlayRenderer extends SceneRenderer {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
             Vector2 textPos = new Vector2(ww / 2f, wh / 2f + 90f);
-            Color shadow = new Color(0.18f, 0.10f, 0.02f, 0.95f);
-            Color bannerColor = scene.getStatusBannerColor();
+            EngineColor shadow = new EngineColor(0.18f, 0.10f, 0.02f, 0.95f);
+            EngineColor bannerColor = scene.getStatusBannerColor();
 
             r.drawTextCentered(scene.getStatusBannerText(), new Vector2(textPos.x + 2f, textPos.y - 2f),
                 GameUiTheme.FONT_TITLE_SMALL, shadow);
             r.drawTextCentered(scene.getStatusBannerText(), textPos, GameUiTheme.FONT_TITLE_SMALL, bannerColor);
         }
 
-        private void drawHeart(Renderer r, float x, float y, Color c) {
+        private void drawHeart(Renderer r, float x, float y, EngineColor c) {
             r.drawCircle(new Vector2(x + 6f,  y + 8f), 6f, c, true);
             r.drawCircle(new Vector2(x + 16f, y + 8f), 6f, c, true);
             r.drawRect(new Rectangle(x, y, 22f, 10f), c, true);
@@ -268,14 +268,14 @@ final class GamePlayRenderer extends SceneRenderer {
             r.drawLine(new Vector2(x + 22f, y), new Vector2(x + 11f, y - 8f), c, 3f);
         }
 
-        private void drawTimerIcon(Renderer r, Vector2 center, Color frameColor, Color accentColor, boolean warning) {
+        private void drawTimerIcon(Renderer r, Vector2 center, EngineColor frameColor, EngineColor accentColor, boolean warning) {
             float pulse = warning
                 ? 13.0f + (float) Math.sin(scene.getHudAnimTime() * 10f) * 1.0f
                 : 13.0f;
-            Color badgeColor = warning
-                ? new Color(0.32f, 0.05f, 0.08f, 0.97f)
+            EngineColor badgeColor = warning
+                ? new EngineColor(0.32f, 0.05f, 0.08f, 0.97f)
                 : COL_TIMER_ICON_BG;
-            Color ringColor = warning ? accentColor : COL_TIMER_ICON_RING;
+            EngineColor ringColor = warning ? accentColor : COL_TIMER_ICON_RING;
 
             r.drawCircle(center, pulse, badgeColor, true);
             r.drawCircle(center, pulse + 1.4f, ringColor, false);
@@ -325,7 +325,7 @@ final class GamePlayRenderer extends SceneRenderer {
             float cw = 680f, ch = 360f;
             float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f;
             r.drawRect(new Rectangle(cx, cy, cw, ch), COL_QUIZ_BG, true);
-            r.drawRect(new Rectangle(cx, cy, cw, ch), Color.CYAN, false);
+            r.drawRect(new Rectangle(cx, cy, cw, ch), EngineColor.CYAN, false);
 
             QuizManager qm = scene.getQuizManager();
             String[] opts = qm.getCurrentQuestion().getOptions();
@@ -335,21 +335,21 @@ final class GamePlayRenderer extends SceneRenderer {
             String header = qm.isBadEntityQuiz()
                 ? "THREAT IDENTIFIED! Answer correctly to neutralise (+100 pts):"
                 : "RARE FIND! Answer correctly for +1 Life & +100 pts:";
-            Color headerCol = qm.isBadEntityQuiz()
-                ? new Color(1f, 0.4f, 0.4f, 1f) : new Color(1f, 0.85f, 0.2f, 1f);
+            EngineColor headerCol = qm.isBadEntityQuiz()
+                ? new EngineColor(1f, 0.4f, 0.4f, 1f) : new EngineColor(1f, 0.85f, 0.2f, 1f);
             r.drawText(header, new Vector2(cx + 20f, cy + ch - 28f), GameUiTheme.FONT_BODY, headerCol);
 
             // Question text (simple word-wrap at ~60 chars)
-            drawWrappedText(r, q, cx + 20f, cy + ch - 70f, 60, Color.WHITE);
+            drawWrappedText(r, q, cx + 20f, cy + ch - 70f, 60, EngineColor.WHITE);
 
             // Options
             String[] labels = {"1", "2", "3", "4"};
             for (int i = 0; i < 4; i++) {
                 float oy = cy + ch - 160f - i * 46f;
                 boolean hov = (i == scene.getHoveredQuizOption());
-                Color bg     = hov ? new Color(0.15f, 0.30f, 0.60f, 0.95f)
-                                   : new Color(0.1f,  0.15f, 0.30f, 0.85f);
-                Color border = hov ? Color.YELLOW : new Color(0.4f, 0.6f, 0.9f, 0.7f);
+                EngineColor bg     = hov ? new EngineColor(0.15f, 0.30f, 0.60f, 0.95f)
+                                   : new EngineColor(0.1f,  0.15f, 0.30f, 0.85f);
+                EngineColor border = hov ? EngineColor.YELLOW : new EngineColor(0.4f, 0.6f, 0.9f, 0.7f);
                 r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), bg, true);
                 r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), border, false);
                 r.drawText("[" + labels[i] + "]  " + opts[i],
@@ -361,7 +361,7 @@ final class GamePlayRenderer extends SceneRenderer {
         }
 
         private void drawWrappedText(Renderer r, String text, float x, float startY,
-                                     int lineLen, Color color) {
+                                     int lineLen, EngineColor color) {
             String[] words = text.split(" ");
             StringBuilder line = new StringBuilder();
             float y = startY;
@@ -390,15 +390,15 @@ final class GamePlayRenderer extends SceneRenderer {
             boolean wasBad  = scene.isLastQuizBad();
 
             // Dim overlay
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.55f), true);
+            r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.55f), true);
 
             // Banner card
             float cw = 580f, ch = 160f;
             float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f + 30f;
-            Color bgColor = correct
-                ? new Color(0.05f, 0.25f, 0.08f, 0.95f)
-                : new Color(0.25f, 0.05f, 0.05f, 0.95f);
-            Color borderColor = correct ? new Color(0.2f, 0.9f, 0.3f, 1f) : new Color(0.9f, 0.2f, 0.2f, 1f);
+            EngineColor bgColor = correct
+                ? new EngineColor(0.05f, 0.25f, 0.08f, 0.95f)
+                : new EngineColor(0.25f, 0.05f, 0.05f, 0.95f);
+            EngineColor borderColor = correct ? new EngineColor(0.2f, 0.9f, 0.3f, 1f) : new EngineColor(0.9f, 0.2f, 0.2f, 1f);
             r.drawRect(new Rectangle(cx, cy, cw, ch), bgColor, true);
             r.drawRect(new Rectangle(cx, cy, cw, ch), borderColor, false);
 
@@ -426,7 +426,7 @@ final class GamePlayRenderer extends SceneRenderer {
             float barW = cw - 40f;
             float progress = Math.min(1f, scene.getFeedbackTimer() / 1.5f);
             r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW, 10f),
-                new Color(0.2f, 0.2f, 0.2f, 1f), true);
+                new EngineColor(0.2f, 0.2f, 0.2f, 1f), true);
             r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW * progress, 10f),
                 borderColor, true);
 
@@ -440,7 +440,7 @@ final class GamePlayRenderer extends SceneRenderer {
         private void drawFrenzyTransition(Renderer r) {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.6f), true);
+            r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.6f), true);
             r.drawTextCentered("CYBER-HYDRA AWAKENS!", new Vector2(ww / 2f, wh / 2f + 42f),
                 GameUiTheme.FONT_TITLE_SMALL, COL_FRENZY_BANNER);
             r.drawTextCentered("FRENZY MODE INCOMING...",
@@ -456,7 +456,7 @@ final class GamePlayRenderer extends SceneRenderer {
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
 
             // Dim the game world behind the overlay
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
+            r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.72f), true);
 
             // Title — cardH=389, so card top at wh/2+194; give 20px gap above
             r.drawTextCentered("SYSTEM UPGRADE!",
@@ -477,10 +477,10 @@ final class GamePlayRenderer extends SceneRenderer {
                     card.width, card.height);
 
                 // Border — full colour when selected, half-brightness when not
-                Color accent = buff.getAccentColor();
+                EngineColor accent = buff.getAccentColor();
                 float bri = sel ? 1.0f : 0.45f;
                 r.drawRect(card,
-                    new Color(accent.r * bri, accent.g * bri, accent.b * bri, 1f), false);
+                    new EngineColor(accent.r * bri, accent.g * bri, accent.b * bri, 1f), false);
                 if (sel) {
                     r.drawRect(new Rectangle(card.x + 2f, card.y + 2f,
                         card.width - 4f, card.height - 4f), accent, false);
@@ -498,7 +498,7 @@ final class GamePlayRenderer extends SceneRenderer {
         private void drawGameOverOverlay(Renderer r) {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.75f), true);
+            r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.75f), true);
             r.drawTextCentered("SYSTEM CRASH!", new Vector2(ww / 2f, wh / 2f + 60f),
                 GameUiTheme.FONT_TITLE_SMALL, COL_LOSE);
             r.drawTextCentered("The network is down. Score: " + scene.getScore(),
@@ -513,7 +513,7 @@ final class GamePlayRenderer extends SceneRenderer {
         private void drawWinOverlay(Renderer r) {
             float ww = r.getWorldWidth();
             float wh = r.getWorldHeight();
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
+            r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.72f), true);
             r.drawTextCentered("NETWORK SECURED!", new Vector2(ww / 2f, wh / 2f + 60f),
                 GameUiTheme.FONT_TITLE_SMALL, COL_WIN);
             r.drawTextCentered("Cyber-Hydra defeated! Final score: " + scene.getScore(),

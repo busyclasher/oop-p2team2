@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -34,8 +34,8 @@ public class HowToPlayScene extends Scene {
     private static final float BTN_W = 180f;
     private static final float BTN_H = 46f;
     private static final float BTN_GAP = 26f;
-    private static final Color PANEL_FILL = new Color(0.05f, 0.08f, 0.12f, 0.80f);
-    private static final Color PANEL_BORDER = new Color(0.33f, 0.80f, 0.92f, 0.78f);
+    private static final EngineColor PANEL_FILL = new EngineColor(0.05f, 0.08f, 0.12f, 0.80f);
+    private static final EngineColor PANEL_BORDER = new EngineColor(0.33f, 0.80f, 0.92f, 0.78f);
 
     private final LeaderboardManager leaderboard;
     private final boolean tutorialMode;
@@ -139,7 +139,7 @@ public class HowToPlayScene extends Scene {
         r.begin();
 
         r.drawBackground("menu-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.72f), true);
 
         r.drawTextCentered("HOW TO PLAY",
             new Vector2(ww / 2f, wh - 58f), GameUiTheme.FONT_TITLE_SMALL,
@@ -199,7 +199,7 @@ public class HowToPlayScene extends Scene {
         rightY = drawSectionHeader(r, "THREATS", rightX, rightY, GameUiTheme.TEXT_DANGER);
         rightY = drawEntityRow(r, PHISHING_HOOK_SPRITE, "Phishing Hook", "direct hit  |  -1 life", rightX, rightY, GameUiTheme.TEXT_DANGER);
         rightY = drawEntityRow(r, RANSOMWARE_LOCK_SPRITE, "Ransomware Lock", "wrong answer  |  -1 life", rightX, rightY, GameUiTheme.TEXT_WARNING);
-        rightY = drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "direct hit  |  -1 life", rightX, rightY, new Color(0.78f, 0.45f, 1.0f, 1f));
+        rightY = drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "direct hit  |  -1 life", rightX, rightY, new EngineColor(0.78f, 0.45f, 1.0f, 1f));
         drawInfoLine(r, "Tip: if it looks risky, avoid it unless a quiz asks you to act.", rightX, rightY - 2f);
     }
 
@@ -256,9 +256,9 @@ public class HowToPlayScene extends Scene {
     }
 
     private void drawActionButton(Renderer r, Rectangle box, String label, boolean hovered) {
-        Color bg = hovered ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
-            : new Color(0.08f, 0.08f, 0.08f, 0.78f);
-        Color border = hovered ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
+        EngineColor bg = hovered ? new EngineColor(0.15f, 0.55f, 0.25f, 0.9f)
+            : new EngineColor(0.08f, 0.08f, 0.08f, 0.78f);
+        EngineColor border = hovered ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f);
         r.drawRect(box, bg, true);
         r.drawRect(box, border, false);
         r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE,
@@ -270,7 +270,7 @@ public class HowToPlayScene extends Scene {
         r.drawRect(panel, PANEL_BORDER, false);
     }
 
-    private float drawSectionHeader(Renderer r, String title, float x, float y, Color color) {
+    private float drawSectionHeader(Renderer r, String title, float x, float y, EngineColor color) {
         r.drawText(title, new Vector2(x, y), GameUiTheme.FONT_BODY_LARGE, color);
         return y - 26f;
     }
@@ -280,7 +280,7 @@ public class HowToPlayScene extends Scene {
         return y - 20f;
     }
 
-    private float drawEntityRow(Renderer r, String spriteId, String name, String detail, float x, float y, Color nameColor) {
+    private float drawEntityRow(Renderer r, String spriteId, String name, String detail, float x, float y, EngineColor nameColor) {
         r.drawSprite(spriteId, new Vector2(x + 12f, y - 8f), 28f, 28f);
         r.drawText(name, new Vector2(x + 34f, y), GameUiTheme.FONT_BODY_SMALL, nameColor);
         r.drawText(detail, new Vector2(x + 170f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);

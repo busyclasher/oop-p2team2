@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
@@ -439,7 +439,7 @@ public class SettingsScene extends Scene {
         r.begin();
 
         r.drawBackground("menu-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.65f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.65f), true);
 
         // Title
         r.drawTextCentered("SETTINGS",
@@ -453,7 +453,7 @@ public class SettingsScene extends Scene {
             float labelY = volumeLabelBaseline(i, r);
             boolean sel = (i == selectedRow);
 
-            Color labelColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
+            EngineColor labelColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
 
             // Volume icon — mute when at 0, custom audio toggle otherwise
             String icon = (vols[i] <= 0f) ? "volume-mute.png" : "audio-toggle.png";
@@ -466,12 +466,12 @@ public class SettingsScene extends Scene {
 
             // Track (background bar)
             r.drawRect(new Rectangle(sx, sy - SLIDER_H / 2f, SLIDER_W, SLIDER_H),
-                new Color(0.25f, 0.25f, 0.25f, 1f), true);
+                new EngineColor(0.25f, 0.25f, 0.25f, 1f), true);
 
             // Fill
-            Color fillColor = sel
-                ? new Color(0.2f, 0.85f, 0.35f, 1f)
-                : new Color(0.15f, 0.55f, 0.25f, 1f);
+            EngineColor fillColor = sel
+                ? new EngineColor(0.2f, 0.85f, 0.35f, 1f)
+                : new EngineColor(0.15f, 0.55f, 0.25f, 1f);
             float fillW = Math.max(0f, vols[i] * SLIDER_W);
             if (fillW > 0f) {
                 r.drawRect(new Rectangle(sx, sy - SLIDER_H / 2f, fillW, SLIDER_H),
@@ -480,12 +480,12 @@ public class SettingsScene extends Scene {
 
             // Track outline
             r.drawRect(new Rectangle(sx, sy - SLIDER_H / 2f, SLIDER_W, SLIDER_H),
-                sel ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
+                sel ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f), false);
         }
 
-        drawOptionRow(r, ROW_RESOLUTION, "Resolution", currentResolutionLabel(), Color.WHITE, false);
+        drawOptionRow(r, ROW_RESOLUTION, "Resolution", currentResolutionLabel(), EngineColor.WHITE, false);
         drawOptionRow(r, ROW_FULLSCREEN, "Fullscreen", fullscreenEnabled ? "ON" : "OFF",
-            fullscreenEnabled ? new Color(0.30f, 0.95f, 0.45f, 1f) : new Color(0.95f, 0.45f, 0.45f, 1f), true);
+            fullscreenEnabled ? new EngineColor(0.30f, 0.95f, 0.45f, 1f) : new EngineColor(0.95f, 0.45f, 0.45f, 1f), true);
         if (resolutionDropdownOpen) {
             drawResolutionDropdown(r);
         }
@@ -503,7 +503,7 @@ public class SettingsScene extends Scene {
         r.end();
     }
 
-    private void drawOptionRow(Renderer r, int row, String label, String value, Color valueColor, boolean toggleStyle) {
+    private void drawOptionRow(Renderer r, int row, String label, String value, EngineColor valueColor, boolean toggleStyle) {
         float sx = sliderX(r);
         float sy = sliderY(r, row);
         float labelY = optionLabelBaseline(row, r);
@@ -512,8 +512,8 @@ public class SettingsScene extends Scene {
 
         r.drawText(label, new Vector2(sx, labelY), GameUiTheme.FONT_BODY_LARGE,
             selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
-        r.drawRect(rect, new Color(0.12f, 0.12f, 0.12f, 0.9f), true);
-        r.drawRect(rect, selected ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
+        r.drawRect(rect, new EngineColor(0.12f, 0.12f, 0.12f, 0.9f), true);
+        r.drawRect(rect, selected ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f), false);
 
         String decoratedValue;
         if (toggleStyle) {
@@ -526,26 +526,26 @@ public class SettingsScene extends Scene {
 
     private void drawResolutionDropdown(Renderer r) {
         Rectangle bounds = dropdownBounds(r);
-        r.drawRect(bounds, new Color(0.06f, 0.08f, 0.10f, 0.95f), true);
-        r.drawRect(bounds, new Color(0.50f, 0.80f, 1.0f, 1f), false);
+        r.drawRect(bounds, new EngineColor(0.06f, 0.08f, 0.10f, 0.95f), true);
+        r.drawRect(bounds, new EngineColor(0.50f, 0.80f, 1.0f, 1f), false);
 
         for (int i = 0; i < RESOLUTION_OPTIONS.length; i++) {
             Rectangle option = dropdownOptionRect(r, i);
             boolean selected = (i == selectedResolutionIndex);
             boolean hovered = (i == hoveredResolutionIndex);
 
-            Color fill = hovered
-                ? new Color(0.12f, 0.28f, 0.40f, 1f)
+            EngineColor fill = hovered
+                ? new EngineColor(0.12f, 0.28f, 0.40f, 1f)
                 : selected
-                    ? new Color(0.10f, 0.20f, 0.18f, 1f)
-                    : new Color(0.10f, 0.10f, 0.10f, 0.95f);
-            Color textColor = hovered || selected
+                    ? new EngineColor(0.10f, 0.20f, 0.18f, 1f)
+                    : new EngineColor(0.10f, 0.10f, 0.10f, 0.95f);
+            EngineColor textColor = hovered || selected
                 ? GameUiTheme.TEXT_HIGHLIGHT
                 : GameUiTheme.TEXT_PRIMARY;
 
             r.drawRect(option, fill, true);
             r.drawRect(option,
-                hovered ? Color.YELLOW : new Color(0.35f, 0.45f, 0.55f, 1f), false);
+                hovered ? EngineColor.YELLOW : new EngineColor(0.35f, 0.45f, 0.55f, 1f), false);
             int[] resolution = RESOLUTION_OPTIONS[i];
             r.drawTextCentered(resolution[0] + " x " + resolution[1],
                 option, GameUiTheme.FONT_BODY, textColor);
@@ -555,9 +555,9 @@ public class SettingsScene extends Scene {
     private void drawSaveButton(Renderer r) {
         Rectangle rect = saveButtonRect(r);
         boolean selected = (selectedRow == ROW_SAVE);
-        Color bg = selected ? new Color(0.15f, 0.55f, 0.25f, 0.90f)
-            : new Color(0.10f, 0.10f, 0.10f, 0.82f);
-        Color border = selected ? Color.YELLOW : new Color(0.50f, 0.50f, 0.50f, 1f);
+        EngineColor bg = selected ? new EngineColor(0.15f, 0.55f, 0.25f, 0.90f)
+            : new EngineColor(0.10f, 0.10f, 0.10f, 0.82f);
+        EngineColor border = selected ? EngineColor.YELLOW : new EngineColor(0.50f, 0.50f, 0.50f, 1f);
 
         r.drawRect(rect, bg, true);
         r.drawRect(rect, border, false);

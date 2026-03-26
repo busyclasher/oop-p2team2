@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
@@ -149,7 +149,7 @@ public class PauseScene extends Scene {
         r.begin();
 
         r.drawBackground("game-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.72f), true);
 
         // Title
         r.drawTextCentered("PAUSED",
@@ -160,11 +160,11 @@ public class PauseScene extends Scene {
         for (int i = 0; i < items.size(); i++) {
             boolean sel = (i == selectedIndex);
             Rectangle box = buttonRect(cx, cy, i);
-            Color bg  = sel ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
-                            : new Color(0.08f, 0.08f, 0.08f, 0.75f);
-            Color txt = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
+            EngineColor bg  = sel ? new EngineColor(0.15f, 0.55f, 0.25f, 0.9f)
+                            : new EngineColor(0.08f, 0.08f, 0.08f, 0.75f);
+            EngineColor txt = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawRect(box, bg, true);
-            r.drawRect(box, sel ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
+            r.drawRect(box, sel ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f), false);
             r.drawTextCentered(items.get(i), box, GameUiTheme.FONT_BODY_LARGE, txt);
         }
 

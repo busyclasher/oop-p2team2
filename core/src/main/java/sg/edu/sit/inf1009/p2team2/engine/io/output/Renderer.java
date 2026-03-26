@@ -182,6 +182,10 @@ public class Renderer {
     public void setClearColor(Color color) {
         this.clearColor = color;
     }
+
+    public void setClearColor(EngineColor color) {
+        setClearColor(color.toGdxColor());
+    }
     
     /**
      * Begin rendering
@@ -304,6 +308,10 @@ public class Renderer {
         // Restore color
         spriteBatch.setColor(oldColor);
     }
+
+    public void drawSprite(String spriteId, Vector2 position, float rotation, Vector2 scale, EngineColor color) {
+        drawSprite(spriteId, position, rotation, scale, color.toGdxColor());
+    }
     
     /**
      * Draw a texture directly (for backward compatibility)
@@ -382,6 +390,10 @@ public class Renderer {
         chosenFont.setColor(oldColor);
     }
 
+    public void drawText(String text, Vector2 position, String font, EngineColor color) {
+        drawText(text, position, font, color.toGdxColor());
+    }
+
     /**
      * Draw centered text using the requested font.
      */
@@ -391,6 +403,10 @@ public class Renderer {
         drawText(text,
             new Vector2(center.x - glyphLayout.width / 2f, center.y + glyphLayout.height / 2f),
             font, color);
+    }
+
+    public void drawTextCentered(String text, Vector2 center, String font, EngineColor color) {
+        drawTextCentered(text, center, font, color.toGdxColor());
     }
 
     /**
@@ -403,6 +419,10 @@ public class Renderer {
             new Vector2(area.x + (area.width - glyphLayout.width) / 2f,
                 area.y + (area.height + glyphLayout.height) / 2f),
             font, color);
+    }
+
+    public void drawTextCentered(String text, Rectangle area, String font, EngineColor color) {
+        drawTextCentered(text, area, font, color.toGdxColor());
     }
 
     /**
@@ -452,6 +472,10 @@ public class Renderer {
             spriteBatch.begin();
         }
     }
+
+    public void drawRect(Rectangle rect, EngineColor color, boolean filled) {
+        drawRect(rect, color.toGdxColor(), filled);
+    }
     
     /**
      * Draw a circle
@@ -479,6 +503,10 @@ public class Renderer {
             spriteBatch.begin();
         }
     }
+
+    public void drawCircle(Vector2 center, float radius, EngineColor color, boolean filled) {
+        drawCircle(center, radius, color.toGdxColor(), filled);
+    }
     
     /**
      * Draw a line
@@ -505,6 +533,10 @@ public class Renderer {
         if (batchWasActive) {
             spriteBatch.begin();
         }
+    }
+
+    public void drawLine(Vector2 start, Vector2 end, EngineColor color, float thickness) {
+        drawLine(start, end, color.toGdxColor(), thickness);
     }
     
     /**

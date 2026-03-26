@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import java.util.List;
@@ -106,7 +106,7 @@ public class LeaderboardScene extends Scene {
         r.begin();
 
         r.drawBackground("menu-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.60f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.60f), true);
 
         // Title
         r.drawTextCentered("LEADERBOARD",
@@ -133,7 +133,7 @@ public class LeaderboardScene extends Scene {
 
         r.drawLine(new Vector2(tableX, separatorY),
             new Vector2(tableX + tableWidth, separatorY),
-            new Color(0.5f, 0.5f, 0.5f, 1f), 1.5f);
+            new EngineColor(0.5f, 0.5f, 0.5f, 1f), 1.5f);
 
         // Rows
         List<LeaderboardEntry> entries = leaderboard.getEntries();
@@ -141,11 +141,11 @@ public class LeaderboardScene extends Scene {
             LeaderboardEntry e  = entries.get(i);
             float ry = firstRowY - i * 38f;
 
-            Color rowColor;
-            if (i == 0)      rowColor = new Color(1f, 0.84f, 0f, 1f);
-            else if (i == 1) rowColor = new Color(0.75f, 0.75f, 0.75f, 1f);
-            else if (i == 2) rowColor = new Color(0.8f, 0.5f, 0.2f, 1f);
-            else             rowColor = Color.WHITE;
+            EngineColor rowColor;
+            if (i == 0)      rowColor = new EngineColor(1f, 0.84f, 0f, 1f);
+            else if (i == 1) rowColor = new EngineColor(0.75f, 0.75f, 0.75f, 1f);
+            else if (i == 2) rowColor = new EngineColor(0.8f, 0.5f, 0.2f, 1f);
+            else             rowColor = EngineColor.WHITE;
 
             r.drawText(String.valueOf(i + 1), new Vector2(rankX, ry), GameUiTheme.FONT_BODY, rowColor);
             r.drawText(e.getPlayerName(), new Vector2(nameX, ry), GameUiTheme.FONT_BODY, rowColor);
@@ -166,9 +166,9 @@ public class LeaderboardScene extends Scene {
     }
 
     private void drawButton(Renderer r, Rectangle box, String label, boolean hovered) {
-        Color bg  = hovered ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
-                            : new Color(0.08f, 0.08f, 0.08f, 0.75f);
-        Color border = hovered ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
+        EngineColor bg  = hovered ? new EngineColor(0.15f, 0.55f, 0.25f, 0.9f)
+                            : new EngineColor(0.08f, 0.08f, 0.08f, 0.75f);
+        EngineColor border = hovered ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f);
         r.drawRect(box, bg, true);
         r.drawRect(box, border, false);
         r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE,

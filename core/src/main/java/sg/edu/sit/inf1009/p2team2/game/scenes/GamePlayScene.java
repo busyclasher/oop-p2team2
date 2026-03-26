@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
@@ -174,7 +174,7 @@ public class GamePlayScene extends Scene {
 
     // Center-screen status feedback
     private String  statusBannerText = "";
-    private Color   statusBannerColor = GameUiTheme.TEXT_HIGHLIGHT.cpy();
+    private EngineColor   statusBannerColor = GameUiTheme.TEXT_HIGHLIGHT.cpy();
     private float   statusBannerTimeRemaining = 0f;
     private float   statusBannerFlashTimer = 0f;
     private boolean statusBannerVisible = false;
@@ -815,7 +815,7 @@ public class GamePlayScene extends Scene {
         }
     }
 
-    private void triggerStatusBanner(String text, Color color, float durationSeconds) {
+    private void triggerStatusBanner(String text, EngineColor color, float durationSeconds) {
         statusBannerText = text;
         statusBannerColor = color.cpy();
         statusBannerTimeRemaining = durationSeconds;
@@ -873,7 +873,7 @@ public class GamePlayScene extends Scene {
     float getHudAnimTime()                { return hudAnimTime; }
     CharacterType getCharacterType()      { return characterType; }
     String getStatusBannerText()          { return statusBannerText; }
-    Color getStatusBannerColor()          { return statusBannerColor; }
+    EngineColor getStatusBannerColor()          { return statusBannerColor; }
     boolean isStatusBannerVisible()       { return statusBannerVisible; }
     int getHoveredQuizOption()            { return hoveredQuizOption; }
     void setHoveredQuizOption(int idx)    { hoveredQuizOption = idx; }

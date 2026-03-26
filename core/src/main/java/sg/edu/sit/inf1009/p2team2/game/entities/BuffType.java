@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.entities;
 
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 
 /**
  * Buff cards offered to the player every 200 points.
@@ -11,28 +11,28 @@ public enum BuffType {
     EXTRA_LIFE(
         "Extra Life",
         "+1 life. Stacks with\neach pick.",
-        new Color(1.00f, 0.85f, 0.20f, 1f),   // bright gold — matches healthy-card
+        new EngineColor(1.00f, 0.85f, 0.20f, 1f),   // bright gold — matches healthy-card
         "healthy-card.png"
     ),
     SPEED_SURGE(
         "Haste I",
         "+10% move speed\npermanently.",
-        new Color(0.25f, 0.60f, 1.00f, 1f),   // blue — matches haste-i-card
+        new EngineColor(0.25f, 0.60f, 1.00f, 1f),   // blue — matches haste-i-card
         "haste-i-card.png"
     ),
     SHIELD(
         "Death Defier",
         "Free revive on death.\nOne at a time.",
-        new Color(1.00f, 0.60f, 0.10f, 1f),   // deep amber — matches death-defier-card
+        new EngineColor(1.00f, 0.60f, 0.10f, 1f),   // deep amber — matches death-defier-card
         "death-defier-card.png"
     );
 
     private final String displayName;
     private final String description;
-    private final Color accentColor;
+    private final EngineColor accentColor;
     private final String cardSprite;
 
-    BuffType(String displayName, String description, Color accentColor, String cardSprite) {
+    BuffType(String displayName, String description, EngineColor accentColor, String cardSprite) {
         this.displayName = displayName;
         this.description = description;
         this.accentColor = accentColor;
@@ -47,7 +47,7 @@ public enum BuffType {
         return description;
     }
 
-    public Color getAccentColor() {
+    public EngineColor getAccentColor() {
         return accentColor;
     }
 
