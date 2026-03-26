@@ -59,6 +59,15 @@ public class GamePlayScene extends Scene {
     private static final String BACKGROUND_NORMAL     = "game-scene.png";
     private static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
     private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
+    private static final String GOOD_BYTE_SPRITE      = "good_byte.png";
+    private static final String SAFE_EMAIL_SPRITE     = "safe_email.png";
+    private static final String GOLD_ENVELOPE_SPRITE  = "gold_envelope.png";
+    private static final String PHISHING_HOOK_SPRITE  = "phishing_hook.png";
+    private static final String RANSOMWARE_LOCK_SPRITE= "ransomware_lock.png";
+    private static final String MALWARE_SWARM_SPRITE  = "malware_swarm.png";
+    private static final String ROOTKIT_SPRITE        = "rootkit.png";
+    private static final String SPYWARE_SPRITE        = "spyware.png";
+    private static final String FRENZY_ORB_SPRITE     = "frenzy_orb.png";
     private static final String GAMEPLAY_MUSIC_ID = "game-theme";
     private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -912,20 +921,29 @@ public class GamePlayScene extends Scene {
         private void drawFallingEntity(Renderer r, Vector2 pos, float w, float h,
                                        EntityType type, Color color) {
             switch (type) {
-                case GOOD_BYTE:       r.drawSprite("laptop.png",             pos, w, h); break;
-                case SAFE_EMAIL:      r.drawSprite("shield.png",             pos, w, h); break;
-                case GOLD_ENVELOPE:   r.drawSprite("phone.png",              pos, w, h); break;
-                case PHISHING_HOOK:   r.drawSprite("fraud.png",              pos, w, h); break;
-                case RANSOMWARE_LOCK: r.drawSprite("hoax.png",               pos, w, h); break;
-                case MALWARE_SWARM:   r.drawSprite("virus.png",              pos, w, h); break;
-                case ROOTKIT:         r.drawSprite("old-pc.png",             pos, w, h); break;
-                case SPYWARE:         r.drawSprite("magnifiying-glass.png",  pos, w, h); break;
+                case GOOD_BYTE:       r.drawSprite(GOOD_BYTE_SPRITE,          pos, w, h); break;
+                case SAFE_EMAIL:      r.drawSprite(SAFE_EMAIL_SPRITE,         pos, w, h); break;
+                case GOLD_ENVELOPE:   r.drawSprite(GOLD_ENVELOPE_SPRITE,      pos, w, h); break;
+                case PHISHING_HOOK:   r.drawSprite(PHISHING_HOOK_SPRITE,      pos, w, h); break;
+                case RANSOMWARE_LOCK: r.drawSprite(RANSOMWARE_LOCK_SPRITE,    pos, w, h); break;
+                case MALWARE_SWARM:   r.drawSprite(MALWARE_SWARM_SPRITE,      pos, w, h); break;
+                case ROOTKIT:         r.drawSprite(ROOTKIT_SPRITE,            pos, w, h); break;
+                case SPYWARE:         r.drawSprite(SPYWARE_SPRITE,            pos, w, h); break;
                 case FRENZY_ORB: {
-                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2f,
-                        new Color(0.90f, 0.20f, 0.95f, 0.7f), true);
-                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2.5f,
-                        new Color(1f, 0.5f, 1f, 0.9f), true);
-                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2f, Color.WHITE, false);
+                    boolean orbFlashOn = ((int) (scene.hudAnimTime * 7f) % 2) == 0;
+                    Color orbAura = orbFlashOn
+                        ? new Color(1f, 0.10f, 0.18f, 0.24f)
+                        : new Color(1f, 0.42f, 0.64f, 0.16f);
+                    Color orbRing = orbFlashOn
+                        ? new Color(1f, 0.20f, 0.22f, 1f)
+                        : new Color(1f, 0.78f, 0.86f, 1f);
+                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2.05f, orbAura, true);
+                    r.drawSprite(FRENZY_ORB_SPRITE, pos, w, h);
+                    if (orbFlashOn) {
+                        r.drawCircle(new Vector2(pos.x, pos.y), w / 4.2f,
+                            new Color(1f, 0.16f, 0.22f, 0.22f), true);
+                    }
+                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2f, orbRing, false);
                     break;
                 }
                 default: {

@@ -20,6 +20,15 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
  * ESC / Enter / Back button returns to the main menu.
  */
 public class HowToPlayScene extends Scene {
+    private static final String GOOD_BYTE_SPRITE       = "good_byte.png";
+    private static final String SAFE_EMAIL_SPRITE      = "safe_email.png";
+    private static final String GOLD_ENVELOPE_SPRITE   = "gold_envelope.png";
+    private static final String PHISHING_HOOK_SPRITE   = "phishing_hook.png";
+    private static final String RANSOMWARE_LOCK_SPRITE = "ransomware_lock.png";
+    private static final String MALWARE_SWARM_SPRITE   = "malware_swarm.png";
+    private static final String ROOTKIT_SPRITE         = "rootkit.png";
+    private static final String SPYWARE_SPRITE         = "spyware.png";
+    private static final String FRENZY_ORB_SPRITE      = "frenzy_orb.png";
 
     private static final float BTN_W = 160f, BTN_H = 46f;
     private static final Color PANEL_FILL = new Color(0.05f, 0.08f, 0.12f, 0.78f);
@@ -114,23 +123,23 @@ public class HowToPlayScene extends Scene {
 
         leftY -= 12f;
         leftY = drawSectionHeader(r, "GOOD CATCHES", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
-        leftY = drawEntityRow(r, "laptop.png", "Laptop", "+5 pts", leftX, leftY, GameUiTheme.TEXT_INFO);
-        leftY = drawEntityRow(r, "shield.png", "Shield", "+5 pts", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
-        leftY = drawEntityRow(r, "phone.png", "Phone", "+10 pts + quiz trigger", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
+        leftY = drawEntityRow(r, GOOD_BYTE_SPRITE, "Good Byte", "+5 pts", leftX, leftY, GameUiTheme.TEXT_INFO);
+        leftY = drawEntityRow(r, SAFE_EMAIL_SPRITE, "Safe Email", "+5 pts", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
+        leftY = drawEntityRow(r, GOLD_ENVELOPE_SPRITE, "Gold Envelope", "+10 pts + quiz trigger", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
 
         leftY -= 8f;
         leftY = drawSectionHeader(r, "THREATS", leftX, leftY, GameUiTheme.TEXT_DANGER);
-        leftY = drawEntityRow(r, "fraud.png", "Phishing Hook", "-1 life", leftX, leftY, GameUiTheme.TEXT_DANGER);
-        leftY = drawEntityRow(r, "hoax.png", "Ransomware", "wrong quiz = -1 life", leftX, leftY, GameUiTheme.TEXT_WARNING);
-        drawEntityRow(r, "virus.png", "Malware Swarm", "-1 life", leftX, leftY, new Color(0.78f, 0.45f, 1.0f, 1f));
+        leftY = drawEntityRow(r, PHISHING_HOOK_SPRITE, "Phishing Hook", "-1 life", leftX, leftY, GameUiTheme.TEXT_DANGER);
+        leftY = drawEntityRow(r, RANSOMWARE_LOCK_SPRITE, "Ransomware Lock", "wrong quiz = -1 life", leftX, leftY, GameUiTheme.TEXT_WARNING);
+        drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "-1 life", leftX, leftY, new Color(0.78f, 0.45f, 1.0f, 1f));
 
         float rightX = rightPanel.x + 24f;
         float rightY = rightPanel.y + rightPanel.height - 22f;
         rightY = drawSectionHeader(r, "FRENZY MODE", rightX, rightY, GameUiTheme.TEXT_WARNING);
         rightY = drawFrenzyOrbRow(r, rightX, rightY);
         rightY = drawInfoLine(r, "The main timer freezes for 15 seconds.", rightX, rightY);
-        rightY = drawEntityRow(r, "old-pc.png", "Rootkit", "extra frenzy-only threat", rightX, rightY - 2f, GameUiTheme.TEXT_WARNING);
-        rightY = drawEntityRow(r, "magnifiying-glass.png", "Spyware", "quiz threat during frenzy", rightX, rightY, GameUiTheme.TEXT_WARNING);
+        rightY = drawEntityRow(r, ROOTKIT_SPRITE, "Rootkit", "extra frenzy-only threat", rightX, rightY - 2f, GameUiTheme.TEXT_WARNING);
+        rightY = drawEntityRow(r, SPYWARE_SPRITE, "Spyware", "quiz threat during frenzy", rightX, rightY, GameUiTheme.TEXT_WARNING);
 
         rightY -= 12f;
         rightY = drawSectionHeader(r, "CHARACTERS", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
@@ -178,10 +187,7 @@ public class HowToPlayScene extends Scene {
     }
 
     private float drawFrenzyOrbRow(Renderer r, float x, float y) {
-        Vector2 orbCenter = new Vector2(x + 13f, y - 8f);
-        r.drawCircle(orbCenter, 12f, new Color(0.90f, 0.20f, 0.95f, 1f), true);
-        r.drawCircle(orbCenter, 7f, new Color(1.0f, 0.88f, 1.0f, 1f), true);
-        r.drawCircle(orbCenter, 14f, Color.WHITE, false);
+        r.drawSprite(FRENZY_ORB_SPRITE, new Vector2(x + 14f, y - 8f), 28f, 28f);
         r.drawText("Frenzy Orb", new Vector2(x + 34f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_WARNING);
         r.drawText("catch it to trigger Frenzy Mode", new Vector2(x + 170f, y), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_PRIMARY);
         return y - 30f;
