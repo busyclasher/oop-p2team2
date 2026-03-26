@@ -35,8 +35,6 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void create() {
-        System.out.println("[Main] Application starting...");
-        
         // 1. Create the engine context
         engine = new EngineContext();
         leaderboardManager = new LeaderboardManager();
@@ -56,9 +54,6 @@ public class Main extends ApplicationAdapter {
         // 4. Load startup scene (menu by default, configurable for manual scene tests)
         Scene startupScene = resolveStartupScene();
         engine.getSceneManager().push(startupScene);
-        System.out.println("[Main] Startup scene: " + startupScene.getClass().getSimpleName());
-        
-        System.out.println("[Main] Application started successfully!");
     }
     
     /**
@@ -93,8 +88,6 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void resize(int width, int height) {
-        System.out.println("[Main] Window resized: " + width + "x" + height);
-        
         // Update display size
         if (engine != null) {
             engine.getOutputManager().getDisplay().syncFromSystemResize(width, height);
@@ -108,8 +101,6 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void pause() {
-        System.out.println("[Main] Application paused");
-        
         // Save config or game state here if needed
         if (engine != null) {
             engine.getConfigManager().save(null);
@@ -121,7 +112,6 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void resume() {
-        System.out.println("[Main] Application resumed");
     }
     
     /**
@@ -130,13 +120,9 @@ public class Main extends ApplicationAdapter {
      */
     @Override
     public void dispose() {
-        System.out.println("[Main] Application closing...");
-        
         if (engine != null) {
             engine.dispose();
         }
-        
-        System.out.println("[Main] Application closed");
     }
 
     private Scene resolveStartupScene() {
@@ -160,9 +146,6 @@ public class Main extends ApplicationAdapter {
                 return new MenuScene(engine);
             case "menu":
             default:
-                if (!DEFAULT_START_SCENE.equals(sceneKey) && !"menu".equals(sceneKey)) {
-                    System.out.println("[Main] Unknown engine.scene='" + sceneKey + "', defaulting to game menu");
-                }
                 return new GameMenuScene(engine, leaderboardManager);
         }
     }
@@ -175,8 +158,6 @@ public class Main extends ApplicationAdapter {
             }
             return (Scene) sceneType.getConstructor(EngineContext.class).newInstance(engine);
         } catch (Exception e) {
-            System.out.println("[Main] Could not load test scene '" + className + "': " + e.getMessage());
-            System.out.println("[Main] Falling back to game menu");
             return new GameMenuScene(engine, leaderboardManager);
         }
     }

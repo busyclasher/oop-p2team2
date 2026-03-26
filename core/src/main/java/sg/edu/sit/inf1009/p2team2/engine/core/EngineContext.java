@@ -46,8 +46,6 @@ public class EngineContext {
     }
 
     public EngineContext(ConfigManager configManager) {
-        System.out.println("[EngineContext] Initializing engine...");
-        
         // 1. Config first (other managers might read config)
         this.configManager = configManager;
         try {
@@ -86,8 +84,6 @@ public class EngineContext {
         // Initialize state
         this.running = false;
         this.deltaTime = 0f;
-        
-        System.out.println("[EngineContext] Engine initialized successfully!");
     }
     
     /**
@@ -95,8 +91,6 @@ public class EngineContext {
      * Call this after libGDX context is ready
      */
     public void initialize() {
-        System.out.println("[EngineContext] Starting initialization...");
-
         try {
             outputManager.initialize();
         } catch (Exception e) {
@@ -104,7 +98,6 @@ public class EngineContext {
         }
 
         running = true;
-        System.out.println("[EngineContext] Initialization complete!");
     }
     
     /**
@@ -112,7 +105,6 @@ public class EngineContext {
      */
     public void start() {
         running = true;
-        System.out.println("[EngineContext] Engine started");
     }
     
     /**
@@ -120,7 +112,6 @@ public class EngineContext {
      */
     public void stop() {
         running = false;
-        System.out.println("[EngineContext] Engine stopped");
     }
 
     /**
@@ -231,8 +222,6 @@ public class EngineContext {
      * Clean up all engine resources
      */
     public void dispose() {
-        System.out.println("[EngineContext] Disposing engine...");
-
         try {
             configManager.removeObserver(displayConfigListener);
             configManager.removeObserver(audioConfigListener);
@@ -259,7 +248,5 @@ public class EngineContext {
         }
 
         running = false;
-
-        System.out.println("[EngineContext] Engine disposed");
     }
 }

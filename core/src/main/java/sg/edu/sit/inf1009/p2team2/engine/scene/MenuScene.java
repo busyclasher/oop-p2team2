@@ -52,14 +52,12 @@ public class MenuScene extends Scene {
     
     @Override
     public void onEnter() {
-        System.out.println("[MenuScene] Entered menu scene");
         selectedIndex = 0;
         keyboardCooldown = 0;
     }
     
     @Override
     public void onExit() {
-        System.out.println("[MenuScene] Exiting menu scene");
     }
     @Override
     public void load() {
@@ -93,8 +91,6 @@ public class MenuScene extends Scene {
     }
 
     void loadMenuResources() {
-        System.out.println("[MenuScene] Loading menu resources...");
-
         menuItems.clear();
 
         float centerX = 400;
@@ -104,12 +100,9 @@ public class MenuScene extends Scene {
         menuItems.add(new MenuItem("Start Game", new Vector2(centerX, startY)));
         menuItems.add(new MenuItem("Settings", new Vector2(centerX, startY - spacing)));
         menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 2)));
-
-        System.out.println("[MenuScene] Loaded " + menuItems.size() + " menu items");
     }
 
     void unloadMenuResources() {
-        System.out.println("[MenuScene] Unloading menu resources");
         menuItems.clear();
     }
 
@@ -123,19 +116,15 @@ public class MenuScene extends Scene {
         if (keyboard.isKeyPressed(Input.Keys.UP)) {
             selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] UP -> " + menuItems.get(selectedIndex).text);
         } else if (keyboard.isKeyPressed(Input.Keys.W)) {
             selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] W -> " + menuItems.get(selectedIndex).text);
         } else if (keyboard.isKeyPressed(Input.Keys.DOWN)) {
             selectedIndex = (selectedIndex + 1) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] DOWN -> " + menuItems.get(selectedIndex).text);
         } else if (keyboard.isKeyPressed(Input.Keys.S)) {
             selectedIndex = (selectedIndex + 1) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-            System.out.println("[MenuScene] S -> " + menuItems.get(selectedIndex).text);
         }
 
         // Selection.
@@ -151,7 +140,6 @@ public class MenuScene extends Scene {
                 if (item.contains(mousePos)) {
                     if (selectedIndex != i) {
                         selectedIndex = i;
-                        System.out.println("[MenuScene] Mouse hover -> " + menuItems.get(selectedIndex).text);
                     }
                     break;
                 }
@@ -220,21 +208,17 @@ public class MenuScene extends Scene {
         }
         
         String action = menuItems.get(index).text;
-        System.out.println("[MenuScene] Activated: " + action);
         
         switch (action) {
             case "Start Game":
-                System.out.println("[MenuScene] Starting game...");
                 getContext().getSceneManager().push(new MainScene(getContext()));
                 break;
                 
             case "Settings":
-                System.out.println("[MenuScene] Opening settings...");
                 getContext().getSceneManager().push(new SettingsScene(getContext()));
                 break;
                 
             case "Exit":
-                System.out.println("[MenuScene] Exiting...");
                 getContext().stop();
                 Gdx.app.exit();
                 break;
