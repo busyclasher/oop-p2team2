@@ -1,5 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.engine.core;
 
+import com.badlogic.gdx.Gdx;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.config.DisplayConfigListener;
@@ -120,6 +121,16 @@ public class EngineContext {
     public void stop() {
         running = false;
         System.out.println("[EngineContext] Engine stopped");
+    }
+
+    /**
+     * Exit the application cleanly.
+     * Stops the engine, disposes all owned resources, then requests app exit.
+     */
+    public void exit() {
+        stop();
+        dispose();
+        Gdx.app.exit();
     }
     
     /**
