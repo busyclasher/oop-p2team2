@@ -13,14 +13,11 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
-import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
-import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
-import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
-import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.components.FallingComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.GameEntityComponent;
@@ -57,18 +54,18 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 public class GamePlayScene extends Scene {
 
     // ── Constants ────────────────────────────────────────────────────────────
-    private static final String BACKGROUND_NORMAL     = "game-scene.png";
-    private static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
-    private static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
-    private static final String GOOD_BYTE_SPRITE      = "good_byte.png";
-    private static final String SAFE_EMAIL_SPRITE     = "safe_email.png";
-    private static final String GOLD_ENVELOPE_SPRITE  = "gold_envelope.png";
-    private static final String PHISHING_HOOK_SPRITE  = "phishing_hook.png";
-    private static final String RANSOMWARE_LOCK_SPRITE= "ransomware_lock.png";
-    private static final String MALWARE_SWARM_SPRITE  = "malware_swarm.png";
-    private static final String ROOTKIT_SPRITE        = "rootkit.png";
-    private static final String SPYWARE_SPRITE        = "spyware.png";
-    private static final String FRENZY_ORB_SPRITE     = "frenzy_orb.png";
+    static final String BACKGROUND_NORMAL     = "game-scene.png";
+    static final String BACKGROUND_FRENZY     = "cyber-hydra-frenzy.jpeg";
+    static final String BACKGROUND_TRANSITION = "headphone-girl-listening.png"; // swap for transition bg
+    static final String GOOD_BYTE_SPRITE      = "good_byte.png";
+    static final String SAFE_EMAIL_SPRITE     = "safe_email.png";
+    static final String GOLD_ENVELOPE_SPRITE  = "gold_envelope.png";
+    static final String PHISHING_HOOK_SPRITE  = "phishing_hook.png";
+    static final String RANSOMWARE_LOCK_SPRITE= "ransomware_lock.png";
+    static final String MALWARE_SWARM_SPRITE  = "malware_swarm.png";
+    static final String ROOTKIT_SPRITE        = "rootkit.png";
+    static final String SPYWARE_SPRITE        = "spyware.png";
+    static final String FRENZY_ORB_SPRITE     = "frenzy_orb.png";
     private static final String GAMEPLAY_MUSIC_ID = "game-theme";
     private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -77,7 +74,7 @@ public class GamePlayScene extends Scene {
     private static final float SPAWN_Y            = 750f;
     private static final float SPAWN_MARGIN       = 60f;
     private static final float STANDARD_DURATION  = 60f;   // seconds of standard mode
-    private static final int   QUIZ_BONUS_POINTS = 100;
+    static final int   QUIZ_BONUS_POINTS = 100;
     private static final float STATUS_FLASH_INTERVAL = 0.12f;
     private static final float HEALTH_FEEDBACK_DURATION = 3f;
     private static final float REVIVE_FEEDBACK_DURATION = 5f;
@@ -120,7 +117,7 @@ public class GamePlayScene extends Scene {
     };
 
     // ── Game state ───────────────────────────────────────────────────────────
-    private enum GameState { PLAYING, FRENZY, QUIZ, QUIZ_FEEDBACK, BUFF_SELECT, TRANSITION_TO_FRENZY, GAME_OVER, WIN }
+    enum GameState { PLAYING, FRENZY, QUIZ, QUIZ_FEEDBACK, BUFF_SELECT, TRANSITION_TO_FRENZY, GAME_OVER, WIN }
 
     // ── Fields ───────────────────────────────────────────────────────────────
     private final LeaderboardManager leaderboard;
@@ -846,7 +843,7 @@ public class GamePlayScene extends Scene {
     // ── Accessors for renderer / input handler ───────────────────────────────
 
     /** Shared card rectangle used by both input handler and renderer. */
-    private Rectangle buffCardRect(int idx, float ww, float wh) {
+    Rectangle buffCardRect(int idx, float ww, float wh) {
         float cardW   = 250f, cardH = 389f, gap = 40f;
         float totalW  = 3 * cardW + 2 * gap;
         float startX  = ww / 2f - totalW / 2f;
@@ -854,652 +851,39 @@ public class GamePlayScene extends Scene {
         float y       = wh / 2f - cardH / 2f - 16f;
         return new Rectangle(x, y, cardW, cardH);
     }
-    private GameState getGameState()         { return gameState; }
-    private int getScore()             { return score; }
-    private int getGoodCollected()     { return goodCollected; }
-    private float getRoundTimer()      { return roundTimer; }
-    private int getTotalGoodCollected(){ return totalGoodCollected; }
-    private HealthComponent getPlayerHealth() { return playerHealth; }
-    private Entity getPlayerEntity() { return playerEntity; }
-    private EntityManager getEntityManager(){ return entityManager; }
-    private QuizManager getQuizManager()  { return quizManager; }
-    private float getTransitionTimer(){ return transitionTimer; }
-    private QuizResult getLastQuizResult(){ return lastQuizResult; }
-    private boolean isLastQuizBad()   { return lastQuizWasBad; }
-    private float getFeedbackTimer() { return feedbackTimer; }
-
-    // =========================================================================
-    // Inner - InputHandler
-    // =========================================================================
-
-    private static final class GamePlayInputHandler extends InputHandler {
-        private final GamePlayScene scene;
-
-        GamePlayInputHandler(GamePlayScene scene) {
-            super(scene.getContext());
-            this.scene = scene;
-        }
-
-        @Override
-        public void handleInput() {
-            Keyboard kb = scene.getContext().getInputManager().getKeyboard();
-
-            switch (scene.gameState) {
-                case PLAYING:
-                case FRENZY:
-                    if (kb.isKeyPressed(Keys.ESCAPE)) {
-                        GameAudio.playUiClick(scene.getContext());
-                        scene.getContext().getSceneManager().push(new PauseScene(scene.getContext(), scene));
-                    }
-                    break;
-
-                case QUIZ:
-                    handleQuizInput(kb);
-                    break;
-
-                case QUIZ_FEEDBACK:
-                    if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
-                        GameAudio.playUiClick(scene.getContext());
-                        scene.feedbackTimer = 0;
-                        if (scene.postFeedbackState == GameState.GAME_OVER) {
-                            scene.goToGameOver();
-                        } else {
-                            scene.gameState = scene.postFeedbackState;
-                        }
-                    }
-                    break;
-
-                case BUFF_SELECT:
-                    handleBuffInput(kb);
-                    break;
-
-                case GAME_OVER:
-                    if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
-                        GameAudio.playUiClick(scene.getContext());
-                        scene.goToGameOver();
-                    }
-                    break;
-
-                case WIN:
-                    if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
-                        GameAudio.playUiClick(scene.getContext());
-                        scene.goToLeaderboard();
-                    }
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        private void handleQuizInput(Keyboard kb) {
-            // Keyboard
-            if (kb.isKeyPressed(Keys.NUM_1)) { scene.submitQuizAnswer(0); return; }
-            if (kb.isKeyPressed(Keys.NUM_2)) { scene.submitQuizAnswer(1); return; }
-            if (kb.isKeyPressed(Keys.NUM_3)) { scene.submitQuizAnswer(2); return; }
-            if (kb.isKeyPressed(Keys.NUM_4)) { scene.submitQuizAnswer(3); return; }
-
-            // Mouse
-            Mouse  mouse = scene.getContext().getInputManager().getMouse();
-            Renderer r   = scene.getContext().getOutputManager().getRenderer();
-            float ww = r.getWorldWidth(), wh = r.getWorldHeight();
-            float cw = 680f, ch = 360f;
-            float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f;
-            com.badlogic.gdx.math.Vector2 mp = mouse.getPosition();
-
-            scene.hoveredQuizOption = -1;
-            for (int i = 0; i < 4; i++) {
-                float oy = cy + ch - 160f - i * 46f;
-                com.badlogic.gdx.math.Rectangle box =
-                    new com.badlogic.gdx.math.Rectangle(cx + 20f, oy, cw - 40f, 38f);
-                if (box.contains(mp.x, mp.y)) {
-                    scene.hoveredQuizOption = i;
-                    if (mouse.isButtonPressed(0)) scene.submitQuizAnswer(i);
-                    break;
-                }
-            }
-        }
-
-        private void handleBuffInput(Keyboard kb) {
-            // Keyboard left/right to navigate cards
-            if (kb.isKeyPressed(Keys.LEFT) || kb.isKeyPressed(Keys.A)) {
-                scene.buffHoveredIdx = (scene.buffHoveredIdx - 1 + 3) % 3;
-            } else if (kb.isKeyPressed(Keys.RIGHT) || kb.isKeyPressed(Keys.D)) {
-                scene.buffHoveredIdx = (scene.buffHoveredIdx + 1) % 3;
-            }
-            // 1/2/3 hotkeys
-            if (kb.isKeyPressed(Keys.NUM_1)) { scene.applyBuff(scene.buffChoices[0]); return; }
-            if (kb.isKeyPressed(Keys.NUM_2)) { scene.applyBuff(scene.buffChoices[1]); return; }
-            if (kb.isKeyPressed(Keys.NUM_3)) { scene.applyBuff(scene.buffChoices[2]); return; }
-            // Enter/Space confirms hovered card
-            if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
-                scene.applyBuff(scene.buffChoices[scene.buffHoveredIdx]);
-                return;
-            }
-            // Mouse hover + click
-            Mouse    mouse = scene.getContext().getInputManager().getMouse();
-            Renderer r     = scene.getContext().getOutputManager().getRenderer();
-            Vector2  mp    = mouse.getPosition();
-            float ww = r.getWorldWidth(), wh = r.getWorldHeight();
-            for (int i = 0; i < 3; i++) {
-                if (scene.buffCardRect(i, ww, wh).contains(mp.x, mp.y)) {
-                    scene.buffHoveredIdx = i;
-                    if (mouse.isButtonPressed(0)) {
-                        scene.applyBuff(scene.buffChoices[i]);
-                        return;
-                    }
-                }
-            }
-        }
-    }
-
-    // =========================================================================
-    // Inner - SceneRenderer
-    // =========================================================================
-
-    private static final class GamePlayRenderer extends SceneRenderer {
-        private final GamePlayScene scene;
-
-        // Colors
-        private static final Color COL_HUD_BG   = new Color(0f, 0f, 0f, 0.55f);
-        private static final Color COL_HEART     = new Color(0.95f, 0.25f, 0.25f, 1f);
-        private static final Color COL_HEART_EMPTY = new Color(0.4f, 0.15f, 0.15f, 0.6f);
-        private static final Color COL_FRENZY_BANNER = new Color(1f, 0.35f, 0f, 1f);
-        private static final Color COL_TIMER_ICON_BG = new Color(0.10f, 0.16f, 0.22f, 0.85f);
-        private static final Color COL_TIMER_ICON_RING = new Color(0.52f, 0.84f, 1.0f, 1f);
-        private static final Color COL_WARNING = new Color(1f, 0.25f, 0.25f, 1f);
-        private static final Color COL_OVERLAY   = new Color(0f, 0f, 0f, 0.72f);
-        private static final Color COL_QUIZ_BG   = new Color(0.05f, 0.08f, 0.18f, 0.95f);
-        private static final Color COL_WIN       = new Color(0.15f, 0.95f, 0.40f, 1f);
-        private static final Color COL_LOSE      = new Color(0.95f, 0.25f, 0.25f, 1f);
-
-        GamePlayRenderer(GamePlayScene scene) {
-            super(scene.getContext());
-            this.scene = scene;
-        }
-
-        @Override
-        public void render() {
-            Renderer r = scene.getContext().getOutputManager().getRenderer();
-            r.clear();
-            r.begin();
-
-            drawBackground(r);
-            drawEntities(r);
-            drawHUD(r);
-
-            switch (scene.gameState) {
-                case QUIZ:
-                    drawQuizOverlay(r);
-                    break;
-                case QUIZ_FEEDBACK:
-                    drawQuizFeedback(r);
-                    break;
-                case BUFF_SELECT:
-                    drawBuffSelect(r);
-                    break;
-                case TRANSITION_TO_FRENZY:
-                    drawFrenzyTransition(r);
-                    break;
-                case GAME_OVER:
-                    drawGameOverOverlay(r);
-                    break;
-                case WIN:
-                    drawWinOverlay(r);
-                    break;
-                default:
-                    break;
-            }
-
-            drawStatusBanner(r);
-
-            r.end();
-        }
-
-        // ── Background ──────────────────────────────────────────────────────
-
-        private void drawBackground(Renderer r) {
-            // In feedback state use the background of the state we're returning to
-            GameState bg_state = (scene.gameState == GameState.QUIZ)          ? scene.preQuizState
-                               : (scene.gameState == GameState.QUIZ_FEEDBACK) ? scene.postFeedbackState
-                               : (scene.gameState == GameState.BUFF_SELECT)   ? scene.preBuffState
-                               : scene.gameState;
-            String bg;
-            if (bg_state == GameState.FRENZY) bg = BACKGROUND_FRENZY;
-            else if (bg_state == GameState.TRANSITION_TO_FRENZY) bg = BACKGROUND_TRANSITION;
-            else bg = BACKGROUND_NORMAL;
-            r.drawBackground(bg);
-        }
-
-        // ── Entities ────────────────────────────────────────────────────────
-
-        private void drawEntities(Renderer r) {
-            for (Entity entity : scene.entityManager.getAllEntities()) {
-                TransformComponent tf = entity.get(TransformComponent.class);
-                if (tf == null) continue;
-
-                GameEntityComponent gec = entity.get(GameEntityComponent.class);
-                if (gec == null) continue;
-
-                Color color = gec.getEntityType().getColor();
-                float w, h;
-
-                if (gec.getEntityType() == EntityType.PLAYER) {
-                    w = EntityFactory.PLAYER_WIDTH;
-                    h = EntityFactory.PLAYER_HEIGHT;
-                    drawPlayer(r, tf.getPosition(), w, h, color);
-                } else {
-                    w = tf.getScale().x;
-                    h = tf.getScale().y;
-                    drawFallingEntity(r, tf.getPosition(), w, h, gec.getEntityType(), color);
-                }
-            }
-        }
-
-        private void drawPlayer(Renderer r, Vector2 pos, float w, float h, Color color) {
-            if (scene.bonusLifeShieldActive) {
-                float shieldPulse = 1.0f + 0.05f * (float) Math.sin(scene.hudAnimTime * 4.5f);
-                Vector2 shieldCenter = new Vector2(pos.x, pos.y + h / 2f);
-                r.drawCircle(shieldCenter, (w * 0.62f) * shieldPulse,
-                    new Color(0.16f, 0.82f, 1.0f, 0.12f), true);
-                r.drawCircle(shieldCenter, (w * 0.74f) * shieldPulse,
-                    new Color(0.55f, 0.90f, 1.0f, 0.18f), false);
-                r.drawCircle(shieldCenter, (w * 0.79f) * shieldPulse,
-                    new Color(0.80f, 0.96f, 1.0f, 0.90f), false);
-                r.drawCircle(shieldCenter, (w * 0.86f) * shieldPulse,
-                    new Color(0.22f, 0.70f, 1.0f, 0.40f), false);
-            }
-            r.drawSprite(scene.characterType.getSprite(),
-                new Vector2(pos.x, pos.y + h / 2f), w, h);
-        }
-
-        private void drawFallingEntity(Renderer r, Vector2 pos, float w, float h,
-                                       EntityType type, Color color) {
-            switch (type) {
-                case GOOD_BYTE:       r.drawSprite(GOOD_BYTE_SPRITE,          pos, w, h); break;
-                case SAFE_EMAIL:      r.drawSprite(SAFE_EMAIL_SPRITE,         pos, w, h); break;
-                case GOLD_ENVELOPE:   r.drawSprite(GOLD_ENVELOPE_SPRITE,      pos, w, h); break;
-                case PHISHING_HOOK:   r.drawSprite(PHISHING_HOOK_SPRITE,      pos, w, h); break;
-                case RANSOMWARE_LOCK: r.drawSprite(RANSOMWARE_LOCK_SPRITE,    pos, w, h); break;
-                case MALWARE_SWARM:   r.drawSprite(MALWARE_SWARM_SPRITE,      pos, w, h); break;
-                case ROOTKIT:         r.drawSprite(ROOTKIT_SPRITE,            pos, w, h); break;
-                case SPYWARE:         r.drawSprite(SPYWARE_SPRITE,            pos, w, h); break;
-                case FRENZY_ORB: {
-                    boolean orbFlashOn = ((int) (scene.hudAnimTime * 7f) % 2) == 0;
-                    Color orbAura = orbFlashOn
-                        ? new Color(1f, 0.10f, 0.18f, 0.24f)
-                        : new Color(1f, 0.42f, 0.64f, 0.16f);
-                    Color orbRing = orbFlashOn
-                        ? new Color(1f, 0.20f, 0.22f, 1f)
-                        : new Color(1f, 0.78f, 0.86f, 1f);
-                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2.05f, orbAura, true);
-                    r.drawSprite(FRENZY_ORB_SPRITE, pos, w, h);
-                    if (orbFlashOn) {
-                        r.drawCircle(new Vector2(pos.x, pos.y), w / 4.2f,
-                            new Color(1f, 0.16f, 0.22f, 0.22f), true);
-                    }
-                    r.drawCircle(new Vector2(pos.x, pos.y), w / 2f, orbRing, false);
-                    break;
-                }
-                default: {
-                    float x = pos.x - w / 2, y = pos.y - h / 2;
-                    r.drawRect(new Rectangle(x, y, w, h), color, true);
-                    r.drawRect(new Rectangle(x, y, w, h), Color.WHITE, false);
-                }
-            }
-        }
-
-        // ── HUD ─────────────────────────────────────────────────────────────
-
-        private void drawHUD(Renderer r) {
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-
-            // HUD bar background
-            r.drawRect(new Rectangle(0, wh - 56f, ww, 56f), COL_HUD_BG, true);
-
-            // Lives (hearts)
-            int lives = scene.playerHealth.getCurrentLives();
-            int maxL  = scene.playerHealth.getMaxLives();
-            for (int i = 0; i < maxL; i++) {
-                Color c = (i < lives) ? COL_HEART : COL_HEART_EMPTY;
-                float hx = 20f + i * 36f;
-                float hy = wh - 40f;
-                drawHeart(r, hx, hy, c);
-            }
-
-            // Score
-            r.drawTextCentered("SCORE: " + scene.score,
-                new Vector2(ww / 2f, wh - 14f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
-
-            // Timer / mode display
-            String progressText;
-            Color  progressColor;
-            GameState displayState = (scene.gameState == GameState.QUIZ)
-                ? scene.preQuizState
-                : (scene.gameState == GameState.QUIZ_FEEDBACK)
-                    ? scene.postFeedbackState
-                    : (scene.gameState == GameState.BUFF_SELECT)
-                        ? scene.preBuffState
-                        : scene.gameState;
-            int secsLeft;
-            Color baseProgressColor;
-            if (displayState == GameState.FRENZY) {
-                secsLeft = Math.max(0, (int) Math.ceil(scene.frenzyTimer));
-                progressText  = "FRENZY " + secsLeft + "s  PTS " + scene.score;
-                baseProgressColor = COL_FRENZY_BANNER;
-            } else {
-                secsLeft = Math.max(0, (int) Math.ceil(scene.getRoundTimer()));
-                progressText  = "TIME " + secsLeft + "s  PTS " + scene.score;
-                baseProgressColor = Color.CYAN;
-            }
-            boolean dangerFlash = secsLeft <= 5;
-            boolean flashOn = ((int) (scene.hudAnimTime * 6f) % 2) == 0;
-            progressColor = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
-
-            float textWidth = r.measureTextWidth(progressText, GameUiTheme.FONT_BODY);
-            float iconDiameter = 28f;
-            float gap = 10f;
-            float progressX = ww - textWidth - iconDiameter - gap - 24f;
-            Vector2 iconCenter = new Vector2(progressX + iconDiameter / 2f, wh - 21f);
-            Color iconAccent = dangerFlash && flashOn ? COL_WARNING : baseProgressColor;
-            Color iconFrame = dangerFlash && flashOn
-                ? new Color(1f, 0.92f, 0.92f, 1f)
-                : GameUiTheme.TEXT_PRIMARY;
-
-            drawTimerIcon(r, iconCenter, iconFrame, iconAccent, dangerFlash);
-            r.drawText(progressText, new Vector2(progressX + iconDiameter + gap, wh - 18f),
-                GameUiTheme.FONT_BODY, progressColor);
-
-            // Active buff indicators (bottom-right)
-            if (scene.hasShield) {
-                r.drawText("[REVIVE READY]", new Vector2(ww - 230f, 12f),
-                    GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_INFO);
-            }
-
-            // Controls hint
-            r.drawText("A/D Move  |  SPACE Jump  |  ESC Quit",
-                new Vector2(20f, 18f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
-        }
-
-        private void drawStatusBanner(Renderer r) {
-            if (!scene.statusBannerVisible || scene.statusBannerText.isEmpty()) {
-                return;
-            }
-
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-            Vector2 textPos = new Vector2(ww / 2f, wh / 2f + 90f);
-            Color shadow = new Color(0.18f, 0.10f, 0.02f, 0.95f);
-            Color bannerColor = scene.statusBannerColor;
-
-            r.drawTextCentered(scene.statusBannerText, new Vector2(textPos.x + 2f, textPos.y - 2f),
-                GameUiTheme.FONT_TITLE_SMALL, shadow);
-            r.drawTextCentered(scene.statusBannerText, textPos, GameUiTheme.FONT_TITLE_SMALL, bannerColor);
-        }
-
-        private void drawHeart(Renderer r, float x, float y, Color c) {
-            r.drawCircle(new Vector2(x + 6f,  y + 8f), 6f, c, true);
-            r.drawCircle(new Vector2(x + 16f, y + 8f), 6f, c, true);
-            r.drawRect(new Rectangle(x, y, 22f, 10f), c, true);
-            // bottom triangle approximated by two lines
-            r.drawLine(new Vector2(x, y), new Vector2(x + 11f, y - 8f), c, 3f);
-            r.drawLine(new Vector2(x + 22f, y), new Vector2(x + 11f, y - 8f), c, 3f);
-        }
-
-        private void drawTimerIcon(Renderer r, Vector2 center, Color frameColor, Color accentColor, boolean warning) {
-            float pulse = warning
-                ? 13.0f + (float) Math.sin(scene.hudAnimTime * 10f) * 1.0f
-                : 13.0f;
-            Color badgeColor = warning
-                ? new Color(0.32f, 0.05f, 0.08f, 0.97f)
-                : COL_TIMER_ICON_BG;
-            Color ringColor = warning ? accentColor : COL_TIMER_ICON_RING;
-
-            r.drawCircle(center, pulse, badgeColor, true);
-            r.drawCircle(center, pulse + 1.4f, ringColor, false);
-
-            float thickness = 1.7f;
-            float halfBar = 6.0f;
-            float sideInset = 4.8f;
-            float topY = center.y + 7.0f;
-            float upperMidY = center.y + 2.1f;
-            float lowerMidY = center.y - 2.1f;
-            float bottomY = center.y - 7.0f;
-
-            r.drawLine(new Vector2(center.x - halfBar, topY), new Vector2(center.x + halfBar, topY),
-                frameColor, thickness);
-            r.drawLine(new Vector2(center.x - halfBar, bottomY), new Vector2(center.x + halfBar, bottomY),
-                frameColor, thickness);
-            r.drawLine(new Vector2(center.x - sideInset, topY - 0.8f), new Vector2(center.x, upperMidY),
-                frameColor, thickness);
-            r.drawLine(new Vector2(center.x + sideInset, topY - 0.8f), new Vector2(center.x, upperMidY),
-                frameColor, thickness);
-            r.drawLine(new Vector2(center.x - sideInset, bottomY + 0.8f), new Vector2(center.x, lowerMidY),
-                frameColor, thickness);
-            r.drawLine(new Vector2(center.x + sideInset, bottomY + 0.8f), new Vector2(center.x, lowerMidY),
-                frameColor, thickness);
-            r.drawLine(new Vector2(center.x, upperMidY), new Vector2(center.x, lowerMidY),
-                frameColor, 1.0f);
-
-            r.drawLine(new Vector2(center.x - 2.6f, center.y + 3.3f), new Vector2(center.x + 2.6f, center.y + 3.3f),
-                accentColor, 1.7f);
-            r.drawLine(new Vector2(center.x - 1.9f, center.y + 1.8f), new Vector2(center.x + 1.9f, center.y + 1.8f),
-                accentColor, 1.5f);
-            r.drawLine(new Vector2(center.x, center.y + 0.2f), new Vector2(center.x, center.y - 2.8f),
-                accentColor, 0.9f);
-            r.drawCircle(new Vector2(center.x, center.y - 4.3f), 1.8f, accentColor, true);
-        }
-
-        // ── Quiz overlay ─────────────────────────────────────────────────────
-
-        private void drawQuizOverlay(Renderer r) {
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-
-            // Dim background
-            r.drawRect(new Rectangle(0, 0, ww, wh), COL_OVERLAY, true);
-
-            // Quiz card
-            float cw = 680f, ch = 360f;
-            float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f;
-            r.drawRect(new Rectangle(cx, cy, cw, ch), COL_QUIZ_BG, true);
-            r.drawRect(new Rectangle(cx, cy, cw, ch), Color.CYAN, false);
-
-            QuizManager qm = scene.quizManager;
-            String[] opts = qm.getCurrentQuestion().getOptions();
-            String   q    = qm.getCurrentQuestion().getQuestion();
-
-            // Header
-            String header = qm.isBadEntityQuiz()
-                ? "THREAT IDENTIFIED! Answer correctly to neutralise (+100 pts):"
-                : "RARE FIND! Answer correctly for +1 Life & +100 pts:";
-            Color headerCol = qm.isBadEntityQuiz()
-                ? new Color(1f, 0.4f, 0.4f, 1f) : new Color(1f, 0.85f, 0.2f, 1f);
-            r.drawText(header, new Vector2(cx + 20f, cy + ch - 28f), GameUiTheme.FONT_BODY, headerCol);
-
-            // Question text (simple word-wrap at ~60 chars)
-            drawWrappedText(r, q, cx + 20f, cy + ch - 70f, 60, Color.WHITE);
-
-            // Options
-            String[] labels = {"1", "2", "3", "4"};
-            for (int i = 0; i < 4; i++) {
-                float oy = cy + ch - 160f - i * 46f;
-                boolean hov = (i == scene.hoveredQuizOption);
-                Color bg     = hov ? new Color(0.15f, 0.30f, 0.60f, 0.95f)
-                                   : new Color(0.1f,  0.15f, 0.30f, 0.85f);
-                Color border = hov ? Color.YELLOW : new Color(0.4f, 0.6f, 0.9f, 0.7f);
-                r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), bg, true);
-                r.drawRect(new Rectangle(cx + 20f, oy, cw - 40f, 38f), border, false);
-                r.drawText("[" + labels[i] + "]  " + opts[i],
-                    new Vector2(cx + 32f, oy + 27f), GameUiTheme.FONT_BODY, hov ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
-            }
-
-            r.drawText("Press 1 - 4  or  Click to answer",
-                new Vector2(cx + 20f, cy + 22f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
-        }
-
-        private void drawWrappedText(Renderer r, String text, float x, float startY,
-                                     int lineLen, Color color) {
-            String[] words = text.split(" ");
-            StringBuilder line = new StringBuilder();
-            float y = startY;
-            float lineStep = r.getLineHeight(GameUiTheme.FONT_BODY) + 4f;
-            for (String word : words) {
-                if (line.length() + word.length() + 1 > lineLen && line.length() > 0) {
-                    r.drawText(line.toString(), new Vector2(x, y), GameUiTheme.FONT_BODY, color);
-                    y -= lineStep;
-                    line = new StringBuilder();
-                }
-                if (line.length() > 0) line.append(" ");
-                line.append(word);
-            }
-            if (line.length() > 0) {
-                r.drawText(line.toString(), new Vector2(x, y), GameUiTheme.FONT_BODY, color);
-            }
-        }
-
-        // ── Quiz feedback banner ──────────────────────────────────────────────
-
-        private void drawQuizFeedback(Renderer r) {
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-
-            boolean correct = (scene.getLastQuizResult() == QuizResult.CORRECT);
-            boolean wasBad  = scene.isLastQuizBad();
-
-            // Dim overlay
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.55f), true);
-
-            // Banner card
-            float cw = 580f, ch = 160f;
-            float cx = (ww - cw) / 2f, cy = (wh - ch) / 2f + 30f;
-            Color bgColor = correct
-                ? new Color(0.05f, 0.25f, 0.08f, 0.95f)
-                : new Color(0.25f, 0.05f, 0.05f, 0.95f);
-            Color borderColor = correct ? new Color(0.2f, 0.9f, 0.3f, 1f) : new Color(0.9f, 0.2f, 0.2f, 1f);
-            r.drawRect(new Rectangle(cx, cy, cw, ch), bgColor, true);
-            r.drawRect(new Rectangle(cx, cy, cw, ch), borderColor, false);
-
-            // Result heading
-            String heading = correct ? "CORRECT!" : "WRONG!";
-            r.drawTextCentered(heading,
-                new Vector2(ww / 2f, cy + ch - 34f),
-                GameUiTheme.FONT_TITLE_SMALL, borderColor);
-
-            // Detail line
-            String detail;
-            if (correct) {
-                int bonus = QUIZ_BONUS_POINTS;
-                detail = wasBad
-                    ? "Threat neutralised! +" + bonus + " pts"
-                    : "+" + bonus + " pts & +1 Life!";
-            } else {
-                detail = wasBad ? "-1 Life - stay alert!" : "No bonus this time.";
-            }
-            r.drawTextCentered(detail,
-                new Vector2(ww / 2f, cy + ch - 76f),
-                GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
-
-            // Progress bar (shrinks as timer counts down)
-            float barW = cw - 40f;
-            float progress = Math.min(1f, scene.getFeedbackTimer() / 1.5f);
-            r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW, 10f),
-                new Color(0.2f, 0.2f, 0.2f, 1f), true);
-            r.drawRect(new Rectangle(cx + 20f, cy + 18f, barW * progress, 10f),
-                borderColor, true);
-
-            r.drawTextCentered("SPACE / ENTER to continue",
-                new Vector2(ww / 2f, cy + 42f),
-                GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
-        }
-
-        // ── Frenzy transition banner ─────────────────────────────────────────
-
-        private void drawFrenzyTransition(Renderer r) {
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.6f), true);
-            r.drawTextCentered("CYBER-HYDRA AWAKENS!", new Vector2(ww / 2f, wh / 2f + 42f),
-                GameUiTheme.FONT_TITLE_SMALL, COL_FRENZY_BANNER);
-            r.drawTextCentered("FRENZY MODE INCOMING...",
-                new Vector2(ww / 2f, wh / 2f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
-            int secs = (int) Math.ceil(scene.transitionTimer);
-            r.drawTextCentered("Starting in " + secs + "...",
-                new Vector2(ww / 2f, wh / 2f - 50f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
-        }
-
-        // ── Buff card selection overlay ──────────────────────────────────────
-
-        private void drawBuffSelect(Renderer r) {
-            float ww = r.getWorldWidth(), wh = r.getWorldHeight();
-
-            // Dim the game world behind the overlay
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
-
-            // Title — cardH=389, so card top at wh/2+194; give 20px gap above
-            r.drawTextCentered("SYSTEM UPGRADE!",
-                new Vector2(ww / 2f, wh / 2f + 242f), GameUiTheme.FONT_TITLE_SMALL,
-                GameUiTheme.TEXT_SUCCESS);
-            r.drawTextCentered("Choose a buff:",
-                new Vector2(ww / 2f, wh / 2f + 210f), GameUiTheme.FONT_BODY_LARGE,
-                GameUiTheme.TEXT_MUTED);
-
-            for (int i = 0; i < 3; i++) {
-                BuffType  buff = scene.buffChoices[i];
-                Rectangle card = scene.buffCardRect(i, ww, wh);
-                boolean   sel  = (i == scene.buffHoveredIdx);
-
-                // Sprite fills the entire card at its natural 832x1295 proportions
-                r.drawSprite(buff.getCardSprite(),
-                    new Vector2(card.x + card.width / 2f, card.y + card.height / 2f),
-                    card.width, card.height);
-
-                // Border — full colour when selected, half-brightness when not
-                Color accent = buff.getAccentColor();
-                float bri = sel ? 1.0f : 0.45f;
-                r.drawRect(card,
-                    new Color(accent.r * bri, accent.g * bri, accent.b * bri, 1f), false);
-                if (sel) {
-                    r.drawRect(new Rectangle(card.x + 2f, card.y + 2f,
-                        card.width - 4f, card.height - 4f), accent, false);
-                }
-            }
-
-            // Footer hint
-            r.drawTextCentered("< > / A D to navigate   1 2 3 or Enter to pick",
-                new Vector2(ww / 2f, wh / 2f - 220f), GameUiTheme.FONT_BODY_SMALL,
-                GameUiTheme.TEXT_SUBTLE);
-        }
-
-        // ── Game-over overlay ────────────────────────────────────────────────
-
-        private void drawGameOverOverlay(Renderer r) {
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.75f), true);
-            r.drawTextCentered("SYSTEM CRASH!", new Vector2(ww / 2f, wh / 2f + 60f),
-                GameUiTheme.FONT_TITLE_SMALL, COL_LOSE);
-            r.drawTextCentered("The network is down. Score: " + scene.score,
-                new Vector2(ww / 2f, wh / 2f + 10f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
-            r.drawTextCentered("Press ENTER to continue",
-                new Vector2(ww / 2f, wh / 2f - 50f), GameUiTheme.FONT_BODY_SMALL,
-                GameUiTheme.TEXT_MUTED);
-        }
-
-        // ── Win overlay ──────────────────────────────────────────────────────
-
-        private void drawWinOverlay(Renderer r) {
-            float ww = r.getWorldWidth();
-            float wh = r.getWorldHeight();
-            r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
-            r.drawTextCentered("NETWORK SECURED!", new Vector2(ww / 2f, wh / 2f + 60f),
-                GameUiTheme.FONT_TITLE_SMALL, COL_WIN);
-            r.drawTextCentered("Cyber-Hydra defeated! Final score: " + scene.score,
-                new Vector2(ww / 2f, wh / 2f + 10f), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_PRIMARY);
-            r.drawTextCentered("Press ENTER for leaderboard",
-                new Vector2(ww / 2f, wh / 2f - 50f), GameUiTheme.FONT_BODY_SMALL,
-                GameUiTheme.TEXT_MUTED);
-        }
+    GameState getGameState()              { return gameState; }
+    int getScore()                        { return score; }
+    int getGoodCollected()                { return goodCollected; }
+    float getRoundTimer()                 { return roundTimer; }
+    int getTotalGoodCollected()           { return totalGoodCollected; }
+    HealthComponent getPlayerHealth()     { return playerHealth; }
+    Entity getPlayerEntity()              { return playerEntity; }
+    EntityManager getEntityManager()      { return entityManager; }
+    QuizManager getQuizManager()          { return quizManager; }
+    float getTransitionTimer()            { return transitionTimer; }
+    QuizResult getLastQuizResult()        { return lastQuizResult; }
+    boolean isLastQuizBad()               { return lastQuizWasBad; }
+    float getFeedbackTimer()              { return feedbackTimer; }
+    GameState getPostFeedbackState()      { return postFeedbackState; }
+    GameState getPreQuizState()           { return preQuizState; }
+    GameState getPreBuffState()           { return preBuffState; }
+    boolean hasShield()                   { return hasShield; }
+    boolean isBonusLifeShieldActive()     { return bonusLifeShieldActive; }
+    float getFrenzyTimer()                { return frenzyTimer; }
+    float getHudAnimTime()                { return hudAnimTime; }
+    CharacterType getCharacterType()      { return characterType; }
+    String getStatusBannerText()          { return statusBannerText; }
+    Color getStatusBannerColor()          { return statusBannerColor; }
+    boolean isStatusBannerVisible()       { return statusBannerVisible; }
+    int getHoveredQuizOption()            { return hoveredQuizOption; }
+    void setHoveredQuizOption(int idx)    { hoveredQuizOption = idx; }
+    int getBuffHoveredIdx()               { return buffHoveredIdx; }
+    void setBuffHoveredIdx(int idx)       { buffHoveredIdx = idx; }
+    BuffType getBuffChoice(int idx)       { return buffChoices[idx]; }
+    void clearQuizFeedbackTimer()         { feedbackTimer = 0f; }
+    void setGameState(GameState state)    { gameState = state; }
+    void openPauseMenu() {
+        GameAudio.playUiClick(getContext());
+        getContext().getSceneManager().push(new PauseScene(getContext(), this));
     }
 }
