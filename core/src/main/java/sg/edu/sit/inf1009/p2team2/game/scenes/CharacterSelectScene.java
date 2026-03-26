@@ -124,9 +124,7 @@ public class CharacterSelectScene extends Scene {
         leaderboard.setLastCharacter(chosen);
         getContext().getSceneManager().pop();                                       // remove CharacterSelectScene
         getContext().getSceneManager().push(new GamePlayScene(getContext(), leaderboard, chosen));
-        if (!leaderboard.hasSeenTutorial()) {
-            getContext().getSceneManager().push(new HowToPlayScene(getContext(), leaderboard, true));
-        }
+        getContext().getSceneManager().push(new HowToPlayScene(getContext(), leaderboard, true));
     }
 
     // ── Render ───────────────────────────────────────────────────────────────

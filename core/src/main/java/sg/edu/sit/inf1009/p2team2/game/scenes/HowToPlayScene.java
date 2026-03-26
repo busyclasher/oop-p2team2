@@ -72,9 +72,6 @@ public class HowToPlayScene extends Scene {
     }
 
     private void closeScene(boolean completedTutorial) {
-        if (completedTutorial && tutorialMode && leaderboard != null) {
-            leaderboard.setTutorialSeen(true);
-        }
         getContext().getSceneManager().pop();
     }
 
@@ -148,8 +145,8 @@ public class HowToPlayScene extends Scene {
             new Vector2(ww / 2f, wh - 58f), GameUiTheme.FONT_TITLE_SMALL,
             GameUiTheme.TITLE_PRIMARY);
         r.drawTextCentered(pageIndex == 0
-                ? "Page 1 / 2 - Learn the core rules and know what to catch."
-                : "Page 2 / 2 - Master frenzy mode, character builds, and quiz rewards.",
+                ? "Page 1 / 2 - Learn the goal, controls, and what to catch or avoid."
+                : "Page 2 / 2 - Learn frenzy mode, quiz rewards, and character strengths.",
             new Vector2(ww / 2f, wh - 96f), GameUiTheme.FONT_BODY_SMALL,
             GameUiTheme.TEXT_MUTED);
 
@@ -179,30 +176,31 @@ public class HowToPlayScene extends Scene {
         float leftX = leftPanel.x + 24f;
         float leftY = leftPanel.y + leftPanel.height - 22f;
         leftY = drawSectionHeader(r, "OBJECTIVE", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
-        leftY = drawInfoLine(r, "Catch good data and avoid cyber threats.", leftX, leftY);
-        leftY = drawInfoLine(r, "Survive until the timer reaches 0 to win.", leftX, leftY);
-        leftY = drawInfoLine(r, "Catch a Frenzy Orb to trigger Frenzy Mode.", leftX, leftY - 2f);
+        leftY = drawInfoLine(r, "Catch safe data, avoid cyber threats, and stay alive.", leftX, leftY);
+        leftY = drawInfoLine(r, "Survive until the main timer reaches 0 to win the round.", leftX, leftY);
+        leftY = drawInfoLine(r, "Special objects can trigger quizzes, buffs, or Frenzy Mode.", leftX, leftY - 2f);
 
         leftY -= 12f;
         leftY = drawSectionHeader(r, "CONTROLS", leftX, leftY, GameUiTheme.TEXT_INFO);
-        leftY = drawInfoLine(r, "A / Left Arrow    Move left", leftX, leftY);
-        leftY = drawInfoLine(r, "D / Right Arrow   Move right", leftX, leftY);
-        leftY = drawInfoLine(r, "SPACE / W / UP    Jump", leftX, leftY);
-        leftY = drawInfoLine(r, "ESC               Pause menu", leftX, leftY);
-        drawInfoLine(r, "1 / 2 / 3 / 4     Answer quiz", leftX, leftY);
+        leftY = drawInfoLine(r, "A / Left Arrow      Move left", leftX, leftY);
+        leftY = drawInfoLine(r, "D / Right Arrow     Move right", leftX, leftY);
+        leftY = drawInfoLine(r, "SPACE / W / UP      Jump", leftX, leftY);
+        leftY = drawInfoLine(r, "1 / 2 / 3 / 4       Answer quiz options", leftX, leftY);
+        drawInfoLine(r, "ESC                 Pause or leave the round", leftX, leftY);
 
         float rightX = rightPanel.x + 24f;
         float rightY = rightPanel.y + rightPanel.height - 22f;
-        rightY = drawSectionHeader(r, "GOOD CATCHES", rightX, rightY, GameUiTheme.TEXT_SUCCESS);
-        rightY = drawEntityRow(r, GOOD_BYTE_SPRITE, "Good Byte", "+5 pts", rightX, rightY, GameUiTheme.TEXT_INFO);
-        rightY = drawEntityRow(r, SAFE_EMAIL_SPRITE, "Safe Email", "+5 pts", rightX, rightY, GameUiTheme.TEXT_SUCCESS);
-        rightY = drawEntityRow(r, GOLD_ENVELOPE_SPRITE, "Gold Envelope", "+10 pts + quiz trigger", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
+        rightY = drawSectionHeader(r, "GOOD DATA VS THREATS", rightX, rightY, GameUiTheme.TEXT_SUCCESS);
+        rightY = drawEntityRow(r, GOOD_BYTE_SPRITE, "Good Byte", "safe catch  |  +5 pts", rightX, rightY, GameUiTheme.TEXT_INFO);
+        rightY = drawEntityRow(r, SAFE_EMAIL_SPRITE, "Safe Email", "protected mail  |  +5 pts", rightX, rightY, GameUiTheme.TEXT_SUCCESS);
+        rightY = drawEntityRow(r, GOLD_ENVELOPE_SPRITE, "Gold Envelope", "rare catch  |  +10 pts + quiz", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
 
         rightY -= 10f;
         rightY = drawSectionHeader(r, "THREATS", rightX, rightY, GameUiTheme.TEXT_DANGER);
-        rightY = drawEntityRow(r, PHISHING_HOOK_SPRITE, "Phishing Hook", "-1 life", rightX, rightY, GameUiTheme.TEXT_DANGER);
-        rightY = drawEntityRow(r, RANSOMWARE_LOCK_SPRITE, "Ransomware Lock", "wrong quiz = -1 life", rightX, rightY, GameUiTheme.TEXT_WARNING);
-        drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "-1 life", rightX, rightY, new Color(0.78f, 0.45f, 1.0f, 1f));
+        rightY = drawEntityRow(r, PHISHING_HOOK_SPRITE, "Phishing Hook", "direct hit  |  -1 life", rightX, rightY, GameUiTheme.TEXT_DANGER);
+        rightY = drawEntityRow(r, RANSOMWARE_LOCK_SPRITE, "Ransomware Lock", "wrong answer  |  -1 life", rightX, rightY, GameUiTheme.TEXT_WARNING);
+        rightY = drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "direct hit  |  -1 life", rightX, rightY, new Color(0.78f, 0.45f, 1.0f, 1f));
+        drawInfoLine(r, "Tip: if it looks risky, avoid it unless a quiz asks you to act.", rightX, rightY - 2f);
     }
 
     private void drawPageTwo(Renderer r, float ww, float wh) {
@@ -220,27 +218,26 @@ public class HowToPlayScene extends Scene {
 
         float leftX = leftPanel.x + 24f;
         float leftY = leftPanel.y + leftPanel.height - 22f;
-        leftY = drawSectionHeader(r, "FRENZY MODE", leftX, leftY, GameUiTheme.TEXT_WARNING);
+        leftY = drawSectionHeader(r, "FRENZY + QUIZ REWARDS", leftX, leftY, GameUiTheme.TEXT_WARNING);
         leftY = drawFrenzyOrbRow(r, leftX, leftY);
-        leftY = drawInfoLine(r, "The main timer freezes for 15 seconds.", leftX, leftY);
+        leftY = drawInfoLine(r, "Catch the orb to trigger a 15-second Frenzy phase.", leftX, leftY);
+        leftY = drawInfoLine(r, "The main timer freezes while Frenzy is active.", leftX, leftY);
         leftY = drawEntityRow(r, ROOTKIT_SPRITE, "Rootkit", "extra frenzy-only threat", leftX, leftY - 2f, GameUiTheme.TEXT_WARNING);
         leftY = drawEntityRow(r, SPYWARE_SPRITE, "Spyware", "quiz threat during frenzy", leftX, leftY, GameUiTheme.TEXT_WARNING);
-
-        leftY -= 12f;
-        leftY = drawSectionHeader(r, "QUIZ BONUS", leftX, leftY, GameUiTheme.TEXT_INFO);
-        leftY = drawInfoLine(r, "Correct answers give +100 pts.", leftX, leftY);
-        leftY = drawInfoLine(r, "Rare good quizzes also give +1 life.", leftX, leftY);
-        drawInfoLine(r, "Wrong bad quizzes cost 1 life.", leftX, leftY);
+        leftY -= 10f;
+        leftY = drawInfoLine(r, "Correct quiz answers give +100 pts.", leftX, leftY);
+        leftY = drawInfoLine(r, "Good-data quizzes can also restore +1 health.", leftX, leftY);
+        drawInfoLine(r, "Wrong threat quizzes cost 1 life, so answer carefully.", leftX, leftY);
 
         float rightX = rightPanel.x + 24f;
         float rightY = rightPanel.y + rightPanel.height - 22f;
-        rightY = drawSectionHeader(r, "CHARACTERS", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
+        rightY = drawSectionHeader(r, "CHARACTER STYLES", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
         rightY = drawCharacterLine(r, "Specter", "450 px/s  |  3 lives  |  x1.2 score",
-            "Perk: Speed Demon - bonus pts per catch", rightX, rightY);
+            "Fastest safe pick for movement-heavy play.", rightX, rightY);
         rightY = drawCharacterLine(r, "Guardian", "300 px/s  |  5 lives  |  x1.0 score",
-            "Perk: Iron Defense - 2 extra starting lives", rightX, rightY);
+            "Most forgiving build with the highest survivability.", rightX, rightY);
         drawCharacterLine(r, "Cipher", "500 px/s  |  2 lives  |  x1.5 score",
-            "Perk: Data Rush - highest score but very risky", rightX, rightY);
+            "Highest scoring option, but mistakes are punished hard.", rightX, rightY);
     }
 
     private void drawFooterButtons(Renderer r, float ww) {
