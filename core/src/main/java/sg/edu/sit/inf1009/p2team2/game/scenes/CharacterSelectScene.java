@@ -115,7 +115,7 @@ public class CharacterSelectScene extends Scene {
         float totalW  = CHARS.length * CARD_W + (CHARS.length - 1) * 60f;
         float startX  = cx - totalW / 2f;
         float cardX   = startX + index * spacing;
-        return new Rectangle(cardX, cy - CARD_H / 2f - 20f, CARD_W, CARD_H);
+        return new Rectangle(cardX, cy - CARD_H / 2f - 8f, CARD_W, CARD_H);
     }
 
     private void startGame() {
@@ -169,11 +169,11 @@ public class CharacterSelectScene extends Scene {
             // Name
             Color nameColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawTextCentered(ch.getName(),
-                new Rectangle(card.x, card.y + CARD_H - CHAR_H - 92f, CARD_W, 34f),
+                new Rectangle(card.x, card.y + CARD_H - CHAR_H - 122f, CARD_W, 34f),
                 GameUiTheme.FONT_BODY_LARGE, nameColor);
 
             // Stats
-            float statsY = card.y + CARD_H - CHAR_H - 114f;
+            float statsY = card.y + CARD_H - CHAR_H - 144f;
             r.drawText("Speed:  " + (int) ch.getSpeed() + " px/s",
                 new Vector2(card.x + 14f, statsY),         GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
             r.drawText("Lives:  " + ch.getLives(),

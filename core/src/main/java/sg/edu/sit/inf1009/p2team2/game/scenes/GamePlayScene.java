@@ -68,7 +68,6 @@ public class GamePlayScene extends Scene {
     private static final String ROOTKIT_SPRITE        = "rootkit.png";
     private static final String SPYWARE_SPRITE        = "spyware.png";
     private static final String FRENZY_ORB_SPRITE     = "frenzy_orb.png";
-    private static final String BONUS_LIFE_SHIELD_SPRITE = "bonus-life-shield.png";
     private static final String GAMEPLAY_MUSIC_ID = "game-theme";
     private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -958,11 +957,16 @@ public class GamePlayScene extends Scene {
 
         private void drawPlayer(Renderer r, Vector2 pos, float w, float h, Color color) {
             if (scene.bonusLifeShieldActive) {
-                float shieldPulse = 1.02f + 0.06f * (float) Math.sin(scene.hudAnimTime * 4.5f);
-                float shieldW = w * 1.85f * shieldPulse;
-                float shieldH = h * 1.55f * shieldPulse;
-                r.drawSprite(BONUS_LIFE_SHIELD_SPRITE,
-                    new Vector2(pos.x, pos.y + h / 2f), shieldW, shieldH);
+                float shieldPulse = 1.0f + 0.05f * (float) Math.sin(scene.hudAnimTime * 4.5f);
+                Vector2 shieldCenter = new Vector2(pos.x, pos.y + h / 2f);
+                r.drawCircle(shieldCenter, (w * 0.62f) * shieldPulse,
+                    new Color(0.16f, 0.82f, 1.0f, 0.12f), true);
+                r.drawCircle(shieldCenter, (w * 0.74f) * shieldPulse,
+                    new Color(0.55f, 0.90f, 1.0f, 0.18f), false);
+                r.drawCircle(shieldCenter, (w * 0.79f) * shieldPulse,
+                    new Color(0.80f, 0.96f, 1.0f, 0.90f), false);
+                r.drawCircle(shieldCenter, (w * 0.86f) * shieldPulse,
+                    new Color(0.22f, 0.70f, 1.0f, 0.40f), false);
             }
             r.drawSprite(scene.characterType.getSprite(),
                 new Vector2(pos.x, pos.y + h / 2f), w, h);
