@@ -68,6 +68,7 @@ public class GamePlayScene extends Scene {
     private static final String ROOTKIT_SPRITE        = "rootkit.png";
     private static final String SPYWARE_SPRITE        = "spyware.png";
     private static final String FRENZY_ORB_SPRITE     = "frenzy_orb.png";
+    private static final String BONUS_LIFE_SHIELD_SPRITE = "bonus-life-shield.png";
     private static final String GAMEPLAY_MUSIC_ID = "game-theme";
     private static final String FRENZY_MUSIC_ID   = "game-theme-frenzy";
     private static final String SFX_COLLECT       = "spawn-marker";
@@ -171,6 +172,7 @@ public class GamePlayScene extends Scene {
 
     // Active buff state
     private boolean hasShield        = false;
+    private boolean bonusLifeShieldActive = false;
     private float   playerSpeedBonus = 0f;
 
     // Center-screen status feedback
@@ -469,11 +471,7 @@ public class GamePlayScene extends Scene {
         } else {
             // Good entity quiz (Gold Envelope)
             if (result == QuizResult.CORRECT) {
-                int livesBefore = playerHealth.getCurrentLives();
-                playerHealth.gainLife();
-                if (playerHealth.getCurrentLives() > livesBefore) {
-                    triggerHealthGainBanner();
-                }
+                awardHealthBonusOrOverflowShield();
                 score += QUIZ_BONUS_POINTS;
             }
             // Quiz entity is still collected regardless of answer.
@@ -546,6 +544,13 @@ public class GamePlayScene extends Scene {
      * Applies one damage instance and consumes Death Defier only on lethal hits.
      */
     private void applyDamageWithDeathDefier() {
+        if (bonusLifeShieldActive) {
+            bonusLifeShieldActive = false;
+            GameAudio.playLoseLife(getContext());
+            triggerHealthLossBanner();
+            return;
+        }
+
         playerHealth.takeDamage();
         if (playerHealth.isDead() && hasShield) {
             GameAudio.playLoseLife(getContext());
@@ -639,6 +644,7 @@ public class GamePlayScene extends Scene {
         // Buff state
         nextBuffScore    = BUFF_INTERVAL;
         hasShield        = false;
+        bonusLifeShieldActive = false;
         playerSpeedBonus = 0f;
         statusBannerText = "";
         statusBannerTimeRemaining = 0f;
@@ -660,6 +666,16 @@ public class GamePlayScene extends Scene {
 
     private void triggerHealthLossBanner() {
         triggerStatusBanner("-1 HEALTH", GameUiTheme.TEXT_DANGER, HEALTH_FEEDBACK_DURATION);
+    }
+
+    private void awardHealthBonusOrOverflowShield() {
+        if (playerHealth.getCurrentLives() < playerHealth.getMaxLives()) {
+            playerHealth.gainLife();
+            triggerHealthGainBanner();
+        } else if (!bonusLifeShieldActive) {
+            bonusLifeShieldActive = true;
+            triggerHealthGainBanner();
+        }
     }
 
     private void triggerStatusBanner(String text, Color color, float durationSeconds) {
@@ -941,6 +957,13 @@ public class GamePlayScene extends Scene {
         }
 
         private void drawPlayer(Renderer r, Vector2 pos, float w, float h, Color color) {
+            if (scene.bonusLifeShieldActive) {
+                float shieldPulse = 1.02f + 0.06f * (float) Math.sin(scene.hudAnimTime * 4.5f);
+                float shieldW = w * 1.85f * shieldPulse;
+                float shieldH = h * 1.55f * shieldPulse;
+                r.drawSprite(BONUS_LIFE_SHIELD_SPRITE,
+                    new Vector2(pos.x, pos.y + h / 2f), shieldW, shieldH);
+            }
             r.drawSprite(scene.characterType.getSprite(),
                 new Vector2(pos.x, pos.y + h / 2f), w, h);
         }
