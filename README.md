@@ -48,14 +48,21 @@ oop-p2team2
 |  |  |  |  |_ SceneRenderer.java
 |  |  |  |  |_ RenderLayer.java
 |  |  |  |  |_ ResourceLoader.java
-|  |  |  |  |_ MenuScene.java                    # Engine demo menu scene
-|  |  |  |  |_ MainScene.java                    # Engine simulation demo scene
-|  |  |  |  |_ SettingsScene.java                # Engine demo settings scene
 |  |  |  |_ config/
 |  |  |     |_ ConfigManager.java                # Singleton config facade
 |  |  |     |_ ConfigRegistry.java
 |  |  |     |_ ConfigLoader.java + interfaces/formats/parsers/listeners
 |  |  |     |_ ConfigKeys.java / SimulationConfigKeys.java / ConfigKey.java / ConfigVar.java
+|  |  |_ demo/                                   # Engine demonstration scenes from Part 1
+|  |  |  |_ MenuScene.java
+|  |  |  |_ MenuInputHandler.java
+|  |  |  |_ MenuRenderer.java
+|  |  |  |_ MainScene.java
+|  |  |  |_ MainInputHandler.java
+|  |  |  |_ MainRenderer.java
+|  |  |  |_ SettingsScene.java
+|  |  |  |_ SettingsInputHandler.java
+|  |  |  |_ SettingsRenderer.java
 |  |  |_ game/
 |  |     |_ components/                          # Game-specific ECS components
 |  |     |  |_ GameEntityComponent.java
@@ -73,6 +80,8 @@ oop-p2team2
 |  |     |_ leaderboard/
 |  |     |  |_ LeaderboardManager.java
 |  |     |  |_ LeaderboardEntry.java
+|  |     |_ save/                                # Save/resume game-state persistence
+|  |     |  |_ RunSaveManager.java
 |  |     |_ scenes/                              # Playable game flow scenes
 |  |        |_ GameMenuScene.java
 |  |        |_ StartGamePromptScene.java
@@ -83,6 +92,8 @@ oop-p2team2
 |  |        |_ LeaderboardScene.java
 |  |        |_ GameOverScene.java
 |  |        |_ HowToPlayScene.java
+|  |     |_ ui/
+|  |        |_ GameUiTheme.java
 |  |_ src/test/java/sg/edu/sit/inf1009/p2team2/engine/
 |     |_ collision/                              # Collision unit tests
 |     |_ config/                                 # Config unit tests
