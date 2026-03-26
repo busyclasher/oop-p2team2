@@ -455,8 +455,8 @@ public class SettingsScene extends Scene {
 
             Color labelColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
 
-            // Volume icon — mute when at 0, speaker otherwise
-            String icon = (vols[i] <= 0f) ? "volume-mute.png" : "volume-on.png";
+            // Volume icon — mute when at 0, custom audio toggle otherwise
+            String icon = (vols[i] <= 0f) ? "volume-mute.png" : "audio-toggle.png";
             r.drawSprite(icon, new Vector2(sx - 26f, labelY - 10f), 30f, 30f);
 
             // Label + percentage
