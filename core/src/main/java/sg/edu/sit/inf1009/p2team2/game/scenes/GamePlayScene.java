@@ -77,8 +77,9 @@ public class GamePlayScene extends Scene {
     private static final float SPAWN_MARGIN       = 60f;
     private static final float STANDARD_DURATION  = 60f;   // seconds of standard mode
     private static final int   QUIZ_BONUS_POINTS = 100;
-    private static final int   REVIVE_FLASH_COUNT = 3;
-    private static final float REVIVE_FLASH_INTERVAL = 0.12f;
+    private static final float STATUS_FLASH_INTERVAL = 0.12f;
+    private static final float HEALTH_FEEDBACK_DURATION = 3f;
+    private static final float REVIVE_FEEDBACK_DURATION = 5f;
 
     // Difficulty scaling (PLAYING mode only)
     private static final float DIFF_TICK          = 15f;   // seconds between each ramp-up
@@ -172,10 +173,12 @@ public class GamePlayScene extends Scene {
     private boolean hasShield        = false;
     private float   playerSpeedBonus = 0f;
 
-    // Revive feedback
-    private float   reviveFlashTimer = 0f;
-    private int     reviveFlashTogglesRemaining = 0;
-    private boolean reviveTextVisible = false;
+    // Center-screen status feedback
+    private String  statusBannerText = "";
+    private Color   statusBannerColor = GameUiTheme.TEXT_HIGHLIGHT.cpy();
+    private float   statusBannerTimeRemaining = 0f;
+    private float   statusBannerFlashTimer = 0f;
+    private boolean statusBannerVisible = false;
     private float   hudAnimTime = 0f;
 
     // ── Constructor ──────────────────────────────────────────────────────────
@@ -238,7 +241,7 @@ public class GamePlayScene extends Scene {
     @Override
     public void update(float dt) {
         hudAnimTime += dt;
-        updateReviveBanner(dt);
+        updateStatusBanner(dt);
 
         switch (gameState) {
             case PLAYING:
@@ -466,7 +469,11 @@ public class GamePlayScene extends Scene {
         } else {
             // Good entity quiz (Gold Envelope)
             if (result == QuizResult.CORRECT) {
+                int livesBefore = playerHealth.getCurrentLives();
                 playerHealth.gainLife();
+                if (playerHealth.getCurrentLives() > livesBefore) {
+                    triggerHealthGainBanner();
+                }
                 score += QUIZ_BONUS_POINTS;
             }
             // Quiz entity is still collected regardless of answer.
@@ -512,7 +519,11 @@ public class GamePlayScene extends Scene {
         GameAudio.playUiClick(getContext());
         switch (buff) {
             case EXTRA_LIFE:
+                int livesBefore = playerHealth.getCurrentLives();
                 playerHealth.increaseMaxLives();
+                if (playerHealth.getCurrentLives() > livesBefore) {
+                    triggerHealthGainBanner();
+                }
                 break;
             case SPEED_SURGE:
                 playerSpeedBonus += characterType.getSpeed() * 0.10f;
@@ -546,6 +557,7 @@ public class GamePlayScene extends Scene {
 
         if (!playerHealth.isDead()) {
             GameAudio.playLoseLife(getContext());
+            triggerHealthLossBanner();
         }
         checkGameOver();
     }
@@ -628,9 +640,10 @@ public class GamePlayScene extends Scene {
         nextBuffScore    = BUFF_INTERVAL;
         hasShield        = false;
         playerSpeedBonus = 0f;
-        reviveFlashTimer = 0f;
-        reviveFlashTogglesRemaining = 0;
-        reviveTextVisible = false;
+        statusBannerText = "";
+        statusBannerTimeRemaining = 0f;
+        statusBannerFlashTimer = 0f;
+        statusBannerVisible = false;
 
         Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
@@ -638,26 +651,40 @@ public class GamePlayScene extends Scene {
     }
 
     private void triggerReviveBanner() {
-        reviveTextVisible = true;
-        reviveFlashTimer = REVIVE_FLASH_INTERVAL;
-        reviveFlashTogglesRemaining = REVIVE_FLASH_COUNT * 2 - 1;
+        triggerStatusBanner("REVIVED", GameUiTheme.TEXT_HIGHLIGHT, REVIVE_FEEDBACK_DURATION);
     }
 
-    private void updateReviveBanner(float dt) {
-        if (!reviveTextVisible && reviveFlashTogglesRemaining <= 0) {
+    private void triggerHealthGainBanner() {
+        triggerStatusBanner("+1 HEALTH", GameUiTheme.TEXT_SUCCESS, HEALTH_FEEDBACK_DURATION);
+    }
+
+    private void triggerHealthLossBanner() {
+        triggerStatusBanner("-1 HEALTH", GameUiTheme.TEXT_DANGER, HEALTH_FEEDBACK_DURATION);
+    }
+
+    private void triggerStatusBanner(String text, Color color, float durationSeconds) {
+        statusBannerText = text;
+        statusBannerColor = color.cpy();
+        statusBannerTimeRemaining = durationSeconds;
+        statusBannerFlashTimer = 0f;
+        statusBannerVisible = true;
+    }
+
+    private void updateStatusBanner(float dt) {
+        if (statusBannerTimeRemaining <= 0f) {
+            statusBannerVisible = false;
             return;
         }
 
-        reviveFlashTimer -= dt;
-        while (reviveFlashTimer <= 0f && reviveFlashTogglesRemaining > 0) {
-            reviveTextVisible = !reviveTextVisible;
-            reviveFlashTogglesRemaining--;
-            reviveFlashTimer += REVIVE_FLASH_INTERVAL;
+        statusBannerTimeRemaining -= dt;
+        if (statusBannerTimeRemaining <= 0f) {
+            statusBannerVisible = false;
+            statusBannerTimeRemaining = 0f;
+            return;
         }
 
-        if (reviveFlashTogglesRemaining == 0 && !reviveTextVisible) {
-            reviveFlashTimer = 0f;
-        }
+        statusBannerFlashTimer += dt;
+        statusBannerVisible = ((int) (statusBannerFlashTimer / STATUS_FLASH_INTERVAL) % 2) == 0;
     }
 
     // ── Accessors for renderer / input handler ───────────────────────────────
@@ -868,7 +895,7 @@ public class GamePlayScene extends Scene {
                     break;
             }
 
-            drawReviveBanner(r);
+            drawStatusBanner(r);
 
             r.end();
         }
@@ -1027,8 +1054,8 @@ public class GamePlayScene extends Scene {
                 new Vector2(20f, 18f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
         }
 
-        private void drawReviveBanner(Renderer r) {
-            if (!scene.reviveTextVisible) {
+        private void drawStatusBanner(Renderer r) {
+            if (!scene.statusBannerVisible || scene.statusBannerText.isEmpty()) {
                 return;
             }
 
@@ -1036,11 +1063,11 @@ public class GamePlayScene extends Scene {
             float wh = r.getWorldHeight();
             Vector2 textPos = new Vector2(ww / 2f, wh / 2f + 90f);
             Color shadow = new Color(0.18f, 0.10f, 0.02f, 0.95f);
-            Color gold = GameUiTheme.TEXT_HIGHLIGHT;
+            Color bannerColor = scene.statusBannerColor;
 
-            r.drawTextCentered("REVIVED", new Vector2(textPos.x + 2f, textPos.y - 2f),
+            r.drawTextCentered(scene.statusBannerText, new Vector2(textPos.x + 2f, textPos.y - 2f),
                 GameUiTheme.FONT_TITLE_SMALL, shadow);
-            r.drawTextCentered("REVIVED", textPos, GameUiTheme.FONT_TITLE_SMALL, gold);
+            r.drawTextCentered(scene.statusBannerText, textPos, GameUiTheme.FONT_TITLE_SMALL, bannerColor);
         }
 
         private void drawHeart(Renderer r, float x, float y, Color c) {
