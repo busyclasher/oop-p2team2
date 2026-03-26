@@ -13,11 +13,11 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
+import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
- * How To Play screen — explains rules, controls, entities and characters.
- * ESC / Enter / Back button returns to the main menu.
+ * Two-page How To Play screen used both from the menu and as first-time onboarding.
  */
 public class HowToPlayScene extends Scene {
     private static final String GOOD_BYTE_SPRITE       = "good_byte.png";
@@ -30,13 +30,27 @@ public class HowToPlayScene extends Scene {
     private static final String SPYWARE_SPRITE         = "spyware.png";
     private static final String FRENZY_ORB_SPRITE      = "frenzy_orb.png";
 
-    private static final float BTN_W = 160f, BTN_H = 46f;
-    private static final Color PANEL_FILL = new Color(0.05f, 0.08f, 0.12f, 0.78f);
-    private static final Color PANEL_BORDER = new Color(0.33f, 0.80f, 0.92f, 0.75f);
-    private boolean backHovered = false;
+    private static final int PAGE_COUNT = 2;
+    private static final float BTN_W = 180f;
+    private static final float BTN_H = 46f;
+    private static final float BTN_GAP = 26f;
+    private static final Color PANEL_FILL = new Color(0.05f, 0.08f, 0.12f, 0.80f);
+    private static final Color PANEL_BORDER = new Color(0.33f, 0.80f, 0.92f, 0.78f);
+
+    private final LeaderboardManager leaderboard;
+    private final boolean tutorialMode;
+    private int pageIndex;
+    private int hoveredAction = -1;
 
     public HowToPlayScene(EngineContext context) {
+        this(context, null, false);
+    }
+
+    public HowToPlayScene(EngineContext context, LeaderboardManager leaderboard, boolean tutorialMode) {
         super(context);
+        this.leaderboard = leaderboard;
+        this.tutorialMode = tutorialMode;
+        this.pageIndex = 0;
 
         setInputHandler(new HTPInputHandler(this));
         setSceneRenderer(new HTPRenderer(this));
@@ -49,8 +63,37 @@ public class HowToPlayScene extends Scene {
     @Override
     public void update(float dt) {}
 
-    private Rectangle backRect(float ww) {
-        return new Rectangle(ww / 2f - BTN_W / 2f, 20f, BTN_W, BTN_H);
+    private Rectangle leftActionRect(float ww) {
+        return new Rectangle(ww / 2f - BTN_GAP / 2f - BTN_W, 20f, BTN_W, BTN_H);
+    }
+
+    private Rectangle rightActionRect(float ww) {
+        return new Rectangle(ww / 2f + BTN_GAP / 2f, 20f, BTN_W, BTN_H);
+    }
+
+    private void closeScene(boolean completedTutorial) {
+        if (completedTutorial && tutorialMode && leaderboard != null) {
+            leaderboard.setTutorialSeen(true);
+        }
+        getContext().getSceneManager().pop();
+    }
+
+    private void nextPageOrClose() {
+        GameAudio.playUiClick(getContext());
+        if (pageIndex < PAGE_COUNT - 1) {
+            pageIndex++;
+        } else {
+            closeScene(true);
+        }
+    }
+
+    private void previousPageOrClose() {
+        GameAudio.playUiClick(getContext());
+        if (pageIndex > 0) {
+            pageIndex--;
+        } else {
+            closeScene(false);
+        }
     }
 
     void processInput() {
@@ -59,19 +102,34 @@ public class HowToPlayScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
 
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)
-                || kb.isKeyPressed(Input.Keys.ENTER)
-                || kb.isKeyPressed(Input.Keys.SPACE)) {
-            GameAudio.playUiClick(getContext());
-            getContext().getSceneManager().pop();
+        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+            previousPageOrClose();
+            return;
+        }
+        if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+            previousPageOrClose();
+            return;
+        }
+        if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)
+                || kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+            nextPageOrClose();
             return;
         }
 
         Vector2 mp = mouse.getPosition();
-        backHovered = backRect(ww).contains(mp.x, mp.y);
-        if (backHovered && mouse.isButtonPressed(0)) {
-            GameAudio.playUiClick(getContext());
-            getContext().getSceneManager().pop();
+        hoveredAction = -1;
+        if (leftActionRect(ww).contains(mp.x, mp.y)) {
+            hoveredAction = 0;
+        } else if (rightActionRect(ww).contains(mp.x, mp.y)) {
+            hoveredAction = 1;
+        }
+
+        if (mouse.isButtonPressed(0)) {
+            if (hoveredAction == 0) {
+                previousPageOrClose();
+            } else if (hoveredAction == 1) {
+                nextPageOrClose();
+            }
         }
     }
 
@@ -84,16 +142,28 @@ public class HowToPlayScene extends Scene {
         r.begin();
 
         r.drawBackground("menu-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.70f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.72f), true);
 
-        // ── Title ────────────────────────────────────────────────────────────
         r.drawTextCentered("HOW TO PLAY",
             new Vector2(ww / 2f, wh - 58f), GameUiTheme.FONT_TITLE_SMALL,
             GameUiTheme.TITLE_PRIMARY);
-        r.drawTextCentered("Catch the right tech, dodge the threats, and survive the countdown.",
+        r.drawTextCentered(pageIndex == 0
+                ? "Page 1 / 2 - Learn the core rules and know what to catch."
+                : "Page 2 / 2 - Master frenzy mode, character builds, and quiz rewards.",
             new Vector2(ww / 2f, wh - 96f), GameUiTheme.FONT_BODY_SMALL,
             GameUiTheme.TEXT_MUTED);
 
+        if (pageIndex == 0) {
+            drawPageOne(r, ww, wh);
+        } else {
+            drawPageTwo(r, ww, wh);
+        }
+
+        drawFooterButtons(r, ww);
+        r.end();
+    }
+
+    private void drawPageOne(Renderer r, float ww, float wh) {
         float margin = 52f;
         float panelGap = 28f;
         float panelY = 88f;
@@ -109,9 +179,9 @@ public class HowToPlayScene extends Scene {
         float leftX = leftPanel.x + 24f;
         float leftY = leftPanel.y + leftPanel.height - 22f;
         leftY = drawSectionHeader(r, "OBJECTIVE", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
-        leftY = drawInfoLine(r, "Catch good data, avoid cyber threats.", leftX, leftY);
-        leftY = drawInfoLine(r, "Catch a Frenzy Orb to trigger Frenzy Mode.", leftX, leftY);
-        leftY = drawInfoLine(r, "Survive until the timer reaches 0 to win.", leftX, leftY - 4f);
+        leftY = drawInfoLine(r, "Catch good data and avoid cyber threats.", leftX, leftY);
+        leftY = drawInfoLine(r, "Survive until the timer reaches 0 to win.", leftX, leftY);
+        leftY = drawInfoLine(r, "Catch a Frenzy Orb to trigger Frenzy Mode.", leftX, leftY - 2f);
 
         leftY -= 12f;
         leftY = drawSectionHeader(r, "CONTROLS", leftX, leftY, GameUiTheme.TEXT_INFO);
@@ -119,49 +189,83 @@ public class HowToPlayScene extends Scene {
         leftY = drawInfoLine(r, "D / Right Arrow   Move right", leftX, leftY);
         leftY = drawInfoLine(r, "SPACE / W / UP    Jump", leftX, leftY);
         leftY = drawInfoLine(r, "ESC               Pause menu", leftX, leftY);
-        leftY = drawInfoLine(r, "1 / 2 / 3 / 4     Answer quiz", leftX, leftY - 2f);
-
-        leftY -= 12f;
-        leftY = drawSectionHeader(r, "GOOD CATCHES", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
-        leftY = drawEntityRow(r, GOOD_BYTE_SPRITE, "Good Byte", "+5 pts", leftX, leftY, GameUiTheme.TEXT_INFO);
-        leftY = drawEntityRow(r, SAFE_EMAIL_SPRITE, "Safe Email", "+5 pts", leftX, leftY, GameUiTheme.TEXT_SUCCESS);
-        leftY = drawEntityRow(r, GOLD_ENVELOPE_SPRITE, "Gold Envelope", "+10 pts + quiz trigger", leftX, leftY, GameUiTheme.TEXT_HIGHLIGHT);
-
-        leftY -= 8f;
-        leftY = drawSectionHeader(r, "THREATS", leftX, leftY, GameUiTheme.TEXT_DANGER);
-        leftY = drawEntityRow(r, PHISHING_HOOK_SPRITE, "Phishing Hook", "-1 life", leftX, leftY, GameUiTheme.TEXT_DANGER);
-        leftY = drawEntityRow(r, RANSOMWARE_LOCK_SPRITE, "Ransomware Lock", "wrong quiz = -1 life", leftX, leftY, GameUiTheme.TEXT_WARNING);
-        drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "-1 life", leftX, leftY, new Color(0.78f, 0.45f, 1.0f, 1f));
+        drawInfoLine(r, "1 / 2 / 3 / 4     Answer quiz", leftX, leftY);
 
         float rightX = rightPanel.x + 24f;
         float rightY = rightPanel.y + rightPanel.height - 22f;
-        rightY = drawSectionHeader(r, "FRENZY MODE", rightX, rightY, GameUiTheme.TEXT_WARNING);
-        rightY = drawFrenzyOrbRow(r, rightX, rightY);
-        rightY = drawInfoLine(r, "The main timer freezes for 15 seconds.", rightX, rightY);
-        rightY = drawEntityRow(r, ROOTKIT_SPRITE, "Rootkit", "extra frenzy-only threat", rightX, rightY - 2f, GameUiTheme.TEXT_WARNING);
-        rightY = drawEntityRow(r, SPYWARE_SPRITE, "Spyware", "quiz threat during frenzy", rightX, rightY, GameUiTheme.TEXT_WARNING);
-
-        rightY -= 12f;
-        rightY = drawSectionHeader(r, "CHARACTERS", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
-        rightY = drawCharacterLine(r, "Specter", "450 px/s  |  3 lives  |  x1.2 score", "Perk: Speed Demon - bonus pts per catch", rightX, rightY);
-        rightY = drawCharacterLine(r, "Guardian", "300 px/s  |  5 lives  |  x1.0 score", "Perk: Iron Defense - 2 extra starting lives", rightX, rightY);
-        rightY = drawCharacterLine(r, "Cipher", "500 px/s  |  2 lives  |  x1.5 score", "Perk: Data Rush - highest score but very risky", rightX, rightY);
+        rightY = drawSectionHeader(r, "GOOD CATCHES", rightX, rightY, GameUiTheme.TEXT_SUCCESS);
+        rightY = drawEntityRow(r, GOOD_BYTE_SPRITE, "Good Byte", "+5 pts", rightX, rightY, GameUiTheme.TEXT_INFO);
+        rightY = drawEntityRow(r, SAFE_EMAIL_SPRITE, "Safe Email", "+5 pts", rightX, rightY, GameUiTheme.TEXT_SUCCESS);
+        rightY = drawEntityRow(r, GOLD_ENVELOPE_SPRITE, "Gold Envelope", "+10 pts + quiz trigger", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
 
         rightY -= 10f;
-        rightY = drawSectionHeader(r, "QUIZ BONUS", rightX, rightY, GameUiTheme.TEXT_INFO);
-        rightY = drawInfoLine(r, "Correct answers give +100 pts and +1 life.", rightX, rightY);
-        drawInfoLine(r, "Wrong answers on bad quizzes cost 1 life.", rightX, rightY);
+        rightY = drawSectionHeader(r, "THREATS", rightX, rightY, GameUiTheme.TEXT_DANGER);
+        rightY = drawEntityRow(r, PHISHING_HOOK_SPRITE, "Phishing Hook", "-1 life", rightX, rightY, GameUiTheme.TEXT_DANGER);
+        rightY = drawEntityRow(r, RANSOMWARE_LOCK_SPRITE, "Ransomware Lock", "wrong quiz = -1 life", rightX, rightY, GameUiTheme.TEXT_WARNING);
+        drawEntityRow(r, MALWARE_SWARM_SPRITE, "Malware Swarm", "-1 life", rightX, rightY, new Color(0.78f, 0.45f, 1.0f, 1f));
+    }
 
-        // ── Back button ──────────────────────────────────────────────────────
-        Rectangle box = backRect(ww);
-        Color bg = backHovered ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
-                               : new Color(0.08f, 0.08f, 0.08f, 0.75f);
+    private void drawPageTwo(Renderer r, float ww, float wh) {
+        float margin = 52f;
+        float panelGap = 28f;
+        float panelY = 88f;
+        float panelTop = wh - 128f;
+        float panelW = (ww - margin * 2f - panelGap) / 2f;
+        float panelH = panelTop - panelY;
+        Rectangle leftPanel = new Rectangle(margin, panelY, panelW, panelH);
+        Rectangle rightPanel = new Rectangle(margin + panelW + panelGap, panelY, panelW, panelH);
+
+        drawPanel(r, leftPanel);
+        drawPanel(r, rightPanel);
+
+        float leftX = leftPanel.x + 24f;
+        float leftY = leftPanel.y + leftPanel.height - 22f;
+        leftY = drawSectionHeader(r, "FRENZY MODE", leftX, leftY, GameUiTheme.TEXT_WARNING);
+        leftY = drawFrenzyOrbRow(r, leftX, leftY);
+        leftY = drawInfoLine(r, "The main timer freezes for 15 seconds.", leftX, leftY);
+        leftY = drawEntityRow(r, ROOTKIT_SPRITE, "Rootkit", "extra frenzy-only threat", leftX, leftY - 2f, GameUiTheme.TEXT_WARNING);
+        leftY = drawEntityRow(r, SPYWARE_SPRITE, "Spyware", "quiz threat during frenzy", leftX, leftY, GameUiTheme.TEXT_WARNING);
+
+        leftY -= 12f;
+        leftY = drawSectionHeader(r, "QUIZ BONUS", leftX, leftY, GameUiTheme.TEXT_INFO);
+        leftY = drawInfoLine(r, "Correct answers give +100 pts.", leftX, leftY);
+        leftY = drawInfoLine(r, "Rare good quizzes also give +1 life.", leftX, leftY);
+        drawInfoLine(r, "Wrong bad quizzes cost 1 life.", leftX, leftY);
+
+        float rightX = rightPanel.x + 24f;
+        float rightY = rightPanel.y + rightPanel.height - 22f;
+        rightY = drawSectionHeader(r, "CHARACTERS", rightX, rightY, GameUiTheme.TEXT_HIGHLIGHT);
+        rightY = drawCharacterLine(r, "Specter", "450 px/s  |  3 lives  |  x1.2 score",
+            "Perk: Speed Demon - bonus pts per catch", rightX, rightY);
+        rightY = drawCharacterLine(r, "Guardian", "300 px/s  |  5 lives  |  x1.0 score",
+            "Perk: Iron Defense - 2 extra starting lives", rightX, rightY);
+        drawCharacterLine(r, "Cipher", "500 px/s  |  2 lives  |  x1.5 score",
+            "Perk: Data Rush - highest score but very risky", rightX, rightY);
+    }
+
+    private void drawFooterButtons(Renderer r, float ww) {
+        Rectangle leftBox = leftActionRect(ww);
+        Rectangle rightBox = rightActionRect(ww);
+
+        String leftLabel = (pageIndex == 0) ? (tutorialMode ? "Skip" : "Back") : "Previous";
+        String rightLabel = (pageIndex == PAGE_COUNT - 1)
+            ? (tutorialMode ? "Start Game" : "Done")
+            : "Next";
+
+        drawActionButton(r, leftBox, leftLabel, hoveredAction == 0);
+        drawActionButton(r, rightBox, rightLabel, hoveredAction == 1);
+        r.drawTextCentered("ESC / A - previous   D / ENTER - next",
+            new Vector2(ww / 2f, 76f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
+    }
+
+    private void drawActionButton(Renderer r, Rectangle box, String label, boolean hovered) {
+        Color bg = hovered ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
+            : new Color(0.08f, 0.08f, 0.08f, 0.78f);
+        Color border = hovered ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
         r.drawRect(box, bg, true);
-        r.drawRect(box, backHovered ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f), false);
-        r.drawTextCentered("Back", box, GameUiTheme.FONT_BODY_LARGE,
-            backHovered ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
-
-        r.end();
+        r.drawRect(box, border, false);
+        r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE,
+            hovered ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
     }
 
     private void drawPanel(Renderer r, Rectangle panel) {
@@ -200,17 +304,21 @@ public class HowToPlayScene extends Scene {
         return y - 42f;
     }
 
-    // ── Inner classes ────────────────────────────────────────────────────────
-
     private static final class HTPInputHandler extends InputHandler {
         private final HowToPlayScene scene;
-        HTPInputHandler(HowToPlayScene s) { super(s.getContext()); this.scene = s; }
+        HTPInputHandler(HowToPlayScene scene) {
+            super(scene.getContext());
+            this.scene = scene;
+        }
         @Override public void handleInput() { scene.processInput(); }
     }
 
     private static final class HTPRenderer extends SceneRenderer {
         private final HowToPlayScene scene;
-        HTPRenderer(HowToPlayScene s) { super(s.getContext()); this.scene = s; }
+        HTPRenderer(HowToPlayScene scene) {
+            super(scene.getContext());
+            this.scene = scene;
+        }
         @Override public void render() { scene.renderScene(); }
     }
 }

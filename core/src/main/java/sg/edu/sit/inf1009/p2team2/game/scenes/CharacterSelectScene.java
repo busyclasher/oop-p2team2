@@ -26,8 +26,8 @@ public class CharacterSelectScene extends Scene {
     private static final CharacterType[] CHARS = CharacterType.values();
     private static final float CARD_W  = 240f;
     private static final float CARD_H  = 400f;
-    private static final float CHAR_W  = 140f;
-    private static final float CHAR_H  = 160f;
+    private static final float CHAR_W  = 160f;
+    private static final float CHAR_H  = 184f;
     private static final int   COOLDOWN = 12;
 
     private final LeaderboardManager leaderboard;
@@ -124,6 +124,9 @@ public class CharacterSelectScene extends Scene {
         leaderboard.setLastCharacter(chosen);
         getContext().getSceneManager().pop();                                       // remove CharacterSelectScene
         getContext().getSceneManager().push(new GamePlayScene(getContext(), leaderboard, chosen));
+        if (!leaderboard.hasSeenTutorial()) {
+            getContext().getSceneManager().push(new HowToPlayScene(getContext(), leaderboard, true));
+        }
     }
 
     // ── Render ───────────────────────────────────────────────────────────────
@@ -162,17 +165,17 @@ public class CharacterSelectScene extends Scene {
 
             // Character sprite
             float spriteX = card.x + (CARD_W - CHAR_W) / 2f + CHAR_W / 2f;
-            float spriteY = card.y + CARD_H - 30f - CHAR_H / 2f;
+            float spriteY = card.y + CARD_H - 22f - CHAR_H / 2f;
             r.drawSprite(ch.getSprite(), new Vector2(spriteX, spriteY), CHAR_W, CHAR_H);
 
             // Name
             Color nameColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawTextCentered(ch.getName(),
-                new Rectangle(card.x, card.y + CARD_H - CHAR_H - 78f, CARD_W, 34f),
+                new Rectangle(card.x, card.y + CARD_H - CHAR_H - 86f, CARD_W, 34f),
                 GameUiTheme.FONT_BODY_LARGE, nameColor);
 
             // Stats
-            float statsY = card.y + CARD_H - CHAR_H - 80f;
+            float statsY = card.y + CARD_H - CHAR_H - 96f;
             r.drawText("Speed:  " + (int) ch.getSpeed() + " px/s",
                 new Vector2(card.x + 14f, statsY),         GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
             r.drawText("Lives:  " + ch.getLives(),

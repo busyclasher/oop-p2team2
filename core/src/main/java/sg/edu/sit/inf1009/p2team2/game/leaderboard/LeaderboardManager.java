@@ -19,6 +19,7 @@ public class LeaderboardManager {
     private final List<LeaderboardEntry> entries;
     private final int                    maxEntries;
     private CharacterType                lastCharacter; // character used in the most recent game
+    private boolean                      tutorialSeen;
 
     public LeaderboardManager() {
         this(DEFAULT_MAX_ENTRIES);
@@ -57,12 +58,15 @@ public class LeaderboardManager {
 
     public CharacterType getLastCharacter()               { return lastCharacter; }
     public void          setLastCharacter(CharacterType c){ this.lastCharacter = c; }
+    public boolean       hasSeenTutorial()                { return tutorialSeen; }
+    public void          setTutorialSeen(boolean seen)    { this.tutorialSeen = seen; save(); }
 
     // ── Persistence ──────────────────────────────────────────────────────────
 
     public void save() {
         Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
         prefs.putInteger("count", entries.size());
+        prefs.putBoolean("tutorial_seen", tutorialSeen);
         for (int i = 0; i < entries.size(); i++) {
             prefs.putString("name_"  + i, entries.get(i).getPlayerName());
             prefs.putInteger("score_" + i, entries.get(i).getScore());
@@ -73,6 +77,7 @@ public class LeaderboardManager {
     public void load() {
         Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
         int count = prefs.getInteger("count", 0);
+        tutorialSeen = prefs.getBoolean("tutorial_seen", false);
         entries.clear();
         for (int i = 0; i < count; i++) {
             String name  = prefs.getString( "name_"  + i, "PLAYER");

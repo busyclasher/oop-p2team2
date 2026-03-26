@@ -112,6 +112,9 @@ public class StartGamePromptScene extends Scene {
             // Continue with same character — straight into game
             getContext().getSceneManager().push(
                 new GamePlayScene(getContext(), leaderboard, lastCharacter));
+            if (!leaderboard.hasSeenTutorial()) {
+                getContext().getSceneManager().push(new HowToPlayScene(getContext(), leaderboard, true));
+            }
         } else {
             // New Game — pick a different character
             getContext().getSceneManager().push(

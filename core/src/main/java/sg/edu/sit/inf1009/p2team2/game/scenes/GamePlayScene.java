@@ -668,7 +668,7 @@ public class GamePlayScene extends Scene {
         float totalW  = 3 * cardW + 2 * gap;
         float startX  = ww / 2f - totalW / 2f;
         float x       = startX + idx * (cardW + gap);
-        float y       = wh / 2f - cardH / 2f;
+        float y       = wh / 2f - cardH / 2f - 16f;
         return new Rectangle(x, y, cardW, cardH);
     }
     private GameState getGameState()         { return gameState; }
@@ -1141,7 +1141,7 @@ public class GamePlayScene extends Scene {
             }
 
             r.drawText("Press 1 - 4  or  Click to answer",
-                new Vector2(cx + 20f, cy + 12f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
+                new Vector2(cx + 20f, cy + 22f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
         }
 
         private void drawWrappedText(Renderer r, String text, float x, float startY,
@@ -1244,10 +1244,10 @@ public class GamePlayScene extends Scene {
 
             // Title — cardH=389, so card top at wh/2+194; give 20px gap above
             r.drawTextCentered("SYSTEM UPGRADE!",
-                new Vector2(ww / 2f, wh / 2f + 230f), GameUiTheme.FONT_TITLE_SMALL,
+                new Vector2(ww / 2f, wh / 2f + 242f), GameUiTheme.FONT_TITLE_SMALL,
                 GameUiTheme.TEXT_SUCCESS);
             r.drawTextCentered("Choose a buff:",
-                new Vector2(ww / 2f, wh / 2f + 198f), GameUiTheme.FONT_BODY_LARGE,
+                new Vector2(ww / 2f, wh / 2f + 210f), GameUiTheme.FONT_BODY_LARGE,
                 GameUiTheme.TEXT_MUTED);
 
             for (int i = 0; i < 3; i++) {
