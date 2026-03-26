@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -99,16 +99,16 @@ public class HowToPlayScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
         float ww = r.getWorldWidth();
 
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (kb.isKeyPressed(Keys.ESCAPE)) {
             previousPageOrClose();
             return;
         }
-        if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+        if (kb.isKeyPressed(Keys.LEFT) || kb.isKeyPressed(Keys.A)) {
             previousPageOrClose();
             return;
         }
-        if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)
-                || kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.RIGHT) || kb.isKeyPressed(Keys.D)
+                || kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             nextPageOrClose();
             return;
         }

@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -64,14 +64,14 @@ public class LeaderboardScene extends Scene {
         float ww = r.getWorldWidth();
 
         // Keyboard
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)
-                || kb.isKeyPressed(Input.Keys.ENTER)
-                || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ESCAPE)
+                || kb.isKeyPressed(Keys.ENTER)
+                || kb.isKeyPressed(Keys.SPACE)) {
             GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
-        if (kb.isKeyPressed(Input.Keys.R)) {
+        if (kb.isKeyPressed(Keys.R)) {
             GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));

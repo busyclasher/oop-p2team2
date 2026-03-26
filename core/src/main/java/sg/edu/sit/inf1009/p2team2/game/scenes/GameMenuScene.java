@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
@@ -81,17 +81,17 @@ public class GameMenuScene extends Scene {
         Keyboard kb    = getContext().getInputManager().getKeyboard();
         Mouse    mouse = getContext().getInputManager().getMouse();
 
-        if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+        if (kb.isKeyPressed(Keys.UP) || kb.isKeyPressed(Keys.W)) {
             selectedIndex    = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
             GameAudio.playUiClick(getContext());
-        } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
+        } else if (kb.isKeyPressed(Keys.DOWN) || kb.isKeyPressed(Keys.S)) {
             selectedIndex    = (selectedIndex + 1) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
             GameAudio.playUiClick(getContext());
         }
 
-        if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             activate(selectedIndex);
         }
 

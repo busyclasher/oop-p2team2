@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -376,17 +376,17 @@ public class GamePlayScene extends Scene {
 
         float speed = characterType.getSpeed() + playerSpeedBonus;
         float dx = 0;
-        if (kb.isKeyDown(Input.Keys.LEFT)  || kb.isKeyDown(Input.Keys.A)) dx -= speed * dt;
-        if (kb.isKeyDown(Input.Keys.RIGHT) || kb.isKeyDown(Input.Keys.D)) dx += speed * dt;
+        if (kb.isKeyDown(Keys.LEFT)  || kb.isKeyDown(Keys.A)) dx -= speed * dt;
+        if (kb.isKeyDown(Keys.RIGHT) || kb.isKeyDown(Keys.D)) dx += speed * dt;
 
         float newX = tf.getPosition().x + dx;
         float half = EntityFactory.PLAYER_WIDTH / 2f;
         newX = Math.max(half, Math.min(r.getWorldWidth() - half, newX));
         tf.getPosition().x = newX;
 
-        if (playerOnGround && (kb.isKeyPressed(Input.Keys.SPACE)
-                || kb.isKeyPressed(Input.Keys.W)
-                || kb.isKeyPressed(Input.Keys.UP))) {
+        if (playerOnGround && (kb.isKeyPressed(Keys.SPACE)
+                || kb.isKeyPressed(Keys.W)
+                || kb.isKeyPressed(Keys.UP))) {
             GameAudio.playJump(getContext());
             playerVelocityY = characterType.getJumpStrength();
             playerOnGround  = false;
@@ -887,7 +887,7 @@ public class GamePlayScene extends Scene {
             switch (scene.gameState) {
                 case PLAYING:
                 case FRENZY:
-                    if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+                    if (kb.isKeyPressed(Keys.ESCAPE)) {
                         GameAudio.playUiClick(scene.getContext());
                         scene.getContext().getSceneManager().push(new PauseScene(scene.getContext(), scene));
                     }
@@ -898,7 +898,7 @@ public class GamePlayScene extends Scene {
                     break;
 
                 case QUIZ_FEEDBACK:
-                    if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                    if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
                         GameAudio.playUiClick(scene.getContext());
                         scene.feedbackTimer = 0;
                         if (scene.postFeedbackState == GameState.GAME_OVER) {
@@ -914,14 +914,14 @@ public class GamePlayScene extends Scene {
                     break;
 
                 case GAME_OVER:
-                    if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                    if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
                         GameAudio.playUiClick(scene.getContext());
                         scene.goToGameOver();
                     }
                     break;
 
                 case WIN:
-                    if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+                    if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
                         GameAudio.playUiClick(scene.getContext());
                         scene.goToLeaderboard();
                     }
@@ -934,10 +934,10 @@ public class GamePlayScene extends Scene {
 
         private void handleQuizInput(Keyboard kb) {
             // Keyboard
-            if (kb.isKeyPressed(Input.Keys.NUM_1)) { scene.submitQuizAnswer(0); return; }
-            if (kb.isKeyPressed(Input.Keys.NUM_2)) { scene.submitQuizAnswer(1); return; }
-            if (kb.isKeyPressed(Input.Keys.NUM_3)) { scene.submitQuizAnswer(2); return; }
-            if (kb.isKeyPressed(Input.Keys.NUM_4)) { scene.submitQuizAnswer(3); return; }
+            if (kb.isKeyPressed(Keys.NUM_1)) { scene.submitQuizAnswer(0); return; }
+            if (kb.isKeyPressed(Keys.NUM_2)) { scene.submitQuizAnswer(1); return; }
+            if (kb.isKeyPressed(Keys.NUM_3)) { scene.submitQuizAnswer(2); return; }
+            if (kb.isKeyPressed(Keys.NUM_4)) { scene.submitQuizAnswer(3); return; }
 
             // Mouse
             Mouse  mouse = scene.getContext().getInputManager().getMouse();
@@ -962,17 +962,17 @@ public class GamePlayScene extends Scene {
 
         private void handleBuffInput(Keyboard kb) {
             // Keyboard left/right to navigate cards
-            if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+            if (kb.isKeyPressed(Keys.LEFT) || kb.isKeyPressed(Keys.A)) {
                 scene.buffHoveredIdx = (scene.buffHoveredIdx - 1 + 3) % 3;
-            } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
+            } else if (kb.isKeyPressed(Keys.RIGHT) || kb.isKeyPressed(Keys.D)) {
                 scene.buffHoveredIdx = (scene.buffHoveredIdx + 1) % 3;
             }
             // 1/2/3 hotkeys
-            if (kb.isKeyPressed(Input.Keys.NUM_1)) { scene.applyBuff(scene.buffChoices[0]); return; }
-            if (kb.isKeyPressed(Input.Keys.NUM_2)) { scene.applyBuff(scene.buffChoices[1]); return; }
-            if (kb.isKeyPressed(Input.Keys.NUM_3)) { scene.applyBuff(scene.buffChoices[2]); return; }
+            if (kb.isKeyPressed(Keys.NUM_1)) { scene.applyBuff(scene.buffChoices[0]); return; }
+            if (kb.isKeyPressed(Keys.NUM_2)) { scene.applyBuff(scene.buffChoices[1]); return; }
+            if (kb.isKeyPressed(Keys.NUM_3)) { scene.applyBuff(scene.buffChoices[2]); return; }
             // Enter/Space confirms hovered card
-            if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+            if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
                 scene.applyBuff(scene.buffChoices[scene.buffHoveredIdx]);
                 return;
             }

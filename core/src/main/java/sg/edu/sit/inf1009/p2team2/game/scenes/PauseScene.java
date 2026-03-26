@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -68,25 +68,25 @@ public class PauseScene extends Scene {
         Mouse    mouse = getContext().getInputManager().getMouse();
         Renderer r     = getContext().getOutputManager().getRenderer();
 
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (kb.isKeyPressed(Keys.ESCAPE)) {
             GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop(); // resume
             return;
         }
 
         if (keyboardCooldown == 0) {
-            if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+            if (kb.isKeyPressed(Keys.UP) || kb.isKeyPressed(Keys.W)) {
                 selectedIndex = (selectedIndex - 1 + items.size()) % items.size();
                 keyboardCooldown = COOLDOWN_FRAMES;
                 GameAudio.playUiClick(getContext());
-            } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
+            } else if (kb.isKeyPressed(Keys.DOWN) || kb.isKeyPressed(Keys.S)) {
                 selectedIndex = (selectedIndex + 1) % items.size();
                 keyboardCooldown = COOLDOWN_FRAMES;
                 GameAudio.playUiClick(getContext());
             }
         }
 
-        if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             activate(selectedIndex);
             return;
         }

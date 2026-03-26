@@ -1,6 +1,6 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -106,32 +106,32 @@ public class GameOverScene extends Scene {
 
     private void handleNameInput(Keyboard kb) {
         // Backspace
-        if (kb.isKeyPressed(Input.Keys.BACKSPACE) && playerName.length() > 0) {
+        if (kb.isKeyPressed(Keys.BACKSPACE) && playerName.length() > 0) {
             playerName = playerName.substring(0, playerName.length() - 1);
         }
 
         // Letters A–Z
-        for (int k = Input.Keys.A; k <= Input.Keys.Z; k++) {
+        for (int k = Keys.A; k <= Keys.Z; k++) {
             if (kb.isKeyPressed(k) && playerName.length() < MAX_NAME) {
-                char c = (char) ('A' + (k - Input.Keys.A));
+                char c = (char) ('A' + (k - Keys.A));
                 playerName += c;
             }
         }
 
         // Digits 0–9 (main row: NUM_0..NUM_9)
-        for (int k = Input.Keys.NUM_0; k <= Input.Keys.NUM_9; k++) {
+        for (int k = Keys.NUM_0; k <= Keys.NUM_9; k++) {
             if (kb.isKeyPressed(k) && playerName.length() < MAX_NAME) {
-                char c = (char) ('0' + (k - Input.Keys.NUM_0));
+                char c = (char) ('0' + (k - Keys.NUM_0));
                 playerName += c;
             }
         }
 
         // Confirm
-        if (kb.isKeyPressed(Input.Keys.ENTER)) {
+        if (kb.isKeyPressed(Keys.ENTER)) {
             confirmName();
         }
         // Skip with default
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (kb.isKeyPressed(Keys.ESCAPE)) {
             playerName = "";
             confirmName();
         }
@@ -142,18 +142,18 @@ public class GameOverScene extends Scene {
         Mouse    mouse = getContext().getInputManager().getMouse();
 
         if (keyboardCooldown == 0) {
-            if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+            if (kb.isKeyPressed(Keys.UP) || kb.isKeyPressed(Keys.W)) {
                 selectedIndex    = (selectedIndex - 1 + OPTIONS.length) % OPTIONS.length;
                 keyboardCooldown = COOLDOWN_FRAMES;
                 GameAudio.playUiClick(getContext());
-            } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
+            } else if (kb.isKeyPressed(Keys.DOWN) || kb.isKeyPressed(Keys.S)) {
                 selectedIndex    = (selectedIndex + 1) % OPTIONS.length;
                 keyboardCooldown = COOLDOWN_FRAMES;
                 GameAudio.playUiClick(getContext());
             }
         }
 
-        if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             activate(selectedIndex);
             return;
         }
