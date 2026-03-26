@@ -15,11 +15,12 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
 import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
- * Shown when "Start Game" is pressed and a previous character exists.
- * Lets the player continue with the same character or pick a new one.
+ * Shown when "Start Game" is pressed and a saved run exists.
+ * Lets the player continue the saved run or start a fresh game.
  */
 public class StartGamePromptScene extends Scene {
 
@@ -27,16 +28,16 @@ public class StartGamePromptScene extends Scene {
     private static final int   COOLDOWN_FRAMES = 10;
 
     private final LeaderboardManager leaderboard;
-    private final CharacterType      lastCharacter;
+    private final RunSaveManager.RunSnapshot savedRun;
 
     private int selectedIndex    = 0; // 0 = continue, 1 = new game
     private int keyboardCooldown = 0;
 
     public StartGamePromptScene(EngineContext context, LeaderboardManager leaderboard,
-                                CharacterType lastCharacter) {
+                                RunSaveManager.RunSnapshot savedRun) {
         super(context);
         this.leaderboard   = leaderboard;
-        this.lastCharacter = lastCharacter;
+        this.savedRun = savedRun;
 
         setInputHandler(new PromptInputHandler(this));
         setSceneRenderer(new PromptRenderer(this));
@@ -108,12 +109,11 @@ public class StartGamePromptScene extends Scene {
     private void activate(int index) {
         GameAudio.playUiClick(getContext());
         getContext().getSceneManager().pop(); // remove this prompt
-        if (index == 0) {
-            // Continue with same character — straight into game
+        if (index == 0 && savedRun != null) {
             getContext().getSceneManager().push(
-                new GamePlayScene(getContext(), leaderboard, lastCharacter));
+                new GamePlayScene(getContext(), leaderboard, savedRun));
         } else {
-            // New Game — pick a different character
+            RunSaveManager.clear();
             getContext().getSceneManager().push(
                 new CharacterSelectScene(getContext(), leaderboard));
         }
@@ -136,6 +136,9 @@ public class StartGamePromptScene extends Scene {
             Renderer r  = getContext().getOutputManager().getRenderer();
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
             float cx = ww / 2f, cy = wh / 2f;
+            CharacterType savedCharacter = scene.savedRun != null
+                ? scene.savedRun.characterType
+                : CharacterType.SPECTER;
 
             r.clear();
             r.begin();
@@ -153,18 +156,18 @@ public class StartGamePromptScene extends Scene {
                 new Color(0.2f, 0.8f, 0.3f, 1f), false);
 
             // Title
-            r.drawTextCentered("WELCOME BACK!",
+            r.drawTextCentered("CONTINUE RUN?",
                 new Vector2(cx, cardY + ch - 28f), GameUiTheme.FONT_TITLE_SMALL,
                 GameUiTheme.TITLE_PRIMARY);
-            r.drawTextCentered("Last played: " + scene.lastCharacter.getName(),
+            r.drawTextCentered("Saved progress found for " + savedCharacter.getName(),
                 new Vector2(cx, cardY + ch - 66f), GameUiTheme.FONT_BODY,
                 GameUiTheme.TEXT_MUTED);
 
             // Buttons
             drawBtn(r, scene.continueRect(cx, cy), 0,
-                "Continue as " + scene.lastCharacter.getName(), scene.selectedIndex);
+                "Continue Run", scene.selectedIndex);
             drawBtn(r, scene.newGameRect(cx, cy),  1,
-                "New Game (Change Character)",                    scene.selectedIndex);
+                "New Game",                    scene.selectedIndex);
 
             // Footer
             r.drawTextCentered("ESC - Back",

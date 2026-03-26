@@ -33,6 +33,7 @@ import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizManager;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizBank;
 import sg.edu.sit.inf1009.p2team2.game.quiz.QuizResult;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
 import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
@@ -181,6 +182,7 @@ public class GamePlayScene extends Scene {
     private float   statusBannerFlashTimer = 0f;
     private boolean statusBannerVisible = false;
     private float   hudAnimTime = 0f;
+    private RunSaveManager.RunSnapshot pendingResumeSnapshot;
 
     // ── Constructor ──────────────────────────────────────────────────────────
 
@@ -205,11 +207,23 @@ public class GamePlayScene extends Scene {
         });
     }
 
+    public GamePlayScene(EngineContext context, LeaderboardManager leaderboard,
+                         RunSaveManager.RunSnapshot savedRun) {
+        this(context, leaderboard,
+            savedRun != null && savedRun.characterType != null
+                ? savedRun.characterType
+                : CharacterType.SPECTER);
+        this.pendingResumeSnapshot = savedRun;
+    }
+
     // ── Scene lifecycle ──────────────────────────────────────────────────────
 
     @Override
     public void onEnter() {
-        if (playerEntity == null || playerHealth == null) {
+        if (pendingResumeSnapshot != null) {
+            restoreGame(pendingResumeSnapshot);
+            pendingResumeSnapshot = null;
+        } else if (playerEntity == null || playerHealth == null) {
             resetGame();
         }
         playCurrentSceneMusic();
@@ -606,12 +620,14 @@ public class GamePlayScene extends Scene {
     // ── Transition to next scene ─────────────────────────────────────────────
 
     void goToGameOver() {
+        RunSaveManager.clear();
         GameAudio.playGameOver(getContext());
         getContext().getSceneManager().pop();
         getContext().getSceneManager().push(new GameOverScene(getContext(), score, leaderboard));
     }
 
     void goToLeaderboard() {
+        RunSaveManager.clear();
         getContext().getSceneManager().pop();
         getContext().getSceneManager().push(new GameOverScene(getContext(), score, leaderboard, true));
     }
@@ -653,6 +669,131 @@ public class GamePlayScene extends Scene {
         Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
+    }
+
+    void saveCurrentRun() {
+        if (gameState != GameState.PLAYING && gameState != GameState.FRENZY) {
+            return;
+        }
+        RunSaveManager.save(buildRunSnapshot());
+    }
+
+    private RunSaveManager.RunSnapshot buildRunSnapshot() {
+        RunSaveManager.RunSnapshot snapshot = new RunSaveManager.RunSnapshot();
+        TransformComponent playerTf = playerEntity.get(TransformComponent.class);
+
+        snapshot.characterType = characterType;
+        snapshot.score = score;
+        snapshot.goodCollected = goodCollected;
+        snapshot.totalGoodCollected = totalGoodCollected;
+        snapshot.roundTimer = roundTimer;
+        snapshot.spawnTimer = spawnTimer;
+        snapshot.spawnInterval = spawnInterval;
+        snapshot.fallSpeed = fallSpeed;
+        snapshot.difficultyTimer = difficultyTimer;
+        snapshot.frenzyActive = gameState == GameState.FRENZY;
+        snapshot.frenzyTimer = frenzyTimer;
+        snapshot.frenzyDiffTimer = frenzyDiffTimer;
+        snapshot.frenzyCount = frenzyCount;
+        snapshot.frenzyOrbTimer = frenzyOrbTimer;
+        snapshot.frenzyOrbSpawned = frenzyOrbSpawned;
+        snapshot.preFrenzyFallSpeed = preFrenzyFallSpeed;
+        snapshot.preFrenzySpawnInterval = preFrenzySpawnInterval;
+        snapshot.playerX = playerTf.getPosition().x;
+        snapshot.playerY = playerTf.getPosition().y;
+        snapshot.playerVelocityY = playerVelocityY;
+        snapshot.playerOnGround = playerOnGround;
+        snapshot.currentLives = playerHealth.getCurrentLives();
+        snapshot.maxLives = playerHealth.getMaxLives();
+        snapshot.nextBuffScore = nextBuffScore;
+        snapshot.hasShield = hasShield;
+        snapshot.bonusLifeShieldActive = bonusLifeShieldActive;
+        snapshot.playerSpeedBonus = playerSpeedBonus;
+
+        for (Entity entity : entityManager.getAllEntities()) {
+            if (entity == playerEntity) {
+                continue;
+            }
+
+            TransformComponent tf = entity.get(TransformComponent.class);
+            FallingComponent fall = entity.get(FallingComponent.class);
+            GameEntityComponent gec = entity.get(GameEntityComponent.class);
+            if (tf == null || fall == null || gec == null) {
+                continue;
+            }
+
+            snapshot.fallingEntities.add(new RunSaveManager.FallingEntitySnapshot(
+                gec.getEntityType(),
+                tf.getPosition().x,
+                tf.getPosition().y,
+                fall.getSpeed()));
+        }
+
+        return snapshot;
+    }
+
+    private void restoreGame(RunSaveManager.RunSnapshot snapshot) {
+        entityManager.clear();
+
+        gameState = snapshot.frenzyActive ? GameState.FRENZY : GameState.PLAYING;
+        score = snapshot.score;
+        goodCollected = snapshot.goodCollected;
+        totalGoodCollected = snapshot.totalGoodCollected;
+        roundTimer = snapshot.roundTimer;
+        spawnTimer = snapshot.spawnTimer;
+        spawnInterval = snapshot.spawnInterval;
+        fallSpeed = snapshot.fallSpeed;
+        transitionTimer = 0f;
+        difficultyTimer = snapshot.difficultyTimer;
+        frenzyTimer = snapshot.frenzyTimer;
+        frenzyDiffTimer = snapshot.frenzyDiffTimer;
+        frenzyCount = snapshot.frenzyCount;
+        frenzyOrbTimer = snapshot.frenzyOrbTimer;
+        frenzyOrbSpawned = snapshot.frenzyOrbSpawned;
+        preFrenzyFallSpeed = snapshot.preFrenzyFallSpeed;
+        preFrenzySpawnInterval = snapshot.preFrenzySpawnInterval;
+
+        playerVelocityY = snapshot.playerVelocityY;
+        playerOnGround = snapshot.playerOnGround;
+        nextBuffScore = snapshot.nextBuffScore;
+        hasShield = snapshot.hasShield;
+        bonusLifeShieldActive = snapshot.bonusLifeShieldActive;
+        playerSpeedBonus = snapshot.playerSpeedBonus;
+
+        lastQuizResult = null;
+        lastQuizWasBad = false;
+        hoveredQuizOption = -1;
+        feedbackTimer = 0f;
+        postFeedbackState = gameState;
+        preQuizState = gameState;
+        preBuffState = gameState;
+        buffHoveredIdx = 0;
+        statusBannerText = "";
+        statusBannerTimeRemaining = 0f;
+        statusBannerFlashTimer = 0f;
+        statusBannerVisible = false;
+
+        playerEntity = entityFactory.createPlayer(snapshot.playerX, WORLD_FLOOR, snapshot.maxLives);
+        playerHealth = playerEntity.get(HealthComponent.class);
+        while (playerHealth.getCurrentLives() > snapshot.currentLives) {
+            playerHealth.takeDamage();
+        }
+
+        TransformComponent playerTf = playerEntity.get(TransformComponent.class);
+        playerTf.getPosition().x = snapshot.playerX;
+        playerTf.getPosition().y = Math.max(WORLD_FLOOR, snapshot.playerY);
+
+        for (RunSaveManager.FallingEntitySnapshot entityState : snapshot.fallingEntities) {
+            if (entityState == null || entityState.type == null || entityState.type == EntityType.PLAYER) {
+                continue;
+            }
+
+            Entity entity = entityFactory.createFallingEntity(
+                entityState.type, entityState.x, entityState.y, entityState.speed);
+            TransformComponent tf = entity.get(TransformComponent.class);
+            tf.getPosition().x = entityState.x;
+            tf.getPosition().y = entityState.y;
+        }
     }
 
     private void triggerReviveBanner() {
@@ -748,7 +889,7 @@ public class GamePlayScene extends Scene {
                 case FRENZY:
                     if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
                         GameAudio.playUiClick(scene.getContext());
-                        scene.getContext().getSceneManager().push(new PauseScene(scene.getContext()));
+                        scene.getContext().getSceneManager().push(new PauseScene(scene.getContext(), scene));
                     }
                     break;
 

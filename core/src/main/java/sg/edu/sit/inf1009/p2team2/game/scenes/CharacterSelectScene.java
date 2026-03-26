@@ -15,6 +15,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
 import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
@@ -121,6 +122,7 @@ public class CharacterSelectScene extends Scene {
     private void startGame() {
         GameAudio.playUiClick(getContext());
         CharacterType chosen = CHARS[selectedIndex];
+        RunSaveManager.clear();
         leaderboard.setLastCharacter(chosen);
         getContext().getSceneManager().pop();                                       // remove CharacterSelectScene
         getContext().getSceneManager().push(new GamePlayScene(getContext(), leaderboard, chosen));

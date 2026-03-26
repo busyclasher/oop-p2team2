@@ -16,6 +16,7 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
 import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
@@ -146,9 +147,10 @@ public class GameMenuScene extends Scene {
         GameAudio.playUiClick(getContext());
         switch (menuItems.get(index).label) {
             case "Start Game":
-                if (leaderboard.getLastCharacter() != null) {
+                RunSaveManager.RunSnapshot savedRun = RunSaveManager.load();
+                if (savedRun != null) {
                     getContext().getSceneManager().push(
-                        new StartGamePromptScene(getContext(), leaderboard, leaderboard.getLastCharacter()));
+                        new StartGamePromptScene(getContext(), leaderboard, savedRun));
                 } else {
                     getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
                 }

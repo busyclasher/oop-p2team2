@@ -27,12 +27,14 @@ public class PauseScene extends Scene {
     private static final float BTN_W = 260f, BTN_H = 54f;
 
     private final List<String> items;
+    private final GamePlayScene gameplayScene;
     private int selectedIndex;
     private int keyboardCooldown;
 
-    public PauseScene(EngineContext context) {
+    public PauseScene(EngineContext context, GamePlayScene gameplayScene) {
         super(context);
         this.items            = new ArrayList<>();
+        this.gameplayScene    = gameplayScene;
         this.selectedIndex    = 0;
         this.keyboardCooldown = 0;
 
@@ -126,6 +128,9 @@ public class PauseScene extends Scene {
                 getContext().getSceneManager().push(new SettingsScene(getContext()));
                 break;
             case "Exit to Menu":
+                if (gameplayScene != null) {
+                    gameplayScene.saveCurrentRun();
+                }
                 getContext().getSceneManager().pop(); // pop PauseScene
                 getContext().getSceneManager().pop(); // pop GamePlayScene → back to menu
                 break;
