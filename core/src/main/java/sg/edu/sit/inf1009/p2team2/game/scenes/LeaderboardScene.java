@@ -22,6 +22,7 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
  * Displays the top scores and lets the player return to the main menu or retry.
  */
 public class LeaderboardScene extends Scene {
+    private static final String LEADERBOARD_TROPHY_SPRITE = "leaderboard-trophy.png";
 
     private final LeaderboardManager leaderboard;
 
@@ -125,7 +126,8 @@ public class LeaderboardScene extends Scene {
         float separatorY = headerY - 22f;
         float firstRowY = separatorY - 28f;
 
-        r.drawText("#",     new Vector2(rankX,  headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
+        r.drawSprite(LEADERBOARD_TROPHY_SPRITE,
+            new Vector2(rankX + 14f, headerY - 10f), 28f, 28f);
         r.drawText("Name",  new Vector2(nameX,  headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
         r.drawText("Score", new Vector2(scoreX, headerY), GameUiTheme.FONT_BODY_LARGE, GameUiTheme.TEXT_HIGHLIGHT);
 
