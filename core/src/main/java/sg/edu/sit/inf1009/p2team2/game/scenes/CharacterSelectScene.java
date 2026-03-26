@@ -24,7 +24,7 @@ import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 public class CharacterSelectScene extends Scene {
 
     private static final CharacterType[] CHARS = CharacterType.values();
-    private static final float CARD_W  = 240f;
+    private static final float CARD_W  = 260f;
     private static final float CARD_H  = 480f;
     private static final float CHAR_W  = 148f;
     private static final float CHAR_H  = 170f;
