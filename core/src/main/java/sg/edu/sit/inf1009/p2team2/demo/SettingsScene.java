@@ -1,8 +1,11 @@
-package sg.edu.sit.inf1009.p2team2.engine.scene;
+package sg.edu.sit.inf1009.p2team2.demo;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+
 
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;

@@ -1,20 +1,22 @@
-package sg.edu.sit.inf1009.p2team2.engine.scene;
+package sg.edu.sit.inf1009.p2team2.demo;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
+import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
+
 
 /**
- * SETTINGSINPUTHANDLER
- * Concrete input handler for the settings scene.
+ * MENUINPUTHANDLER
+ * Concrete input handler for the menu scene.
  */
-public class SettingsInputHandler extends InputHandler {
-    private final SettingsScene scene;
+public class MenuInputHandler extends InputHandler {
+    private final MenuScene scene;
 
-    public SettingsInputHandler(SettingsScene scene) {
+    public MenuInputHandler(MenuScene scene) {
         super(scene == null ? null : scene.getContext());
         this.scene = scene;
     }
 
-    public SettingsInputHandler(EngineContext context) {
+    public MenuInputHandler(EngineContext context) {
         super(context);
         this.scene = null;
     }
@@ -22,7 +24,7 @@ public class SettingsInputHandler extends InputHandler {
     @Override
     public void handleInput() {
         if (scene != null) {
-            scene.processSettingsInput();
+            scene.processMenuInput();
         }
 
         for (var entry : getKeyBindings().entrySet()) {

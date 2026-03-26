@@ -1,4 +1,4 @@
-package sg.edu.sit.inf1009.p2team2.engine.scene;
+package sg.edu.sit.inf1009.p2team2.demo;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
@@ -9,13 +9,14 @@ import java.util.List;
 import java.util.Random;
 import sg.edu.sit.inf1009.p2team2.engine.collision.Circle;
 import sg.edu.sit.inf1009.p2team2.engine.collision.CollisionManager;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.collision.Shape;
-import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKey;
 import sg.edu.sit.inf1009.p2team2.engine.config.ConfigKeys;
+import sg.edu.sit.inf1009.p2team2.engine.config.ConfigManager;
 import sg.edu.sit.inf1009.p2team2.engine.config.SimulationConfigKeys;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.InputComponent;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.RenderableComponent;
@@ -23,10 +24,12 @@ import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.VelocityComponent;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
-import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
-import sg.edu.sit.inf1009.p2team2.engine.movement.MovementManager;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
+import sg.edu.sit.inf1009.p2team2.engine.movement.MovementManager;
+import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+
 
 /**
  * Main simulation scene that demonstrates all engine managers in one runtime:

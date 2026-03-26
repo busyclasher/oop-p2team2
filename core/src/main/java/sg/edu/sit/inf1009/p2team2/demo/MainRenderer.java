@@ -1,20 +1,23 @@
-package sg.edu.sit.inf1009.p2team2.engine.scene;
+package sg.edu.sit.inf1009.p2team2.demo;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
+import sg.edu.sit.inf1009.p2team2.engine.scene.RenderLayer;
+import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+
 
 /**
- * MENURENDERER
- * Concrete scene renderer for the menu scene.
+ * MAINRENDERER
+ * Concrete scene renderer for the main simulation scene.
  */
-public class MenuRenderer extends SceneRenderer {
+public class MainRenderer extends SceneRenderer {
 
-    public MenuRenderer(MenuScene scene) {
+    public MainRenderer(MainScene scene) {
         super(scene == null ? null : scene.getContext());
         addLayer(new RenderLayer() {
             @Override
             public void render() {
                 if (scene != null) {
-                    scene.renderMenuScene();
+                    scene.renderMainScene();
                 }
             }
 
@@ -30,7 +33,7 @@ public class MenuRenderer extends SceneRenderer {
         });
     }
 
-    public MenuRenderer(EngineContext context) {
+    public MainRenderer(EngineContext context) {
         super(context);
     }
 }

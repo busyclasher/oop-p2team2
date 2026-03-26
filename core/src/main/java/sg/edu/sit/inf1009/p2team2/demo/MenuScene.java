@@ -1,4 +1,4 @@
-package sg.edu.sit.inf1009.p2team2.engine.scene;
+package sg.edu.sit.inf1009.p2team2.demo;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,6 +8,9 @@ import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
+import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+
 
 import java.util.ArrayList;
 import java.util.List;
