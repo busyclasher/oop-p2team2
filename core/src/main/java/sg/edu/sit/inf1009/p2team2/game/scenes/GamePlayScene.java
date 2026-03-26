@@ -10,12 +10,17 @@ import java.util.List;
 import java.util.Random;
 
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
+import sg.edu.sit.inf1009.p2team2.engine.collision.CollisionDetector;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.InputComponent;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.VelocityComponent;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Audio;
 import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
+import sg.edu.sit.inf1009.p2team2.engine.movement.MovementSystem;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
@@ -125,6 +130,8 @@ public class GamePlayScene extends Scene {
     private final EntityManager      entityManager;
     private final EntityFactory      entityFactory;
     private final QuizManager        quizManager;
+    private final CollisionDetector  collisionDetector;
+    private final MovementSystem     movementSystem;
     private final Random             random;
 
     private Entity          playerEntity;
@@ -194,6 +201,8 @@ public class GamePlayScene extends Scene {
         this.entityManager = new EntityManager();
         this.entityFactory = new EntityFactory(entityManager);
         this.quizManager   = new QuizManager(new QuizBank());
+        this.collisionDetector = new CollisionDetector();
+        this.movementSystem = new MovementSystem();
         this.random        = new Random();
 
         setInputHandler(new GamePlayInputHandler(this));
@@ -344,7 +353,15 @@ public class GamePlayScene extends Scene {
             if (fall == null || !fall.isActive()) { toRemove.add(entity); continue; }
 
             TransformComponent tf = entity.get(TransformComponent.class);
-            tf.getPosition().y -= fall.getSpeed() * dt;
+            VelocityComponent velocity = entity.get(VelocityComponent.class);
+            if (velocity != null) {
+                velocity.getVelocity().set(0f, -fall.getSpeed());
+                velocity.getAcceleration().set(0f, 0f);
+                movementSystem.integrate(tf, velocity, dt);
+            } else {
+                tf.getPosition().y -= fall.getSpeed() * dt;
+            }
+            syncCollider(entity);
 
             // Off screen below → remove quietly
             if (tf.getPosition().y + tf.getScale().y < 0) {
@@ -358,7 +375,7 @@ public class GamePlayScene extends Scene {
             }
 
             // Collision with player
-            if (overlapsPlayer(entity)) {
+            if (collidesWithPlayer(entity)) {
                 handleCollision(entity, toRemove);
             }
         }
@@ -369,36 +386,60 @@ public class GamePlayScene extends Scene {
     private void movePlayer(float dt) {
         Keyboard kb = getContext().getInputManager().getKeyboard();
         TransformComponent tf = playerEntity.get(TransformComponent.class);
+        VelocityComponent velocity = playerEntity.get(VelocityComponent.class);
+        InputComponent input = playerEntity.get(InputComponent.class);
         Renderer r  = getContext().getOutputManager().getRenderer();
 
-        float speed = characterType.getSpeed() + playerSpeedBonus;
-        float dx = 0;
-        if (kb.isKeyDown(Keys.LEFT)  || kb.isKeyDown(Keys.A)) dx -= speed * dt;
-        if (kb.isKeyDown(Keys.RIGHT) || kb.isKeyDown(Keys.D)) dx += speed * dt;
+        if (input != null && !input.isEnabled()) {
+            return;
+        }
 
-        float newX = tf.getPosition().x + dx;
-        float half = EntityFactory.PLAYER_WIDTH / 2f;
-        newX = Math.max(half, Math.min(r.getWorldWidth() - half, newX));
-        tf.getPosition().x = newX;
+        float speed = characterType.getSpeed() + playerSpeedBonus;
+        float horizontalVelocity = 0f;
+        if (kb.isKeyDown(Keys.LEFT)  || kb.isKeyDown(Keys.A)) horizontalVelocity -= speed;
+        if (kb.isKeyDown(Keys.RIGHT) || kb.isKeyDown(Keys.D)) horizontalVelocity += speed;
 
         if (playerOnGround && (kb.isKeyPressed(Keys.SPACE)
                 || kb.isKeyPressed(Keys.W)
                 || kb.isKeyPressed(Keys.UP))) {
             GameAudio.playJump(getContext());
             playerVelocityY = characterType.getJumpStrength();
+            if (velocity != null) {
+                velocity.getVelocity().y = playerVelocityY;
+            }
             playerOnGround  = false;
         }
 
-        if (!playerOnGround) {
-            playerVelocityY += GRAVITY * dt;
-            float newY = tf.getPosition().y + playerVelocityY * dt;
-            if (newY <= WORLD_FLOOR) {
-                newY            = WORLD_FLOOR;
-                playerVelocityY = 0;
-                playerOnGround  = true;
+        if (velocity != null) {
+            velocity.getVelocity().x = horizontalVelocity;
+            velocity.getAcceleration().x = 0f;
+            velocity.getAcceleration().y = playerOnGround ? 0f : GRAVITY;
+            movementSystem.integrate(tf, velocity, dt);
+        } else {
+            tf.getPosition().x += horizontalVelocity * dt;
+            if (!playerOnGround) {
+                playerVelocityY += GRAVITY * dt;
+                tf.getPosition().y += playerVelocityY * dt;
             }
-            tf.getPosition().y = newY;
         }
+
+        float half = EntityFactory.PLAYER_WIDTH / 2f;
+        tf.getPosition().x = Math.max(half, Math.min(r.getWorldWidth() - half, tf.getPosition().x));
+
+        if (tf.getPosition().y <= WORLD_FLOOR) {
+            tf.getPosition().y = WORLD_FLOOR;
+            playerVelocityY = 0f;
+            playerOnGround = true;
+            if (velocity != null) {
+                velocity.getVelocity().y = 0f;
+                velocity.getAcceleration().y = 0f;
+            }
+        } else if (velocity != null) {
+            playerVelocityY = velocity.getVelocity().y;
+            playerOnGround = false;
+        }
+
+        syncCollider(playerEntity);
     }
 
     private void spawnRandomEntity() {
@@ -413,22 +454,31 @@ public class GamePlayScene extends Scene {
         entityFactory.createFallingEntity(type, spawnX, SPAWN_Y, speed);
     }
 
-    private boolean overlapsPlayer(Entity entity) {
-        TransformComponent playerTf = playerEntity.get(TransformComponent.class);
-        TransformComponent entTf    = entity.get(TransformComponent.class);
+    private boolean collidesWithPlayer(Entity entity) {
+        syncCollider(playerEntity);
+        syncCollider(entity);
+        return collisionDetector.checkCollision(playerEntity, entity) != null;
+    }
 
-        float pw = EntityFactory.PLAYER_WIDTH;
-        float ph = EntityFactory.PLAYER_HEIGHT;
-        float ew = entTf.getScale().x;
-        float eh = entTf.getScale().y;
+    private void syncCollider(Entity entity) {
+        if (entity == null) {
+            return;
+        }
 
-        float px = playerTf.getPosition().x - pw / 2;
-        float py = playerTf.getPosition().y;
-        float ex = entTf.getPosition().x  - ew / 2;
-        float ey = entTf.getPosition().y  - eh / 2;
+        TransformComponent tf = entity.get(TransformComponent.class);
+        ColliderComponent collider = entity.get(ColliderComponent.class);
+        if (tf == null || collider == null) {
+            return;
+        }
 
-        return px < ex + ew && px + pw > ex
-            && py < ey + eh && py + ph > ey;
+        float width = tf.getScale().x;
+        float height = tf.getScale().y;
+        GameEntityComponent gec = entity.get(GameEntityComponent.class);
+        boolean isPlayer = entity == playerEntity
+            || (gec != null && gec.getEntityType() == EntityType.PLAYER);
+        float x = tf.getPosition().x - width / 2f;
+        float y = isPlayer ? tf.getPosition().y : tf.getPosition().y - height / 2f;
+        collider.setBounds(new Rectangle(x, y, width, height));
     }
 
     private void handleCollision(Entity entity, List<Entity> toRemove) {
@@ -666,6 +716,7 @@ public class GamePlayScene extends Scene {
         Renderer r = getContext().getOutputManager().getRenderer();
         playerEntity  = entityFactory.createPlayer(r.getWorldWidth() / 2f, WORLD_FLOOR, characterType.getLives());
         playerHealth  = playerEntity.get(HealthComponent.class);
+        syncCollider(playerEntity);
     }
 
     void saveCurrentRun() {
@@ -779,6 +830,12 @@ public class GamePlayScene extends Scene {
         TransformComponent playerTf = playerEntity.get(TransformComponent.class);
         playerTf.getPosition().x = snapshot.playerX;
         playerTf.getPosition().y = Math.max(WORLD_FLOOR, snapshot.playerY);
+        VelocityComponent playerVelocity = playerEntity.get(VelocityComponent.class);
+        if (playerVelocity != null) {
+            playerVelocity.getVelocity().set(0f, playerVelocityY);
+            playerVelocity.getAcceleration().set(0f, playerOnGround ? 0f : GRAVITY);
+        }
+        syncCollider(playerEntity);
 
         for (RunSaveManager.FallingEntitySnapshot entityState : snapshot.fallingEntities) {
             if (entityState == null || entityState.type == null || entityState.type == EntityType.PLAYER) {
@@ -790,6 +847,11 @@ public class GamePlayScene extends Scene {
             TransformComponent tf = entity.get(TransformComponent.class);
             tf.getPosition().x = entityState.x;
             tf.getPosition().y = entityState.y;
+            VelocityComponent velocity = entity.get(VelocityComponent.class);
+            if (velocity != null) {
+                velocity.getVelocity().set(0f, -entityState.speed);
+            }
+            syncCollider(entity);
         }
     }
 

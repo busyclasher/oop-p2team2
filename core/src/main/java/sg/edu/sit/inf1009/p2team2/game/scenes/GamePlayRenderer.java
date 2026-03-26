@@ -6,6 +6,7 @@ import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.RenderableComponent;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
 import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
@@ -112,7 +113,8 @@ final class GamePlayRenderer extends SceneRenderer {
                 } else {
                     w = tf.getScale().x;
                     h = tf.getScale().y;
-                    drawFallingEntity(r, tf.getPosition(), w, h, gec.getEntityType(), color);
+                    drawFallingEntity(r, tf.getPosition(), w, h, gec.getEntityType(), color,
+                        entity.get(RenderableComponent.class));
                 }
             }
         }
@@ -135,16 +137,23 @@ final class GamePlayRenderer extends SceneRenderer {
         }
 
         private void drawFallingEntity(Renderer r, Vector2 pos, float w, float h,
-                                       EntityType type, EngineColor color) {
+                                       EntityType type, EngineColor color, RenderableComponent renderable) {
+            String spriteId = renderable == null ? "" : renderable.getSpriteId();
             switch (type) {
-                case GOOD_BYTE:       r.drawSprite(GOOD_BYTE_SPRITE,          pos, w, h); break;
-                case SAFE_EMAIL:      r.drawSprite(SAFE_EMAIL_SPRITE,         pos, w, h); break;
-                case GOLD_ENVELOPE:   r.drawSprite(GOLD_ENVELOPE_SPRITE,      pos, w, h); break;
-                case PHISHING_HOOK:   r.drawSprite(PHISHING_HOOK_SPRITE,      pos, w, h); break;
-                case RANSOMWARE_LOCK: r.drawSprite(RANSOMWARE_LOCK_SPRITE,    pos, w, h); break;
-                case MALWARE_SWARM:   r.drawSprite(MALWARE_SWARM_SPRITE,      pos, w, h); break;
-                case ROOTKIT:         r.drawSprite(ROOTKIT_SPRITE,            pos, w, h); break;
-                case SPYWARE:         r.drawSprite(SPYWARE_SPRITE,            pos, w, h); break;
+                case GOOD_BYTE:
+                case SAFE_EMAIL:
+                case GOLD_ENVELOPE:
+                case PHISHING_HOOK:
+                case RANSOMWARE_LOCK:
+                case MALWARE_SWARM:
+                case ROOTKIT:
+                case SPYWARE:
+                    if (renderable != null && renderable.isVisible() && spriteId != null && !spriteId.isBlank()) {
+                        r.drawSprite(spriteId, pos, w, h);
+                    } else {
+                        drawFallbackEntity(r, pos, w, h, type, color);
+                    }
+                    break;
                 case FRENZY_ORB: {
                     boolean orbFlashOn = ((int) (scene.getHudAnimTime() * 7f) % 2) == 0;
                     EngineColor orbAura = orbFlashOn
@@ -154,7 +163,11 @@ final class GamePlayRenderer extends SceneRenderer {
                         ? new EngineColor(1f, 0.20f, 0.22f, 1f)
                         : new EngineColor(1f, 0.78f, 0.86f, 1f);
                     r.drawCircle(new Vector2(pos.x, pos.y), w / 2.05f, orbAura, true);
-                    r.drawSprite(FRENZY_ORB_SPRITE, pos, w, h);
+                    if (renderable != null && renderable.isVisible() && spriteId != null && !spriteId.isBlank()) {
+                        r.drawSprite(spriteId, pos, w, h);
+                    } else {
+                        drawFallbackEntity(r, pos, w, h, type, color);
+                    }
                     if (orbFlashOn) {
                         r.drawCircle(new Vector2(pos.x, pos.y), w / 4.2f,
                             new EngineColor(1f, 0.16f, 0.22f, 0.22f), true);
@@ -162,12 +175,34 @@ final class GamePlayRenderer extends SceneRenderer {
                     r.drawCircle(new Vector2(pos.x, pos.y), w / 2f, orbRing, false);
                     break;
                 }
-                default: {
-                    float x = pos.x - w / 2, y = pos.y - h / 2;
-                    r.drawRect(new Rectangle(x, y, w, h), color, true);
-                    r.drawRect(new Rectangle(x, y, w, h), EngineColor.WHITE, false);
-                }
+                default:
+                    drawFallbackEntity(r, pos, w, h, type, color);
             }
+        }
+
+        private void drawFallbackEntity(Renderer r, Vector2 pos, float w, float h,
+                                        EntityType type, EngineColor color) {
+            String fallbackSprite = switch (type) {
+                case GOOD_BYTE -> GOOD_BYTE_SPRITE;
+                case SAFE_EMAIL -> SAFE_EMAIL_SPRITE;
+                case GOLD_ENVELOPE -> GOLD_ENVELOPE_SPRITE;
+                case PHISHING_HOOK -> PHISHING_HOOK_SPRITE;
+                case RANSOMWARE_LOCK -> RANSOMWARE_LOCK_SPRITE;
+                case MALWARE_SWARM -> MALWARE_SWARM_SPRITE;
+                case ROOTKIT -> ROOTKIT_SPRITE;
+                case SPYWARE -> SPYWARE_SPRITE;
+                case FRENZY_ORB -> FRENZY_ORB_SPRITE;
+                case PLAYER -> "";
+            };
+            if (!fallbackSprite.isBlank()) {
+                r.drawSprite(fallbackSprite, pos, w, h);
+                return;
+            }
+
+            float x = pos.x - w / 2f;
+            float y = pos.y - h / 2f;
+            r.drawRect(new Rectangle(x, y, w, h), color, true);
+            r.drawRect(new Rectangle(x, y, w, h), EngineColor.WHITE, false);
         }
 
         // ── HUD ─────────────────────────────────────────────────────────────
