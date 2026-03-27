@@ -1,10 +1,10 @@
 package sg.edu.sit.inf1009.p2team2.game.leaderboard;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import sg.edu.sit.inf1009.p2team2.engine.io.storage.StorageProvider;
+import sg.edu.sit.inf1009.p2team2.engine.io.storage.StorageProviders;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 
 /**
@@ -15,6 +15,7 @@ public class LeaderboardManager {
 
     private static final int    DEFAULT_MAX_ENTRIES = 10;
     private static final String PREFS_NAME          = "cyberscouts-leaderboard";
+    private static final StorageProvider STORAGE = StorageProviders.preferences(PREFS_NAME);
 
     private final List<LeaderboardEntry> entries;
     private final int                    maxEntries;
@@ -61,22 +62,20 @@ public class LeaderboardManager {
     // ── Persistence ──────────────────────────────────────────────────────────
 
     public void save() {
-        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
-        prefs.putInteger("count", entries.size());
+        STORAGE.putInteger("count", entries.size());
         for (int i = 0; i < entries.size(); i++) {
-            prefs.putString("name_"  + i, entries.get(i).getPlayerName());
-            prefs.putInteger("score_" + i, entries.get(i).getScore());
+            STORAGE.putString("name_"  + i, entries.get(i).getPlayerName());
+            STORAGE.putInteger("score_" + i, entries.get(i).getScore());
         }
-        prefs.flush();
+        STORAGE.flush();
     }
 
     public void load() {
-        Preferences prefs = Gdx.app.getPreferences(PREFS_NAME);
-        int count = prefs.getInteger("count", 0);
+        int count = STORAGE.getInteger("count", 0);
         entries.clear();
         for (int i = 0; i < count; i++) {
-            String name  = prefs.getString( "name_"  + i, "PLAYER");
-            int    score = prefs.getInteger("score_" + i, 0);
+            String name  = STORAGE.getString("name_"  + i, "PLAYER");
+            int    score = STORAGE.getInteger("score_" + i, 0);
             entries.add(new LeaderboardEntry(name, score));
         }
         Collections.sort(entries);

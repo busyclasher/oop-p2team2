@@ -39,7 +39,6 @@ public class SceneManager {
      */
     public void push(Scene scene) {
         if (scene == null) {
-            System.err.println("[SceneManager] Cannot push null scene");
             return;
         }
         
@@ -55,8 +54,6 @@ public class SceneManager {
         scene.load();
         scene.onEnter();
         currentScene = scene;
-        
-        System.out.println("[SceneManager] Pushed scene: " + scene.getClass().getSimpleName());
     }
     
     /**
@@ -65,7 +62,6 @@ public class SceneManager {
      */
     public void pop() {
         if (scenes.isEmpty()) {
-            System.err.println("[SceneManager] Cannot pop - stack is empty");
             return;
         }
         
@@ -74,13 +70,10 @@ public class SceneManager {
         removed.onExit();
         removed.unload();
         
-        System.out.println("[SceneManager] Popped scene: " + removed.getClass().getSimpleName());
-        
         // Resume previous scene
         if (!scenes.isEmpty()) {
             currentScene = scenes.peek();
             currentScene.onEnter();
-            System.out.println("[SceneManager] Resumed scene: " + currentScene.getClass().getSimpleName());
         } else {
             currentScene = null;
         }
@@ -132,7 +125,6 @@ public class SceneManager {
         while (!scenes.isEmpty()) {
             pop();
         }
-        System.out.println("[SceneManager] Cleared all scenes");
     }
     
     /**
@@ -140,6 +132,5 @@ public class SceneManager {
      */
     public void dispose() {
         clear();
-        System.out.println("[SceneManager] Disposed");
     }
 }

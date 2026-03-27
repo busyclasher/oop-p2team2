@@ -154,6 +154,8 @@ Thumbs.db
 *.*#
 *#*#
 /.kotlin/
+/tmp/
+/build_output.txt
 /assets/assets.txt
 /assets/engine.properties
 /engine.properties

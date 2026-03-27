@@ -3,7 +3,11 @@ package sg.edu.sit.inf1009.p2team2.game.entities;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.entity.Entity;
 import sg.edu.sit.inf1009.p2team2.engine.entity.EntityManager;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.ColliderComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.InputComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.RenderableComponent;
 import sg.edu.sit.inf1009.p2team2.engine.entity.components.TransformComponent;
+import sg.edu.sit.inf1009.p2team2.engine.entity.components.VelocityComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.FallingComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.GameEntityComponent;
 import sg.edu.sit.inf1009.p2team2.game.components.HealthComponent;
@@ -49,7 +53,17 @@ public class EntityFactory {
         transform.setPosition(new Vector2(startX, startY));
         transform.setScale(new Vector2(PLAYER_WIDTH, PLAYER_HEIGHT));
 
+        VelocityComponent velocity = new VelocityComponent();
+        ColliderComponent collider = new ColliderComponent();
+        collider.setBounds(new com.badlogic.gdx.math.Rectangle(
+            startX - PLAYER_WIDTH / 2f, startY, PLAYER_WIDTH, PLAYER_HEIGHT));
+        InputComponent input = new InputComponent();
+        input.setActionMapId("player");
+
         player.add(transform);
+        player.add(velocity);
+        player.add(collider);
+        player.add(input);
         player.add(new HealthComponent(lives));
         player.add(new GameEntityComponent(EntityType.PLAYER));
 
@@ -78,10 +92,39 @@ public class EntityFactory {
         transform.setPosition(new Vector2(x, y));
         transform.setScale(new Vector2(size, size));
 
+        VelocityComponent velocity = new VelocityComponent();
+        velocity.getVelocity().set(0f, -speed);
+
+        ColliderComponent collider = new ColliderComponent();
+        collider.setBounds(new com.badlogic.gdx.math.Rectangle(
+            x - size / 2f, y - size / 2f, size, size));
+
+        RenderableComponent renderable = new RenderableComponent();
+        renderable.setSpriteId(spriteFor(type));
+        renderable.setColor(type.getColor().toGdxColor());
+
         entity.add(transform);
+        entity.add(velocity);
+        entity.add(collider);
+        entity.add(renderable);
         entity.add(new FallingComponent(speed));
         entity.add(new GameEntityComponent(type));
 
         return entity;
+    }
+
+    private String spriteFor(EntityType type) {
+        return switch (type) {
+            case GOOD_BYTE -> "good_byte.png";
+            case SAFE_EMAIL -> "safe_email.png";
+            case GOLD_ENVELOPE -> "gold_envelope.png";
+            case PHISHING_HOOK -> "phishing_hook.png";
+            case RANSOMWARE_LOCK -> "ransomware_lock.png";
+            case MALWARE_SWARM -> "malware_swarm.png";
+            case ROOTKIT -> "rootkit.png";
+            case SPYWARE -> "spyware.png";
+            case FRENZY_ORB -> "frenzy_orb.png";
+            case PLAYER -> "";
+        };
     }
 }

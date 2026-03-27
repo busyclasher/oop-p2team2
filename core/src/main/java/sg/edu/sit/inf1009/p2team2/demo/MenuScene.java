@@ -1,0 +1,294 @@
+package sg.edu.sit.inf1009.p2team2.demo;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector2;
+import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keyboard;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Mouse;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.Renderer;
+import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
+import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Menu scene with keyboard and mouse navigation.
+ * A short mouse-hover cooldown is used after keyboard input to avoid
+ * hover immediately overriding the selected menu item.
+ */
+public class MenuScene extends Scene {
+    
+    private List<MenuItem> menuItems;
+    private int selectedIndex;
+    private static final String BACKGROUND_SPRITE = "menu.png";
+    
+    private int keyboardCooldown = 0;
+    private static final int COOLDOWN_FRAMES = 10;
+    
+    public MenuScene(EngineContext context) {
+        super(context);
+        this.menuItems = new ArrayList<>();
+        this.selectedIndex = 0;
+
+        setInputHandler(new MenuInputHandler(this));
+        setSceneRenderer(new MenuRenderer(this));
+        setResourceLoader(new ResourceLoader() {
+            @Override
+            public void load() {
+                loadMenuResources();
+                putAsset("background", BACKGROUND_SPRITE);
+                setLoaded(true);
+            }
+
+            @Override
+            public void unload() {
+                unloadMenuResources();
+                clearAssets();
+                setLoaded(false);
+            }
+        });
+    }
+    
+    @Override
+    public void onEnter() {
+        selectedIndex = 0;
+        keyboardCooldown = 0;
+    }
+    
+    @Override
+    public void onExit() {
+    }
+    @Override
+    public void load() {
+        super.load();
+    }
+
+    @Override
+    public void unload() {
+        super.unload();
+    }
+
+    @Override
+    public void update(float dt) {
+
+        updateMenuLayout();
+
+        // Decrease cooldown
+        if (keyboardCooldown > 0) {
+            keyboardCooldown--;
+        }
+    }
+
+    @Override
+    public void handleInput() {
+        super.handleInput();
+    }
+
+    @Override
+    public void render() {
+        super.render();
+    }
+
+    void loadMenuResources() {
+        menuItems.clear();
+
+        float centerX = 400;
+        float startY = 400;
+        float spacing = 70;
+
+        menuItems.add(new MenuItem("Start Game", new Vector2(centerX, startY)));
+        menuItems.add(new MenuItem("Settings", new Vector2(centerX, startY - spacing)));
+        menuItems.add(new MenuItem("Exit", new Vector2(centerX, startY - spacing * 2)));
+    }
+
+    void unloadMenuResources() {
+        menuItems.clear();
+    }
+
+    void processMenuInput() {
+        Keyboard keyboard = getContext().getInputManager().getKeyboard();
+        Mouse mouse = getContext().getInputManager().getMouse();
+
+        updateMenuLayout();
+
+        // Keyboard navigation.
+        if (keyboard.isKeyPressed(Input.Keys.UP)) {
+            selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
+            keyboardCooldown = COOLDOWN_FRAMES;
+        } else if (keyboard.isKeyPressed(Input.Keys.W)) {
+            selectedIndex = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
+            keyboardCooldown = COOLDOWN_FRAMES;
+        } else if (keyboard.isKeyPressed(Input.Keys.DOWN)) {
+            selectedIndex = (selectedIndex + 1) % menuItems.size();
+            keyboardCooldown = COOLDOWN_FRAMES;
+        } else if (keyboard.isKeyPressed(Input.Keys.S)) {
+            selectedIndex = (selectedIndex + 1) % menuItems.size();
+            keyboardCooldown = COOLDOWN_FRAMES;
+        }
+
+        // Selection.
+        if (keyboard.isKeyPressed(Input.Keys.ENTER) || keyboard.isKeyPressed(Input.Keys.SPACE)) {
+            activateMenuItem(selectedIndex);
+        }
+
+        // Mouse hover only after the keyboard cooldown expires.
+        if (keyboardCooldown == 0) {
+            Vector2 mousePos = mouse.getPosition();
+            for (int i = 0; i < menuItems.size(); i++) {
+                MenuItem item = menuItems.get(i);
+                if (item.contains(mousePos)) {
+                    if (selectedIndex != i) {
+                        selectedIndex = i;
+                    }
+                    break;
+                }
+            }
+        }
+
+        // Mouse click activation.
+        if (mouse.isButtonPressed(0)) {
+            Vector2 mousePos = mouse.getPosition();
+            for (int i = 0; i < menuItems.size(); i++) {
+                if (menuItems.get(i).contains(mousePos)) {
+                    selectedIndex = i;
+                    activateMenuItem(i);
+                    keyboardCooldown = 0;  // Reset cooldown on click
+                    break;
+                }
+            }
+        }
+    }
+
+    void renderMenuScene() {
+        Renderer renderer = getContext().getOutputManager().getRenderer();
+
+        renderer.clear();
+        renderer.begin();
+
+        // Draw background centered and scaled to the window
+        renderer.drawBackground(BACKGROUND_SPRITE);
+
+        float centerX = renderer.getWorldWidth() / 2f;
+        float centerY = renderer.getWorldHeight() / 2f;
+
+        float spacing = 70f;
+        float titleX = centerX - 80f;
+        float titleY = centerY + spacing * 2f;
+        float hintX = centerX - 280f;
+        float hintY = centerY - spacing * 3f;
+
+        // Draw title
+        renderer.drawText(
+            "MAIN MENU",
+            new Vector2(titleX, titleY),
+            "default",
+            Color.WHITE
+        );
+
+        // Draw menu items
+        for (int i = 0; i < menuItems.size(); i++) {
+            boolean isSelected = (i == selectedIndex);
+            menuItems.get(i).render(renderer, isSelected);
+        }
+
+        // Draw controls hint
+        renderer.drawText(
+            "Arrow Keys / WASD / Mouse to navigate | Enter / Click to select",
+            new Vector2(hintX, hintY),
+            "default",
+            new Color(0.7f, 0.7f, 0.7f, 1f)
+        );
+
+        renderer.end();
+    }
+    private void activateMenuItem(int index) {
+        if (index < 0 || index >= menuItems.size()) {
+            return;
+        }
+        
+        String action = menuItems.get(index).text;
+        
+        switch (action) {
+            case "Start Game":
+                getContext().getSceneManager().push(new MainScene(getContext()));
+                break;
+                
+            case "Settings":
+                getContext().getSceneManager().push(new SettingsScene(getContext()));
+                break;
+                
+            case "Exit":
+                getContext().stop();
+                Gdx.app.exit();
+                break;
+        }
+    }
+
+    private void updateMenuLayout() {
+        if (menuItems == null || menuItems.isEmpty()) {
+            return;
+        }
+
+        Renderer renderer = getContext().getOutputManager().getRenderer();
+        float centerX = renderer.getWorldWidth() / 2f;
+        float centerY = renderer.getWorldHeight() / 2f;
+
+        float spacing = 70f;
+        float totalHeight = (menuItems.size() - 1) * spacing;
+        float startY = centerY + totalHeight / 2f;
+
+        for (int i = 0; i < menuItems.size(); i++) {
+            menuItems.get(i).position.set(centerX, startY - i * spacing);
+        }
+    }
+    
+    private static class MenuItem {
+        private String text;
+        private Vector2 position;
+        private float width;
+        private float height;
+        
+        MenuItem(String text, Vector2 position) {
+            this.text = text;
+            this.position = position;
+            this.width = 200;
+            this.height = 50;
+        }
+        
+        boolean contains(Vector2 point) {
+            float left = position.x - width / 2;
+            float right = position.x + width / 2;
+            float bottom = position.y - height / 2;
+            float top = position.y + height / 2;
+            
+            return point.x >= left && point.x <= right && 
+                   point.y >= bottom && point.y <= top;
+        }
+        
+        void render(Renderer renderer, boolean isSelected) {
+            Color textColor = isSelected ? Color.YELLOW : Color.WHITE;
+            Color bgColor = isSelected ? 
+                new Color(0.4f, 0.4f, 0.4f, 0.8f) : 
+                new Color(0.2f, 0.2f, 0.2f, 0.6f);
+            
+            float left = position.x - width / 2;
+            float bottom = position.y - height / 2;
+            
+            com.badlogic.gdx.math.Rectangle bounds = new com.badlogic.gdx.math.Rectangle(
+                left, bottom, width, height
+            );
+            
+            renderer.drawRect(bounds, bgColor, true);
+            renderer.drawRect(bounds, Color.WHITE, false);
+            
+            float textX = position.x - 60;
+            float textY = position.y + 5;
+            
+            renderer.drawText(text, new Vector2(textX, textY), "default", textColor);
+        }
+    }
+}

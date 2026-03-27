@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -12,29 +12,32 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
- * Shown when "Start Game" is pressed and a previous character exists.
- * Lets the player continue with the same character or pick a new one.
+ * Shown when "Start Game" is pressed and a saved run exists.
+ * Lets the player continue the saved run or start a fresh game.
  */
 public class StartGamePromptScene extends Scene {
 
-    private static final float BTN_W = 300f, BTN_H = 58f, BTN_GAP = 20f;
+    private static final float BTN_W = 420f, BTN_H = 58f, BTN_GAP = 20f;
     private static final int   COOLDOWN_FRAMES = 10;
 
     private final LeaderboardManager leaderboard;
-    private final CharacterType      lastCharacter;
+    private final RunSaveManager.RunSnapshot savedRun;
 
     private int selectedIndex    = 0; // 0 = continue, 1 = new game
     private int keyboardCooldown = 0;
 
     public StartGamePromptScene(EngineContext context, LeaderboardManager leaderboard,
-                                CharacterType lastCharacter) {
+                                RunSaveManager.RunSnapshot savedRun) {
         super(context);
         this.leaderboard   = leaderboard;
-        this.lastCharacter = lastCharacter;
+        this.savedRun = savedRun;
 
         setInputHandler(new PromptInputHandler(this));
         setSceneRenderer(new PromptRenderer(this));
@@ -69,22 +72,25 @@ public class StartGamePromptScene extends Scene {
         Renderer r     = getContext().getOutputManager().getRenderer();
         float cx = r.getWorldWidth() / 2f, cy = r.getWorldHeight() / 2f;
 
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (kb.isKeyPressed(Keys.ESCAPE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
 
         if (keyboardCooldown == 0) {
-            if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+            if (kb.isKeyPressed(Keys.UP) || kb.isKeyPressed(Keys.W)) {
                 selectedIndex    = (selectedIndex - 1 + 2) % 2;
                 keyboardCooldown = COOLDOWN_FRAMES;
-            } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
+                GameAudio.playUiClick(getContext());
+            } else if (kb.isKeyPressed(Keys.DOWN) || kb.isKeyPressed(Keys.S)) {
                 selectedIndex    = (selectedIndex + 1) % 2;
                 keyboardCooldown = COOLDOWN_FRAMES;
+                GameAudio.playUiClick(getContext());
             }
         }
 
-        if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             activate(selectedIndex);
             return;
         }
@@ -101,13 +107,13 @@ public class StartGamePromptScene extends Scene {
     }
 
     private void activate(int index) {
+        GameAudio.playUiClick(getContext());
         getContext().getSceneManager().pop(); // remove this prompt
-        if (index == 0) {
-            // Continue with same character — straight into game
+        if (index == 0 && savedRun != null) {
             getContext().getSceneManager().push(
-                new GamePlayScene(getContext(), leaderboard, lastCharacter));
+                new GamePlayScene(getContext(), leaderboard, savedRun));
         } else {
-            // New Game — pick a different character
+            RunSaveManager.clear();
             getContext().getSceneManager().push(
                 new CharacterSelectScene(getContext(), leaderboard));
         }
@@ -130,40 +136,43 @@ public class StartGamePromptScene extends Scene {
             Renderer r  = getContext().getOutputManager().getRenderer();
             float ww = r.getWorldWidth(), wh = r.getWorldHeight();
             float cx = ww / 2f, cy = wh / 2f;
+            CharacterType savedCharacter = scene.savedRun != null
+                ? scene.savedRun.characterType
+                : CharacterType.SPECTER;
 
             r.clear();
             r.begin();
 
             r.drawBackground("menu-scene.png");
             r.drawRect(new com.badlogic.gdx.math.Rectangle(0, 0, ww, wh),
-                new Color(0f, 0f, 0f, 0.70f), true);
+                new EngineColor(0f, 0f, 0f, 0.70f), true);
 
             // Card
-            float cw = 440f, ch = 320f;
+            float cw = 560f, ch = 320f;
             float cardX = cx - cw / 2f, cardY = cy - ch / 2f;
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
-                new Color(0.06f, 0.10f, 0.06f, 0.95f), true);
+                new EngineColor(0.06f, 0.10f, 0.06f, 0.95f), true);
             r.drawRect(new com.badlogic.gdx.math.Rectangle(cardX, cardY, cw, ch),
-                new Color(0.2f, 0.8f, 0.3f, 1f), false);
+                new EngineColor(0.2f, 0.8f, 0.3f, 1f), false);
 
             // Title
-            r.drawText("WELCOME BACK!",
-                new Vector2(cx - 115f, cardY + ch - 36f), "default",
-                new Color(0.2f, 0.9f, 0.4f, 1f));
-            r.drawText("Last played: " + scene.lastCharacter.getName(),
-                new Vector2(cx - 110f, cardY + ch - 72f), "default",
-                new Color(0.75f, 0.75f, 0.75f, 1f));
+            r.drawTextCentered("CONTINUE RUN?",
+                new Vector2(cx, cardY + ch - 28f), GameUiTheme.FONT_TITLE_SMALL,
+                GameUiTheme.TITLE_PRIMARY);
+            r.drawTextCentered("Saved progress found for " + savedCharacter.getName(),
+                new Vector2(cx, cardY + ch - 66f), GameUiTheme.FONT_BODY,
+                GameUiTheme.TEXT_MUTED);
 
             // Buttons
             drawBtn(r, scene.continueRect(cx, cy), 0,
-                "Continue as " + scene.lastCharacter.getName(), scene.selectedIndex);
+                "Continue Run", scene.selectedIndex);
             drawBtn(r, scene.newGameRect(cx, cy),  1,
-                "New Game (Change Character)",                    scene.selectedIndex);
+                "New Game",                    scene.selectedIndex);
 
             // Footer
-            r.drawText("ESC - Back",
-                new Vector2(cx - 45f, cardY + 18f), "default",
-                new Color(0.5f, 0.5f, 0.5f, 1f));
+            r.drawTextCentered("ESC - Back",
+                new Vector2(cx, cardY + 18f), GameUiTheme.FONT_BODY_SMALL,
+                GameUiTheme.TEXT_SUBTLE);
 
             r.end();
         }
@@ -171,14 +180,16 @@ public class StartGamePromptScene extends Scene {
         private void drawBtn(Renderer r, com.badlogic.gdx.math.Rectangle box,
                              int idx, String label, int sel) {
             boolean active = (idx == sel);
-            Color bg     = active ? new Color(0.15f, 0.55f, 0.25f, 0.9f)
-                                  : new Color(0.10f, 0.10f, 0.10f, 0.70f);
-            Color border = active ? Color.YELLOW : new Color(0.5f, 0.5f, 0.5f, 1f);
+            EngineColor bg     = active ? new EngineColor(0.15f, 0.55f, 0.25f, 0.9f)
+                                  : new EngineColor(0.10f, 0.10f, 0.10f, 0.70f);
+            EngineColor border = active ? EngineColor.YELLOW : new EngineColor(0.5f, 0.5f, 0.5f, 1f);
+            String font = r.measureTextWidth(label, GameUiTheme.FONT_BODY_LARGE) > box.width - 48f
+                ? GameUiTheme.FONT_BODY
+                : GameUiTheme.FONT_BODY_LARGE;
             r.drawRect(box, bg, true);
             r.drawRect(box, border, false);
-            r.drawText(label,
-                new Vector2(box.x + 16f, box.y + box.height / 2f + 10f),
-                "default", active ? Color.YELLOW : Color.WHITE);
+            r.drawTextCentered(label, box, font,
+                active ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY);
         }
     }
 }

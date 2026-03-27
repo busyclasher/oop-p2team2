@@ -1,8 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,7 +13,10 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * CyberScouts main menu.
@@ -79,15 +81,17 @@ public class GameMenuScene extends Scene {
         Keyboard kb    = getContext().getInputManager().getKeyboard();
         Mouse    mouse = getContext().getInputManager().getMouse();
 
-        if (kb.isKeyPressed(Input.Keys.UP) || kb.isKeyPressed(Input.Keys.W)) {
+        if (kb.isKeyPressed(Keys.UP) || kb.isKeyPressed(Keys.W)) {
             selectedIndex    = (selectedIndex - 1 + menuItems.size()) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
-        } else if (kb.isKeyPressed(Input.Keys.DOWN) || kb.isKeyPressed(Input.Keys.S)) {
+            GameAudio.playUiClick(getContext());
+        } else if (kb.isKeyPressed(Keys.DOWN) || kb.isKeyPressed(Keys.S)) {
             selectedIndex    = (selectedIndex + 1) % menuItems.size();
             keyboardCooldown = COOLDOWN_FRAMES;
+            GameAudio.playUiClick(getContext());
         }
 
-        if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             activate(selectedIndex);
         }
 
@@ -123,27 +127,29 @@ public class GameMenuScene extends Scene {
         float cy = r.getWorldHeight() / 2f;
 
         // Title — kept well above the menu items (first item top ≈ cy+140)
-        r.drawText("CYBERSCOUTS",
-            new Vector2(cx - 140f, cy + 270f), "default", new Color(0.2f, 0.9f, 0.4f, 1f));
-        r.drawText("Protect the Network - Catch Good Data, Neutralize Threats",
-            new Vector2(cx - 290f, cy + 230f), "default", new Color(0.75f, 0.75f, 0.75f, 1f));
+        r.drawTextCentered("CYBERSCOUTS",
+            new Vector2(cx, cy + 272f), GameUiTheme.FONT_TITLE, GameUiTheme.TITLE_PRIMARY);
+        r.drawTextCentered("Protect the Network - Catch Good Data, Neutralize Threats",
+            new Vector2(cx, cy + 230f), GameUiTheme.FONT_BODY, GameUiTheme.TEXT_MUTED);
 
         for (int i = 0; i < menuItems.size(); i++) {
             menuItems.get(i).render(r, i == selectedIndex);
         }
 
-        r.drawText("Arrow Keys / WASD / Mouse  |  Enter / Click to select",
-            new Vector2(cx - 240f, 28f), "default", new Color(0.6f, 0.6f, 0.6f, 1f));
+        r.drawTextCentered("Arrow Keys / WASD / Mouse  |  Enter / Click to select",
+            new Vector2(cx, 28f), GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_SUBTLE);
 
         r.end();
     }
 
     private void activate(int index) {
+        GameAudio.playUiClick(getContext());
         switch (menuItems.get(index).label) {
             case "Start Game":
-                if (leaderboard.getLastCharacter() != null) {
+                RunSaveManager.RunSnapshot savedRun = RunSaveManager.load();
+                if (savedRun != null) {
                     getContext().getSceneManager().push(
-                        new StartGamePromptScene(getContext(), leaderboard, leaderboard.getLastCharacter()));
+                        new StartGamePromptScene(getContext(), leaderboard, savedRun));
                 } else {
                     getContext().getSceneManager().push(new CharacterSelectScene(getContext(), leaderboard));
                 }
@@ -158,8 +164,7 @@ public class GameMenuScene extends Scene {
                 getContext().getSceneManager().push(new SettingsScene(getContext()));
                 break;
             case "Exit":
-                getContext().stop();
-                Gdx.app.exit();
+                getContext().exit();
                 break;
         }
     }
@@ -193,12 +198,12 @@ public class GameMenuScene extends Scene {
         void render(Renderer r, boolean selected) {
             float l = position.x - W / 2, b = position.y - H / 2;
             com.badlogic.gdx.math.Rectangle box = new com.badlogic.gdx.math.Rectangle(l, b, W, H);
-            Color bg  = selected ? new Color(0.15f, 0.55f, 0.25f, 0.85f)
-                                 : new Color(0.10f, 0.10f, 0.10f, 0.65f);
-            Color txt = selected ? Color.YELLOW : Color.WHITE;
+            EngineColor bg  = selected ? new EngineColor(0.15f, 0.55f, 0.25f, 0.85f)
+                                 : new EngineColor(0.10f, 0.10f, 0.10f, 0.65f);
+            EngineColor txt = selected ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
             r.drawRect(box, bg,         true);
-            r.drawRect(box, Color.WHITE, false);
-            r.drawText(label, new Vector2(position.x - 65f, position.y + 8f), "default", txt);
+            r.drawRect(box, EngineColor.WHITE, false);
+            r.drawTextCentered(label, box, GameUiTheme.FONT_BODY_LARGE, txt);
         }
     }
 

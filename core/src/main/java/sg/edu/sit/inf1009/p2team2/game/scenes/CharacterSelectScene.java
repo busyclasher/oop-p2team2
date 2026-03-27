@@ -1,7 +1,7 @@
 package sg.edu.sit.inf1009.p2team2.game.scenes;
 
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
+import sg.edu.sit.inf1009.p2team2.engine.io.input.Keys;
+import sg.edu.sit.inf1009.p2team2.engine.io.output.EngineColor;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import sg.edu.sit.inf1009.p2team2.engine.core.EngineContext;
@@ -12,8 +12,11 @@ import sg.edu.sit.inf1009.p2team2.engine.scene.InputHandler;
 import sg.edu.sit.inf1009.p2team2.engine.scene.ResourceLoader;
 import sg.edu.sit.inf1009.p2team2.engine.scene.Scene;
 import sg.edu.sit.inf1009.p2team2.engine.scene.SceneRenderer;
+import sg.edu.sit.inf1009.p2team2.game.audio.GameAudio;
 import sg.edu.sit.inf1009.p2team2.game.entities.CharacterType;
 import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
+import sg.edu.sit.inf1009.p2team2.game.save.RunSaveManager;
+import sg.edu.sit.inf1009.p2team2.game.ui.GameUiTheme;
 
 /**
  * Character selection screen.
@@ -22,10 +25,10 @@ import sg.edu.sit.inf1009.p2team2.game.leaderboard.LeaderboardManager;
 public class CharacterSelectScene extends Scene {
 
     private static final CharacterType[] CHARS = CharacterType.values();
-    private static final float CARD_W  = 240f;
-    private static final float CARD_H  = 400f;
-    private static final float CHAR_W  = 140f;
-    private static final float CHAR_H  = 160f;
+    private static final float CARD_W  = 260f;
+    private static final float CARD_H  = 480f;
+    private static final float CHAR_W  = 148f;
+    private static final float CHAR_H  = 170f;
     private static final int   COOLDOWN = 12;
 
     private final LeaderboardManager leaderboard;
@@ -64,22 +67,25 @@ public class CharacterSelectScene extends Scene {
         Mouse    mouse = getContext().getInputManager().getMouse();
         Renderer r     = getContext().getOutputManager().getRenderer();
 
-        if (kb.isKeyPressed(Input.Keys.ESCAPE)) {
+        if (kb.isKeyPressed(Keys.ESCAPE)) {
+            GameAudio.playUiClick(getContext());
             getContext().getSceneManager().pop();
             return;
         }
 
         if (keyboardCooldown == 0) {
-            if (kb.isKeyPressed(Input.Keys.LEFT) || kb.isKeyPressed(Input.Keys.A)) {
+            if (kb.isKeyPressed(Keys.LEFT) || kb.isKeyPressed(Keys.A)) {
                 selectedIndex    = (selectedIndex - 1 + CHARS.length) % CHARS.length;
                 keyboardCooldown = COOLDOWN;
-            } else if (kb.isKeyPressed(Input.Keys.RIGHT) || kb.isKeyPressed(Input.Keys.D)) {
+                GameAudio.playUiClick(getContext());
+            } else if (kb.isKeyPressed(Keys.RIGHT) || kb.isKeyPressed(Keys.D)) {
                 selectedIndex    = (selectedIndex + 1) % CHARS.length;
                 keyboardCooldown = COOLDOWN;
+                GameAudio.playUiClick(getContext());
             }
         }
 
-        if (kb.isKeyPressed(Input.Keys.ENTER) || kb.isKeyPressed(Input.Keys.SPACE)) {
+        if (kb.isKeyPressed(Keys.ENTER) || kb.isKeyPressed(Keys.SPACE)) {
             startGame();
             return;
         }
@@ -95,6 +101,7 @@ public class CharacterSelectScene extends Scene {
                     startGame();
                 } else {
                     selectedIndex = i;
+                    GameAudio.playUiClick(getContext());
                 }
                 return;
             }
@@ -109,14 +116,17 @@ public class CharacterSelectScene extends Scene {
         float totalW  = CHARS.length * CARD_W + (CHARS.length - 1) * 60f;
         float startX  = cx - totalW / 2f;
         float cardX   = startX + index * spacing;
-        return new Rectangle(cardX, cy - CARD_H / 2f - 20f, CARD_W, CARD_H);
+        return new Rectangle(cardX, cy - CARD_H / 2f - 8f, CARD_W, CARD_H);
     }
 
     private void startGame() {
+        GameAudio.playUiClick(getContext());
         CharacterType chosen = CHARS[selectedIndex];
+        RunSaveManager.clear();
         leaderboard.setLastCharacter(chosen);
         getContext().getSceneManager().pop();                                       // remove CharacterSelectScene
         getContext().getSceneManager().push(new GamePlayScene(getContext(), leaderboard, chosen));
+        getContext().getSceneManager().push(new HowToPlayScene(getContext(), leaderboard, true));
     }
 
     // ── Render ───────────────────────────────────────────────────────────────
@@ -131,15 +141,15 @@ public class CharacterSelectScene extends Scene {
         r.begin();
 
         r.drawBackground("menu-scene.png");
-        r.drawRect(new Rectangle(0, 0, ww, wh), new Color(0f, 0f, 0f, 0.65f), true);
+        r.drawRect(new Rectangle(0, 0, ww, wh), new EngineColor(0f, 0f, 0f, 0.65f), true);
 
         // Title
-        r.drawText("SELECT YOUR CHARACTER",
-            new Vector2(cx - 200f, wh - 60f), "default",
-            new Color(0.2f, 0.9f, 0.4f, 1f));
-        r.drawText("Click a card or use Left / Right arrows, then Enter to confirm",
-            new Vector2(cx - 295f, wh - 96f), "default",
-            new Color(0.6f, 0.6f, 0.6f, 1f));
+        r.drawTextCentered("SELECT YOUR CHARACTER",
+            new Vector2(cx, wh - 58f), GameUiTheme.FONT_TITLE_SMALL,
+            GameUiTheme.TITLE_PRIMARY);
+        r.drawTextCentered("Click a card or use Left / Right arrows, then Enter to confirm",
+            new Vector2(cx, wh - 94f), GameUiTheme.FONT_BODY,
+            GameUiTheme.TEXT_MUTED);
 
         for (int i = 0; i < CHARS.length; i++) {
             CharacterType ch  = CHARS[i];
@@ -147,48 +157,48 @@ public class CharacterSelectScene extends Scene {
             Rectangle     card = cardRect(cx, cy, i);
 
             // Card background
-            Color cardBg = sel
-                ? new Color(0.10f, 0.40f, 0.18f, 0.90f)
-                : new Color(0.08f, 0.08f, 0.08f, 0.80f);
+            EngineColor cardBg = sel
+                ? new EngineColor(0.10f, 0.40f, 0.18f, 0.90f)
+                : new EngineColor(0.08f, 0.08f, 0.08f, 0.80f);
             r.drawRect(card, cardBg, true);
-            r.drawRect(card, sel ? Color.YELLOW : new Color(0.45f, 0.45f, 0.45f, 1f), false);
+            r.drawRect(card, sel ? EngineColor.YELLOW : new EngineColor(0.45f, 0.45f, 0.45f, 1f), false);
 
             // Character sprite
             float spriteX = card.x + (CARD_W - CHAR_W) / 2f + CHAR_W / 2f;
-            float spriteY = card.y + CARD_H - 30f - CHAR_H / 2f;
+            float spriteY = card.y + CARD_H - 28f - CHAR_H / 2f;
             r.drawSprite(ch.getSprite(), new Vector2(spriteX, spriteY), CHAR_W, CHAR_H);
 
             // Name
-            Color nameColor = sel ? Color.YELLOW : Color.WHITE;
-            r.drawText(ch.getName(),
-                new Vector2(card.x + CARD_W / 2f - 45f, card.y + CARD_H - CHAR_H - 50f),
-                "default", nameColor);
+            EngineColor nameColor = sel ? GameUiTheme.TEXT_HIGHLIGHT : GameUiTheme.TEXT_PRIMARY;
+            r.drawTextCentered(ch.getName(),
+                new Rectangle(card.x, card.y + CARD_H - CHAR_H - 122f, CARD_W, 34f),
+                GameUiTheme.FONT_BODY_LARGE, nameColor);
 
             // Stats
-            float statsY = card.y + CARD_H - CHAR_H - 80f;
+            float statsY = card.y + CARD_H - CHAR_H - 144f;
             r.drawText("Speed:  " + (int) ch.getSpeed() + " px/s",
-                new Vector2(card.x + 14f, statsY),         "default", new Color(0.8f, 0.8f, 0.8f, 1f));
+                new Vector2(card.x + 14f, statsY),         GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
             r.drawText("Lives:  " + ch.getLives(),
-                new Vector2(card.x + 14f, statsY - 28f),   "default", new Color(0.8f, 0.8f, 0.8f, 1f));
+                new Vector2(card.x + 14f, statsY - 28f),   GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
             r.drawText("Score:  x" + ch.getScoreMultiplier(),
-                new Vector2(card.x + 14f, statsY - 56f),   "default", new Color(0.8f, 0.8f, 0.8f, 1f));
+                new Vector2(card.x + 14f, statsY - 56f),   GameUiTheme.FONT_BODY, GameUiTheme.TEXT_PRIMARY);
 
             // Perk
             r.drawText("Perk: " + ch.getPerkName(),
-                new Vector2(card.x + 14f, statsY - 90f),   "default", new Color(0.35f, 0.90f, 0.50f, 1f));
+                new Vector2(card.x + 14f, statsY - 90f),   GameUiTheme.FONT_BODY, GameUiTheme.TEXT_SUCCESS);
             // perk desc (two lines split on \n)
             String[] descLines = ch.getPerkDesc().split("\n");
             for (int l = 0; l < descLines.length; l++) {
                 r.drawText(descLines[l],
                     new Vector2(card.x + 14f, statsY - 114f - l * 24f),
-                    "default", new Color(0.65f, 0.65f, 0.65f, 1f));
+                    GameUiTheme.FONT_BODY_SMALL, GameUiTheme.TEXT_MUTED);
             }
         }
 
         // Footer
-        r.drawText("ESC - Back   Enter / Double-click - Confirm",
-            new Vector2(cx - 220f, 28f), "default",
-            new Color(0.55f, 0.55f, 0.55f, 1f));
+        r.drawTextCentered("ESC - Back   Enter / Double-click - Confirm",
+            new Vector2(cx, 28f), GameUiTheme.FONT_BODY_SMALL,
+            GameUiTheme.TEXT_SUBTLE);
 
         r.end();
     }

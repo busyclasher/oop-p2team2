@@ -5,7 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
@@ -15,7 +17,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Renderer abstraction over libGDX drawing APIs.
@@ -28,7 +32,8 @@ public class Renderer {
     private Color clearColor;
     private SpriteBatch spriteBatch;
     private ShapeRenderer shapeRenderer;
-    private BitmapFont defaultFont;
+    private Map<String, BitmapFont> fonts;
+    private GlyphLayout glyphLayout;
     private int viewportWidth;
     private int viewportHeight;
     private OrthographicCamera camera;
@@ -45,9 +50,8 @@ public class Renderer {
         this.clearColor = new Color(0, 0, 0, 1); // Black by default
         this.spriteBatch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
-        this.defaultFont = new BitmapFont(); // libGDX default font
-        this.defaultFont.getRegion().getTexture().setFilter(
-            Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        this.fonts = new HashMap<>();
+        this.glyphLayout = new GlyphLayout();
         this.spriteCache = new HashMap<>();
         this.viewportWidth = 0;
         this.viewportHeight = 0;
@@ -55,7 +59,78 @@ public class Renderer {
         this.viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         this.tempScreenPosition = new Vector3();
 
+        initialiseFonts();
         syncViewport();
+    }
+
+    private void initialiseFonts() {
+        BitmapFont fallback = new BitmapFont();
+        configureFont(fallback);
+        fonts.put("default", fallback);
+        fonts.put("body", fallback);
+        fonts.put("body-small", fallback);
+        fonts.put("body-tiny", fallback);
+        fonts.put("body-large", fallback);
+        fonts.put("title", fallback);
+        fonts.put("title-small", fallback);
+
+        loadGeneratedFont("title", "fonts/orbitron.ttf", 42,
+            new Color(0.02f, 0.06f, 0.10f, 0.95f), 2f, 2, 2);
+        loadGeneratedFont("title-small", "fonts/orbitron.ttf", 30,
+            new Color(0.02f, 0.06f, 0.10f, 0.95f), 1.5f, 2, 2);
+        loadGeneratedFont("body-large", "fonts/rajdhani-medium.ttf", 22,
+            new Color(0.03f, 0.05f, 0.10f, 0.80f), 1.2f, 1, 1);
+        loadGeneratedFont("body", "fonts/rajdhani-medium.ttf", 20,
+            new Color(0.03f, 0.05f, 0.10f, 0.80f), 1.0f, 1, 1);
+        loadGeneratedFont("body-small", "fonts/rajdhani-medium.ttf", 17,
+            new Color(0.03f, 0.05f, 0.10f, 0.75f), 0.8f, 1, 1);
+        loadGeneratedFont("body-tiny", "fonts/rajdhani-medium.ttf", 15,
+            new Color(0.03f, 0.05f, 0.10f, 0.70f), 0.8f, 1, 1);
+    }
+
+    private void loadGeneratedFont(String key, String filePath, int size,
+                                   Color borderColor, float borderWidth,
+                                   int shadowX, int shadowY) {
+        if (Gdx.files == null || !Gdx.files.internal(filePath).exists()) {
+            return;
+        }
+
+        FreeTypeFontGenerator generator = null;
+        try {
+            generator = new FreeTypeFontGenerator(Gdx.files.internal(filePath));
+            FreeTypeFontGenerator.FreeTypeFontParameter params =
+                new FreeTypeFontGenerator.FreeTypeFontParameter();
+            params.size = size;
+            params.minFilter = Texture.TextureFilter.Linear;
+            params.magFilter = Texture.TextureFilter.Linear;
+            params.borderColor = borderColor;
+            params.borderWidth = borderWidth;
+            params.shadowColor = new Color(0f, 0f, 0f, 0.35f);
+            params.shadowOffsetX = shadowX;
+            params.shadowOffsetY = shadowY;
+            BitmapFont generated = generator.generateFont(params);
+            configureFont(generated);
+            fonts.put(key, generated);
+        } catch (Exception e) {
+            Gdx.app.error("Renderer", "Failed to generate font: " + key, e);
+        } finally {
+            if (generator != null) {
+                generator.dispose();
+            }
+        }
+    }
+
+    private void configureFont(BitmapFont font) {
+        font.getRegion().getTexture().setFilter(
+            Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+        font.getData().markupEnabled = false;
+    }
+
+    private BitmapFont resolveFont(String fontKey) {
+        if (fontKey == null) {
+            return fonts.get("default");
+        }
+        return fonts.getOrDefault(fontKey, fonts.get("default"));
     }
 
     /**
@@ -106,6 +181,10 @@ public class Renderer {
      */
     public void setClearColor(Color color) {
         this.clearColor = color;
+    }
+
+    public void setClearColor(EngineColor color) {
+        setClearColor(color.toGdxColor());
     }
     
     /**
@@ -229,6 +308,10 @@ public class Renderer {
         // Restore color
         spriteBatch.setColor(oldColor);
     }
+
+    public void drawSprite(String spriteId, Vector2 position, float rotation, Vector2 scale, EngineColor color) {
+        drawSprite(spriteId, position, rotation, scale, color.toGdxColor());
+    }
     
     /**
      * Draw a texture directly (for backward compatibility)
@@ -296,14 +379,65 @@ public class Renderer {
      * 
      * @param text Text to draw
      * @param position Position to draw at
-     * @param font Font name (currently unused, uses default font)
+     * @param font Font name key
      * @param color Text color
      */
     public void drawText(String text, Vector2 position, String font, Color color) {
-        Color oldColor = defaultFont.getColor();
-        defaultFont.setColor(color);
-        defaultFont.draw(spriteBatch, text, position.x, position.y);
-        defaultFont.setColor(oldColor);
+        BitmapFont chosenFont = resolveFont(font);
+        Color oldColor = chosenFont.getColor();
+        chosenFont.setColor(color);
+        chosenFont.draw(spriteBatch, text, position.x, position.y);
+        chosenFont.setColor(oldColor);
+    }
+
+    public void drawText(String text, Vector2 position, String font, EngineColor color) {
+        drawText(text, position, font, color.toGdxColor());
+    }
+
+    /**
+     * Draw centered text using the requested font.
+     */
+    public void drawTextCentered(String text, Vector2 center, String font, Color color) {
+        BitmapFont chosenFont = resolveFont(font);
+        glyphLayout.setText(chosenFont, text);
+        drawText(text,
+            new Vector2(center.x - glyphLayout.width / 2f, center.y + glyphLayout.height / 2f),
+            font, color);
+    }
+
+    public void drawTextCentered(String text, Vector2 center, String font, EngineColor color) {
+        drawTextCentered(text, center, font, color.toGdxColor());
+    }
+
+    /**
+     * Draw text centered within a rectangle.
+     */
+    public void drawTextCentered(String text, Rectangle area, String font, Color color) {
+        BitmapFont chosenFont = resolveFont(font);
+        glyphLayout.setText(chosenFont, text);
+        drawText(text,
+            new Vector2(area.x + (area.width - glyphLayout.width) / 2f,
+                area.y + (area.height + glyphLayout.height) / 2f),
+            font, color);
+    }
+
+    public void drawTextCentered(String text, Rectangle area, String font, EngineColor color) {
+        drawTextCentered(text, area, font, color.toGdxColor());
+    }
+
+    /**
+     * Measure text width for layout calculations.
+     */
+    public float measureTextWidth(String text, String font) {
+        glyphLayout.setText(resolveFont(font), text);
+        return glyphLayout.width;
+    }
+
+    /**
+     * Get the line height of the selected font for vertical layout.
+     */
+    public float getLineHeight(String font) {
+        return resolveFont(font).getLineHeight();
     }
     
     // ===== SHAPE DRAWING =====
@@ -338,6 +472,10 @@ public class Renderer {
             spriteBatch.begin();
         }
     }
+
+    public void drawRect(Rectangle rect, EngineColor color, boolean filled) {
+        drawRect(rect, color.toGdxColor(), filled);
+    }
     
     /**
      * Draw a circle
@@ -364,6 +502,10 @@ public class Renderer {
         if (batchWasActive) {
             spriteBatch.begin();
         }
+    }
+
+    public void drawCircle(Vector2 center, float radius, EngineColor color, boolean filled) {
+        drawCircle(center, radius, color.toGdxColor(), filled);
     }
     
     /**
@@ -392,6 +534,10 @@ public class Renderer {
             spriteBatch.begin();
         }
     }
+
+    public void drawLine(Vector2 start, Vector2 end, EngineColor color, float thickness) {
+        drawLine(start, end, color.toGdxColor(), thickness);
+    }
     
     /**
      * Clean up resources
@@ -399,7 +545,11 @@ public class Renderer {
     public void dispose() {
         spriteBatch.dispose();
         shapeRenderer.dispose();
-        defaultFont.dispose();
+        Set<BitmapFont> uniqueFonts = new HashSet<>(fonts.values());
+        for (BitmapFont font : uniqueFonts) {
+            font.dispose();
+        }
+        fonts.clear();
         
         // Dispose all cached textures
         for (Texture texture : spriteCache.values()) {
