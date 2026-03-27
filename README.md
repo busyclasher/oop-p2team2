@@ -63,6 +63,9 @@ The game layer contains the final playable submission:
 - save-and-resume run flow from the pause menu
 - responsive settings with audio, resolution, and fullscreen support
 
+## UML
+<img width="16384" height="9082" alt="Abstract Engine UML Class Diagram (21)" src="https://github.com/user-attachments/assets/115759ed-9a7b-43a8-8f30-728a6f9fdf6f" />
+
 ## Project Structure
 ```text
 oop-p2team2
@@ -142,6 +145,11 @@ Run the complete I/O runtime test scene:
 Note: the desktop launcher maps `-Pscene=...` into the `engine.scene` system property at runtime.
 
 ## CyberScouts Game Flow
+
+![photo_2026-03-27_16-04-15](https://github.com/user-attachments/assets/c11062b9-1398-4d90-ae41-24190a3ebf03)
+
+![photo_2026-03-27_16-04-15 (2)](https://github.com/user-attachments/assets/6d51ad1d-a18d-435d-adb0-633672aeb8fe)
+
 The final playable flow is:
 1. `GameMenuScene`
 2. `CharacterSelectScene` or `StartGamePromptScene` if a saved run exists
@@ -229,15 +237,3 @@ Open the HTML test report:
 open core/build/reports/tests/test/index.html
 ```
 
-## Recommended Validation Before Submission
-Before submission, verify the following:
-- the project builds successfully
-- the default game flow launches correctly
-- save/resume works from pause -> exit to menu -> continue run
-- frenzy mode, quiz flow, and endgame flow all work correctly
-- settings persist correctly
-- engine demo scenes still launch via `-Pscene=...`
-- tests pass without errors
-
-## UML
-<img width="8829" height="6116" alt="Abstract Engine UML Class Diagram (5)" src="https://github.com/user-attachments/assets/bb1c1d19-ddba-42ed-a65e-3c4731d2452f" />
