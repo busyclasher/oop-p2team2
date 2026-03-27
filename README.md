@@ -64,7 +64,7 @@ The game layer contains the final playable submission:
 - responsive settings with audio, resolution, and fullscreen support
 
 ## UML
-<img width="16384" height="9082" alt="Abstract Engine UML Class Diagram (21)" src="https://github.com/user-attachments/assets/115759ed-9a7b-43a8-8f30-728a6f9fdf6f" />
+![Screenshot 2026-03-27 163246](https://github.com/user-attachments/assets/bf9bb437-b3f0-4df4-b9a3-31f4219c4f6e)
 
 ## Project Structure
 ```text
